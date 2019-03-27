@@ -6,14 +6,34 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".FragmentPortfolio"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="0dp">
 
     <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
         android:id="@+id/portfolio_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Category"
-        android:textSize="15sp"/>
+        android:textSize="15sp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"/>
 
-
+    <Spinner
+        android:id="@+id/portfolio_subcategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"/>
+    <Button
+        android:id="@+id/portfolio_button_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Search"
+        android:backgroundTint="@color/colorPrimary"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="10dp"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/portfolio_recyclerview_projectlist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>
