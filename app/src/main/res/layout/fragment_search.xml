@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".FragmentSearch"
+    tools:context=".Fragments.FragmentSearch"
     android:orientation="vertical">
 
 
@@ -12,13 +12,14 @@
         android:id="@+id/search_field_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:errorEnabled="true">
+        app:errorEnabled="true"
+        android:layout_marginTop="10dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Search"
-            android:imeOptions="actionSearch"
+            android:imeOptions="actionDone"
             android:singleLine="true"
             android:textColor="@android:color/black" />
 

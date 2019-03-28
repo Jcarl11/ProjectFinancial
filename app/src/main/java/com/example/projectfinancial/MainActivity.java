@@ -1,5 +1,8 @@
 package com.example.projectfinancial;
 
+import com.example.projectfinancial.Fragments.FragmentAddNew;
+import com.example.projectfinancial.Fragments.FragmentPortfolio;
+import com.example.projectfinancial.Fragments.FragmentSearch;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.Nullable;
@@ -9,17 +12,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;

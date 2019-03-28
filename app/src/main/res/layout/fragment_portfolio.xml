@@ -4,34 +4,48 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".FragmentPortfolio"
+    tools:context=".Fragments.FragmentPortfolio"
     android:orientation="vertical"
     android:padding="0dp">
 
-    <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
-        android:id="@+id/portfolio_spinner"
+    <com.jaredrummler.materialspinner.MaterialSpinner
+        android:id="@+id/portfolio_category"
+        app:ms_dropdown_max_height="300dp"
+        app:ms_dropdown_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Category"
-        android:textSize="15sp"
+        app:ms_hint="Category"
+        app:ms_arrow_tint="@color/colorPrimary"
+        app:ms_hide_arrow="false"
+        app:ms_background_color="@color/colorPrimaryLight"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
         android:layout_marginTop="10dp"/>
 
-    <Spinner
-        android:id="@+id/portfolio_subcategory"
+
+    <com.jaredrummler.materialspinner.MaterialSpinner
+        android:id="@+id/portfolio_sample"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"/>
+        android:layout_marginRight="10dp"
+        android:visibility="gone"
+        app:ms_arrow_tint="@color/colorPrimary"
+        app:ms_background_color="@color/colorPrimaryLight"
+        app:ms_dropdown_height="wrap_content"
+        app:ms_dropdown_max_height="300dp"
+        app:ms_hide_arrow="false"
+        app:ms_hint="Sub category" />
+
     <Button
         android:id="@+id/portfolio_button_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Search"
+        android:layout_marginTop="10dp"
         android:backgroundTint="@color/colorPrimary"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="10dp"/>
+        android:text="Search Project"
+        android:textColor="@android:color/white" />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/portfolio_recyclerview_projectlist"
         android:layout_width="match_parent"

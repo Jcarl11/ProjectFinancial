@@ -1,28 +1,26 @@
-package com.example.projectfinancial;
+package com.example.projectfinancial.Adapters;
 
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.projectfinancial.Entities.ProjectsEntity;
+import com.example.projectfinancial.R;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.items.AbstractItem;
-import com.mikepenz.materialize.holder.StringHolder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class PortfolioProjects extends AbstractItem<PortfolioProjects, PortfolioProjects.ViewHolder> {
-    String portfolio_rowlayout_projectname;
-    String portfolio_rowlayout_createdat;
-    String portfolio_rowlayout_projectcode;
-    String portfolio_rowlayout_projectowner;
-    String portfolio_rowlayout_projectcategory;
-    String portfolio_rowlayout_projecttype;
-    String portfolio_rowlayout_expenses;
-    String portfolio_rowlayout_revenue;
+public class ProjectAdapter extends AbstractItem<ProjectAdapter, ProjectAdapter.ViewHolder> {
+
+    private ProjectsEntity projectsEntity;
+
+    public ProjectAdapter(ProjectsEntity projectsEntity) {
+        this.projectsEntity = projectsEntity;
+    }
 
 
     @Override
@@ -42,10 +40,10 @@ public class PortfolioProjects extends AbstractItem<PortfolioProjects, Portfolio
     }
 
 
-    public class ViewHolder extends FastAdapter.ViewHolder<PortfolioProjects> {
+    public class ViewHolder extends FastAdapter.ViewHolder<ProjectAdapter> {
 
         @BindView(R.id.portfolio_rowlayout_projectname)
-        TextView portfolio_rowlayout_projectname;
+        public TextView portfolio_rowlayout_projectname;
         @BindView(R.id.portfolio_rowlayout_createdat)
         TextView portfolio_rowlayout_createdat;
         @BindView(R.id.portfolio_rowlayout_projectcode)
@@ -67,19 +65,19 @@ public class PortfolioProjects extends AbstractItem<PortfolioProjects, Portfolio
         }
 
         @Override
-        public void bindView(PortfolioProjects item, List<Object> payloads) {
-            portfolio_rowlayout_projectname.setText(item.portfolio_rowlayout_projectname);
-            portfolio_rowlayout_createdat.setText(item.portfolio_rowlayout_createdat);
-            portfolio_rowlayout_projectcode.setText(item.portfolio_rowlayout_projectcode);
-            portfolio_rowlayout_projectowner.setText(item.portfolio_rowlayout_projectowner);
-            portfolio_rowlayout_projectcategory.setText(item.portfolio_rowlayout_projectcategory);
-            portfolio_rowlayout_projecttype.setText(item.portfolio_rowlayout_projecttype);
-            portfolio_rowlayout_expenses.setText(item.portfolio_rowlayout_expenses);
-            portfolio_rowlayout_revenue.setText(item.portfolio_rowlayout_revenue);
+        public void bindView(ProjectAdapter item, List<Object> payloads) {
+            portfolio_rowlayout_projectname.setText(item.projectsEntity.getProjectName());
+            portfolio_rowlayout_createdat.setText(item.projectsEntity.getCreatedAt());
+            portfolio_rowlayout_projectcode.setText(item.projectsEntity.getProjectCode());
+            portfolio_rowlayout_projectowner.setText(item.projectsEntity.getProjectOwner());
+            portfolio_rowlayout_projectcategory.setText(item.projectsEntity.getProjectCategory());
+            portfolio_rowlayout_projecttype.setText(item.projectsEntity.getProjectType());
+            portfolio_rowlayout_expenses.setText(item.projectsEntity.getProjectExpenses());
+            portfolio_rowlayout_revenue.setText(item.projectsEntity.getProjectRevenue());
         }
 
         @Override
-        public void unbindView(PortfolioProjects item) {
+        public void unbindView(ProjectAdapter item) {
             portfolio_rowlayout_projectname.setText(null);
             portfolio_rowlayout_createdat.setText(null);
             portfolio_rowlayout_projectcode.setText(null);
