@@ -1,12 +1,14 @@
 package com.example.projectfinancial.Fragments;
 
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +37,6 @@ public class FragmentAddNew extends Fragment {
     @BindView(R.id.addnew_spinner_category) MaterialSpinner addnew_spinner_category;
     @BindView(R.id.addnew_spinner_subcategory) MaterialSpinner addnew_spinner_subcategory;
     @BindView(R.id.addnew_button_create) Button addnew_button_create;
-
     private ArrayList<String> CATEGORIES = new ArrayList<String>(Arrays.asList("Residence", "Commercial", "Workplace", "Industrial"));
     private ArrayList<List<String>> subCategories = new ArrayList<>();
     private List<String> residenceSub = new ArrayList<>(Arrays.asList("Residence sub category 1","Residence sub category 2","Residence sub category 3"));

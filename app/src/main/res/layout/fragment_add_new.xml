@@ -96,8 +96,6 @@
             android:text="CREATE PROJECT"
             android:backgroundTint="@color/colorPrimary"
             android:textColor="@android:color/white"/>
-
-
     </LinearLayout>
 
 
