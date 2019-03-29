@@ -12,21 +12,6 @@
         android:orientation="vertical"
         android:layout_marginTop="10dp">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/addnew_field_projectname"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:errorEnabled="true">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Project name"
-                android:singleLine="true"
-                android:textColor="@android:color/black" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/addnew_field_projectcode"
@@ -37,11 +22,27 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Code"
+                android:hint="Project code"
                 android:singleLine="true"
                 android:textColor="@android:color/black" />
 
         </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/addnew_field_projectname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:errorEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Project title"
+                android:singleLine="true"
+                android:textColor="@android:color/black" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/addnew_field_projectowner"
@@ -59,12 +60,26 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.jaredrummler.materialspinner.MaterialSpinner
-            android:id="@+id/addnew_spinner_category"
+            android:id="@+id/addnew_spinner_services"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:ms_dropdown_max_height="300dp"
+            app:ms_dropdown_height="wrap_content"
+            app:ms_hint="Services"
+            app:ms_arrow_tint="@color/colorPrimary"
+            app:ms_hide_arrow="false"
+            app:ms_background_color="@color/colorPrimaryLight"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"/>
+
+
+        <com.jaredrummler.materialspinner.MaterialSpinner
+            android:id="@+id/addnew_spinner_typeofproject"
             app:ms_dropdown_max_height="300dp"
             app:ms_dropdown_height="wrap_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:ms_hint="Category"
+            app:ms_hint="Type of project"
             app:ms_arrow_tint="@color/colorPrimary"
             app:ms_hide_arrow="false"
             app:ms_background_color="@color/colorPrimaryLight"

@@ -34,18 +34,22 @@ public class FragmentAddNew extends Fragment {
     @BindView(R.id.addnew_field_projectname) TextInputLayout addnew_field_projectname;
     @BindView(R.id.addnew_field_projectcode) TextInputLayout addnew_field_projectcode;
     @BindView(R.id.addnew_field_projectowner) TextInputLayout addnew_field_projectowner;
-    @BindView(R.id.addnew_spinner_category) MaterialSpinner addnew_spinner_category;
+    @BindView(R.id.addnew_spinner_typeofproject) MaterialSpinner addnew_spinner_typeofproject;
     @BindView(R.id.addnew_spinner_subcategory) MaterialSpinner addnew_spinner_subcategory;
+    @BindView(R.id.addnew_spinner_services) MaterialSpinner addnew_spinner_services;
     @BindView(R.id.addnew_button_create) Button addnew_button_create;
-    private ArrayList<String> CATEGORIES = new ArrayList<String>(Arrays.asList("Residence", "Commercial", "Workplace", "Industrial"));
+
+    private ArrayList<String> TYPE_OF_PROJECTS = new ArrayList<String>(Arrays.asList("Residence", "Commercial", "Workplace", "Industrial"));
+    private ArrayList<String> SERVICES = new ArrayList<>(Arrays.asList("Architectural Design", "Engineering Design", "Project Management"));
     private ArrayList<List<String>> subCategories = new ArrayList<>();
     private List<String> residenceSub = new ArrayList<>(Arrays.asList("Residence sub category 1","Residence sub category 2","Residence sub category 3"));
     private List<String> commercialSub = new ArrayList<>(Arrays.asList("Retail","F & B"));
     private List<String> workplaceSub = new ArrayList<>(Arrays.asList("Office"));
     private List<String> industrialSub = new ArrayList<>(Arrays.asList("Industrial sub category 1","Industrial sub category 2","Industrial sub category 3"));
 
-    String selectedCategory = null;
+    String selectedTypeOfProject = null;
     String selectedSubcategory = null;
+    String selectedServices = null;
     public FragmentAddNew() {}
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,31 +60,27 @@ public class FragmentAddNew extends Fragment {
         subCategories.add(commercialSub);
         subCategories.add(workplaceSub);
         subCategories.add(industrialSub);
-        addnew_spinner_category.setItems(CATEGORIES);
-        addnew_spinner_category.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
-                selectedCategory = String.valueOf(item);
-                addnew_spinner_subcategory.setVisibility(View.VISIBLE);
-                addnew_spinner_subcategory.setItems(subCategories.get(position));
-            }
-        });
-
-        addnew_spinner_subcategory.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
-                selectedSubcategory = String.valueOf(item);
-            }
-        });
+        addnew_spinner_typeofproject.setItems(TYPE_OF_PROJECTS);
+        addnew_spinner_services.setItems(SERVICES);
+        addnew_spinner_services.setOnItemSelectedListener(servicesListener());
+        addnew_spinner_typeofproject.setOnItemSelectedListener(typeOfProjectListener());
+        addnew_spinner_subcategory.setOnItemSelectedListener(subcategoryListener());
         return view;
     }
 
     @OnClick(R.id.addnew_button_create)
     public void createBtnClicked( View view ) {
-        if(!validateField(addnew_field_projectname) | !validateField(addnew_field_projectcode) | !validateField(addnew_field_projectowner)) {
+        if( !validateField(addnew_field_projectname) 
+                | !validateField(addnew_field_projectcode) 
+                | !validateField(addnew_field_projectowner)) {
             return;
         }
-        if(selectedCategory == null) {
+        if(selectedServices == null) {
+            Log.d(TAG, "createBtnClicked: Empty");
+            Toast.makeText(getContext(), "Select a service", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(selectedTypeOfProject == null) {
             Log.d(TAG, "createBtnClicked: Empty");
             Toast.makeText(getContext(), "Select a category", Toast.LENGTH_SHORT).show();
             return;
@@ -90,12 +90,40 @@ public class FragmentAddNew extends Fragment {
             Toast.makeText(getContext(), "Select a subcategory", Toast.LENGTH_SHORT).show();
             return;
         }
-        Log.d(TAG, "createBtnClicked: " + selectedCategory);
+        Log.d(TAG, "createBtnClicked: " + selectedTypeOfProject);
         Log.d(TAG, "createBtnClicked: " + selectedSubcategory);
         Log.d(TAG, "createBtnClicked: all fields are valid");
 
     }
-
+    private MaterialSpinner.OnItemSelectedListener servicesListener() {
+        MaterialSpinner.OnItemSelectedListener listener = new MaterialSpinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
+                selectedServices = item.toString();
+            }
+        };
+        return listener;
+    }
+    private MaterialSpinner.OnItemSelectedListener typeOfProjectListener() {
+        MaterialSpinner.OnItemSelectedListener listener = new MaterialSpinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
+                selectedTypeOfProject = item.toString();
+                addnew_spinner_subcategory.setItems(subCategories.get(position));
+                addnew_spinner_subcategory.setVisibility(View.VISIBLE);
+            }
+        };
+        return listener;
+    }
+    private MaterialSpinner.OnItemSelectedListener subcategoryListener() {
+        MaterialSpinner.OnItemSelectedListener listener = new MaterialSpinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
+                selectedSubcategory = item.toString();
+            }
+        };
+        return listener;
+    }
     private boolean validateField(TextInputLayout input) {
         String inputString = input.getEditText().getText().toString().trim();
 

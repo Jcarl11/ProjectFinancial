@@ -14,7 +14,7 @@
         app:ms_dropdown_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:ms_hint="Category"
+        app:ms_hint="Type of project"
         app:ms_arrow_tint="@color/colorPrimary"
         app:ms_hide_arrow="false"
         app:ms_background_color="@color/colorPrimaryLight"
