@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.example.projectfinancial.Adapters.ProjectAdapter;
 import com.example.projectfinancial.Entities.ProjectsEntity;
 import com.example.projectfinancial.R;
+import com.google.android.material.snackbar.Snackbar;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.IAdapter;
@@ -44,11 +45,11 @@ public class FragmentPortfolio extends Fragment {
 
     private static final String TAG = "FragmentPortfolio";
 
-    @BindView(R.id.portfolio_category) MaterialSpinner portfolio_category;
+    @BindView(R.id.portfolio_typeofproject) MaterialSpinner portfolio_typeofproject;
     @BindView(R.id.portfolio_button_search) Button portfolio_button_search;
     @BindView(R.id.portfolio_recyclerview_projectlist) RecyclerView portfolio_recyclerview_projectlist;
-    @BindView(R.id.portfolio_sample) MaterialSpinner portfolio_sample;
-    private ArrayList<String> CATEGORIES = new ArrayList<String>(Arrays.asList("Residence", "Commercial", "Workplace", "Industrial"));
+    @BindView(R.id.portfolio_subcategory) MaterialSpinner portfolio_subcategory;
+    private ArrayList<String> TYPE_OF_PROJECT = new ArrayList<String>(Arrays.asList("Residence", "Commercial", "Workplace", "Industrial"));
     private ArrayList<List<String>> subCategories = new ArrayList<>();
     private List<String> residenceSub = new ArrayList<>(Arrays.asList("Residence sub category 1","Residence sub category 2","Residence sub category 3"));
     private List<String> commercialSub = new ArrayList<>(Arrays.asList("Retail","F & B"));
@@ -56,7 +57,8 @@ public class FragmentPortfolio extends Fragment {
     private List<String> industrialSub = new ArrayList<>(Arrays.asList("Industrial sub category 1","Industrial sub category 2","Industrial sub category 3"));
     ItemAdapter itemAdapter = new ItemAdapter();
     FastAdapter fastAdapter;
-
+    String selectedTypeOfProject = null;
+    String selectedSubCategory = null;
     public FragmentPortfolio() {}
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,9 +69,9 @@ public class FragmentPortfolio extends Fragment {
         portfolio_recyclerview_projectlist.setHasFixedSize(true);
         fastAdapter = FastAdapter.with(itemAdapter);
         fastAdapter.withOnClickListener(adapterListener());
-        portfolio_category.setItems(CATEGORIES);
-        portfolio_category.setOnItemSelectedListener(categorySpinnerListener());
-
+        portfolio_typeofproject.setItems(TYPE_OF_PROJECT);
+        portfolio_typeofproject.setOnItemSelectedListener(typeOfProjectSpinnerListener());
+        portfolio_subcategory.setOnItemSelectedListener(subCategorySpinnerListener());
         subCategories.add(residenceSub);
         subCategories.add(commercialSub);
         subCategories.add(workplaceSub);
@@ -85,12 +87,23 @@ public class FragmentPortfolio extends Fragment {
         return adapter;
     }
 
-    private MaterialSpinner.OnItemSelectedListener categorySpinnerListener() {
+    private MaterialSpinner.OnItemSelectedListener typeOfProjectSpinnerListener() {
         MaterialSpinner.OnItemSelectedListener listener = new MaterialSpinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
-                portfolio_sample.setVisibility(View.VISIBLE);
-                portfolio_sample.setItems(subCategories.get(position));
+                portfolio_subcategory.setVisibility(View.VISIBLE);
+                portfolio_subcategory.setItems(subCategories.get(position));
+                selectedTypeOfProject = item.toString();
+            }
+        };
+        return listener;
+    }
+
+    private MaterialSpinner.OnItemSelectedListener subCategorySpinnerListener() {
+        MaterialSpinner.OnItemSelectedListener listener = new MaterialSpinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
+                selectedSubCategory = item.toString();
             }
         };
         return listener;
@@ -110,10 +123,12 @@ public class FragmentPortfolio extends Fragment {
     }
     @OnClick(R.id.portfolio_button_search)
     public void portfolio_button_search(View view) {
-        Log.d(TAG, String.format("Position(%s)",
-                String.valueOf(portfolio_category.getSelectedIndex())));
-        if(portfolio_sample.getSelectedIndex() < 0) {
-            Toast.makeText(getContext(), "Choose a subcategory", Toast.LENGTH_SHORT).show();
+        if(selectedTypeOfProject == null) {
+            Snackbar.make(getView(), "Choose a project type", Snackbar.LENGTH_LONG).show();
+            return;
+        }
+        if(selectedSubCategory == null) {
+            Snackbar.make(getView(), "Choose a subcategory", Snackbar.LENGTH_LONG).show();
             return;
         }
         portfolio_recyclerview_projectlist.setAdapter(fastAdapter);

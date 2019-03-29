@@ -9,7 +9,7 @@
     android:padding="0dp">
 
     <com.jaredrummler.materialspinner.MaterialSpinner
-        android:id="@+id/portfolio_category"
+        android:id="@+id/portfolio_typeofproject"
         app:ms_dropdown_max_height="300dp"
         app:ms_dropdown_height="wrap_content"
         android:layout_width="match_parent"
@@ -25,7 +25,7 @@
 
 
     <com.jaredrummler.materialspinner.MaterialSpinner
-        android:id="@+id/portfolio_sample"
+        android:id="@+id/portfolio_subcategory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"

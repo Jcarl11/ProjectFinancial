@@ -8,6 +8,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -20,15 +21,14 @@ import butterknife.ButterKnife;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class GeneralFragment extends PreferenceFragment {
+    private static final String TAG = "GeneralFragment";
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref_general);
         setHasOptionsMenu(true);
+        Log.d(TAG, "onCreate: Started");
         Preference preference = findPreference("email_address");
-        preferenceChangeListener().onPreferenceChange(preference,PreferenceManager
-                .getDefaultSharedPreferences(preference.getContext())
-                .getString(preference.getKey(), ""));
         preference.setOnPreferenceChangeListener(preferenceChangeListener());
 
     }
@@ -49,7 +49,8 @@ public class GeneralFragment extends PreferenceFragment {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 String stringValue = newValue.toString();
-                preference.setSummary(stringValue);
+                Log.d(TAG, "onPreferenceChange: " + stringValue);
+                //preference.setDefaultValue(stringValue);
                 return true;
             }
         };
