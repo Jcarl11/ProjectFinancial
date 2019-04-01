@@ -1,14 +1,12 @@
-package com.example.projectfinancial.Fragments;
+package com.example.ratio.Fragments;
 
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,8 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.projectfinancial.R;
-import com.google.android.material.snackbar.Snackbar;
+import com.example.ratio.R;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 
@@ -38,6 +35,7 @@ public class FragmentAddNew extends Fragment {
     @BindView(R.id.addnew_spinner_subcategory) MaterialSpinner addnew_spinner_subcategory;
     @BindView(R.id.addnew_spinner_services) MaterialSpinner addnew_spinner_services;
     @BindView(R.id.addnew_button_create) Button addnew_button_create;
+    @BindView(R.id.addnew_field_specificservice) TextInputLayout addnew_field_specificservice;
 
     private ArrayList<String> TYPE_OF_PROJECTS = new ArrayList<String>(Arrays.asList("Residence", "Commercial", "Workplace", "Industrial"));
     private ArrayList<String> SERVICES = new ArrayList<>(Arrays.asList("Architectural Design", "Engineering Design", "Project Management"));
@@ -61,7 +59,9 @@ public class FragmentAddNew extends Fragment {
         subCategories.add(workplaceSub);
         subCategories.add(industrialSub);
         addnew_spinner_typeofproject.setItems(TYPE_OF_PROJECTS);
+        SERVICES.add(SERVICES.size(), "Others");
         addnew_spinner_services.setItems(SERVICES);
+
         addnew_spinner_services.setOnItemSelectedListener(servicesListener());
         addnew_spinner_typeofproject.setOnItemSelectedListener(typeOfProjectListener());
         addnew_spinner_subcategory.setOnItemSelectedListener(subcategoryListener());
@@ -85,6 +85,13 @@ public class FragmentAddNew extends Fragment {
             Toast.makeText(getContext(), "Select a category", Toast.LENGTH_SHORT).show();
             return;
         }
+        if(addnew_spinner_services.getSelectedIndex() == addnew_spinner_services.getItems().size() - 1) {
+            Log.d(TAG, "createBtnClicked: Others");
+            if(addnew_field_specificservice.getEditText().getText().toString().isEmpty()) {
+                Toast.makeText(getContext(), "Specify the service type", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
         if(selectedSubcategory == null){
             Log.d(TAG, "createBtnClicked: Empty");
             Toast.makeText(getContext(), "Select a subcategory", Toast.LENGTH_SHORT).show();
@@ -100,6 +107,10 @@ public class FragmentAddNew extends Fragment {
             @Override
             public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
                 selectedServices = item.toString();
+                if(position == view.getItems().size() - 1) {
+                    addnew_field_specificservice.setVisibility(View.VISIBLE);
+
+                }
             }
         };
         return listener;

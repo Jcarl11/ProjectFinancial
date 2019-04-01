@@ -1,4 +1,4 @@
-package com.example.projectfinancial.Fragments;
+package com.example.ratio.Fragments;
 
 
 import android.os.Bundle;
@@ -15,9 +15,9 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
-import com.example.projectfinancial.Adapters.ProjectAdapter;
-import com.example.projectfinancial.Entities.ProjectsEntity;
-import com.example.projectfinancial.R;
+import com.example.ratio.Adapters.ProjectAdapter;
+import com.example.ratio.Entities.ProjectsEntity;
+import com.example.ratio.R;
 import com.google.android.material.textfield.TextInputLayout;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;

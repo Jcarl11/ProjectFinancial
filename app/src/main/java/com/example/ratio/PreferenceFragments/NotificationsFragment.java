@@ -1,4 +1,4 @@
-package com.example.projectfinancial.PreferenceFragments;
+package com.example.ratio.PreferenceFragments;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -9,8 +9,8 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.view.MenuItem;
 
-import com.example.projectfinancial.R;
-import com.example.projectfinancial.SettingsActivity;
+import com.example.ratio.R;
+import com.example.ratio.SettingsActivity;
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class NotificationsFragment extends PreferenceFragment {
     @Override

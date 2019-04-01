@@ -72,6 +72,21 @@
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"/>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/addnew_field_specificservice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:errorEnabled="true"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Others"
+                android:singleLine="true"
+                android:textColor="@android:color/black" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.jaredrummler.materialspinner.MaterialSpinner
             android:id="@+id/addnew_spinner_typeofproject"

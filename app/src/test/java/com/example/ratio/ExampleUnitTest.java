@@ -1,4 +1,4 @@
-package com.example.projectfinancial;
+package com.example.ratio;
 
 import org.junit.Test;
 

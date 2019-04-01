@@ -3,12 +3,12 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="com.example.projectfinancial.PreferenceFragments.GeneralFragment"
+        android:fragment="com.example.ratio.PreferenceFragments.GeneralFragment"
         android:icon="@drawable/ic_info_black_24dp"
         android:title="@string/pref_header_general" />
 
     <header
-        android:fragment="com.example.projectfinancial.PreferenceFragments.NotificationsFragment"
+        android:fragment="com.example.ratio.PreferenceFragments.NotificationsFragment"
         android:icon="@drawable/ic_notifications_black_24dp"
         android:title="@string/pref_header_notifications" />
 

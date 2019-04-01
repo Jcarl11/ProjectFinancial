@@ -1,4 +1,4 @@
-package com.example.projectfinancial.PreferenceFragments;
+package com.example.ratio.PreferenceFragments;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -6,18 +6,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.preference.SwitchPreference;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import com.example.projectfinancial.R;
-import com.example.projectfinancial.SettingsActivity;
+import com.example.ratio.R;
+import com.example.ratio.SettingsActivity;
 
 import androidx.annotation.Nullable;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class GeneralFragment extends PreferenceFragment {

@@ -1,4 +1,4 @@
-package com.example.projectfinancial;
+package com.example.ratio;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

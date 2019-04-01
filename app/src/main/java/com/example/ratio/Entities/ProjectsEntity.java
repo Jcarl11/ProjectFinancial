@@ -1,4 +1,4 @@
-package com.example.projectfinancial.Entities;
+package com.example.ratio.Entities;
 
 public class ProjectsEntity {
     String objectId;

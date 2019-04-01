@@ -1,9 +1,10 @@
-package com.example.projectfinancial;
+package com.example.ratio;
 
-import com.example.projectfinancial.Fragments.FragmentAddNew;
-import com.example.projectfinancial.Fragments.FragmentPortfolio;
-import com.example.projectfinancial.Fragments.FragmentSearch;
+import com.example.ratio.Fragments.FragmentAddNew;
+import com.example.ratio.Fragments.FragmentPortfolio;
+import com.example.ratio.Fragments.FragmentSearch;
 import com.google.android.material.tabs.TabLayout;
+import com.parse.Parse;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initializeParse();
         mViewPager = (ViewPager) findViewById(R.id.container);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -105,5 +107,15 @@ public class MainActivity extends AppCompatActivity {
             // Show 3 total pages.
             return fragmentList.size();
         }
+    }
+
+    private void initializeParse() {
+        Parse.initialize(new Parse.Configuration.Builder(this)
+                .applicationId(getString(R.string.back4app_app_id))
+                // if defined
+                .clientKey(getString(R.string.back4app_client_key))
+                .server(getString(R.string.back4app_server_url))
+                .build()
+        );
     }
 }

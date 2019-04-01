@@ -1,10 +1,10 @@
-package com.example.projectfinancial.Adapters;
+package com.example.ratio.Adapters;
 
 import android.view.View;
 import android.widget.TextView;
 
-import com.example.projectfinancial.Entities.ProjectsEntity;
-import com.example.projectfinancial.R;
+import com.example.ratio.Entities.ProjectsEntity;
+import com.example.ratio.R;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.items.AbstractItem;
 

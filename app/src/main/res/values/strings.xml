@@ -1,9 +1,14 @@
 <resources>
-    <string name="app_name">Project Financial</string>
-    <string name="title_activity_main">Project Financial</string>
+    <string name="app_name">Ratio</string>
+    <string name="title_activity_main">Ratio</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
 
+    <string name="back4app_server_url">https://projectfinancial.back4app.com/</string>
+
+    <!-- Change the following strings as required -->
+    <string name="back4app_app_id">zdSPwbEEyc9U6AFgzYTI2oWsxw5fMSEOoIrOBOk3</string>
+    <string name="back4app_client_key">D1bea1iBwKmR0uOXZD3EoIYYtMuUycXHEUDltD3H</string>
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
@@ -75,4 +80,5 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+
 </resources>
