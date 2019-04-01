@@ -4,7 +4,7 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
 
-    <string name="back4app_server_url">https://projectfinancial.back4app.com/</string>
+    <string name="back4app_server_url">https://projectfinancial.back4app.io/</string>
 
     <!-- Change the following strings as required -->
     <string name="back4app_app_id">zdSPwbEEyc9U6AFgzYTI2oWsxw5fMSEOoIrOBOk3</string>

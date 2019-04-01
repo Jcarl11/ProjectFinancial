@@ -1,6 +1,9 @@
 package com.example.ratio.Fragments;
 
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import butterknife.BindView;
@@ -14,10 +17,19 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.ratio.Entities.ProjectSubcategoryEntity;
+import com.example.ratio.Enums.CloudTableNames;
+import com.example.ratio.Entities.ProjectTypeEntity;
 import com.example.ratio.R;
+import com.example.ratio.Utility;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,15 +48,10 @@ public class FragmentAddNew extends Fragment {
     @BindView(R.id.addnew_spinner_services) MaterialSpinner addnew_spinner_services;
     @BindView(R.id.addnew_button_create) Button addnew_button_create;
     @BindView(R.id.addnew_field_specificservice) TextInputLayout addnew_field_specificservice;
-
-    private ArrayList<String> TYPE_OF_PROJECTS = new ArrayList<String>(Arrays.asList("Residence", "Commercial", "Workplace", "Industrial"));
-    private ArrayList<String> SERVICES = new ArrayList<>(Arrays.asList("Architectural Design", "Engineering Design", "Project Management"));
-    private ArrayList<List<String>> subCategories = new ArrayList<>();
-    private List<String> residenceSub = new ArrayList<>(Arrays.asList("Residence sub category 1","Residence sub category 2","Residence sub category 3"));
-    private List<String> commercialSub = new ArrayList<>(Arrays.asList("Retail","F & B"));
-    private List<String> workplaceSub = new ArrayList<>(Arrays.asList("Office"));
-    private List<String> industrialSub = new ArrayList<>(Arrays.asList("Industrial sub category 1","Industrial sub category 2","Industrial sub category 3"));
-
+    ArrayList<String> subCategory = new ArrayList<>();
+    ArrayList<ProjectTypeEntity> projectTypeEntities = new ArrayList<>();
+    public static String COLUMN_NAME = "NAME";
+    public static String COLUMN_PARENT = "PARENT";
     String selectedTypeOfProject = null;
     String selectedSubcategory = null;
     String selectedServices = null;
@@ -54,14 +61,7 @@ public class FragmentAddNew extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_new, container, false);
         ButterKnife.bind(this, view);
-        subCategories.add(residenceSub);
-        subCategories.add(commercialSub);
-        subCategories.add(workplaceSub);
-        subCategories.add(industrialSub);
-        addnew_spinner_typeofproject.setItems(TYPE_OF_PROJECTS);
-        SERVICES.add(SERVICES.size(), "Others");
-        addnew_spinner_services.setItems(SERVICES);
-
+        new RetrieveProjectTypesTask().execute((Void)null);
         addnew_spinner_services.setOnItemSelectedListener(servicesListener());
         addnew_spinner_typeofproject.setOnItemSelectedListener(typeOfProjectListener());
         addnew_spinner_subcategory.setOnItemSelectedListener(subcategoryListener());
@@ -88,7 +88,7 @@ public class FragmentAddNew extends Fragment {
         if(addnew_spinner_services.getSelectedIndex() == addnew_spinner_services.getItems().size() - 1) {
             Log.d(TAG, "createBtnClicked: Others");
             if(addnew_field_specificservice.getEditText().getText().toString().isEmpty()) {
-                Toast.makeText(getContext(), "Specify the service type", Toast.LENGTH_SHORT).show();
+                addnew_field_specificservice.setError("Specify the service type");
                 return;
             }
         }
@@ -107,9 +107,9 @@ public class FragmentAddNew extends Fragment {
             @Override
             public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
                 selectedServices = item.toString();
+                addnew_field_specificservice.setVisibility(View.GONE);
                 if(position == view.getItems().size() - 1) {
                     addnew_field_specificservice.setVisibility(View.VISIBLE);
-
                 }
             }
         };
@@ -120,8 +120,8 @@ public class FragmentAddNew extends Fragment {
             @Override
             public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
                 selectedTypeOfProject = item.toString();
-                addnew_spinner_subcategory.setItems(subCategories.get(position));
-                addnew_spinner_subcategory.setVisibility(View.VISIBLE);
+                //addnew_spinner_subcategory.setItems(subCategories.get(position));
+                //addnew_spinner_subcategory.setVisibility(View.VISIBLE);
             }
         };
         return listener;
@@ -147,5 +147,114 @@ public class FragmentAddNew extends Fragment {
         }
     }
 
+    private class RetrieveProjectTypesTask extends AsyncTask<Void, Void, ArrayList<ProjectTypeEntity>> {
+
+        AlertDialog dialog;
+        ArrayList<ProjectTypeEntity> projectTypeEntities = new ArrayList<>();
+
+        public RetrieveProjectTypesTask() {
+            Log.d(TAG, "RetrieveProjectTypesTask: Started");
+            this.dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
+        }
+
+        @Override
+        protected ArrayList<ProjectTypeEntity> doInBackground(Void... voids) {
+            Log.d(TAG, "doInBackground: Retrieving types");
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudTableNames.PROJECT_TYPE.toString());
+            try {
+                List<ParseObject> result = query.addAscendingOrder(COLUMN_NAME).find();
+                Log.d(TAG, "doInBackground: result size: " + String.valueOf(result.size()));
+                for(ParseObject parseObject : result) {
+                    ProjectTypeEntity projectTypeEntity = new ProjectTypeEntity();
+                    projectTypeEntity.setObjectId(parseObject.getObjectId());
+                    projectTypeEntity.setName(parseObject.getString(COLUMN_NAME));
+                    projectTypeEntities.add(projectTypeEntity);
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+                Log.d(TAG, "doInBackground: Exception thrown: " + e.getMessage());
+            }
+            return projectTypeEntities;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            Log.d(TAG, "onPreExecute: load");
+            dialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<ProjectTypeEntity> projectTypeEntities) {
+            Log.d(TAG, "onPostExecute: Operation done");
+            Log.d(TAG, "onPostExecute: result size: " + String.valueOf(projectTypeEntities.size()));
+            dialog.dismiss();
+            if(projectTypeEntities.size() > 0) {
+                this.projectTypeEntities = projectTypeEntities;
+                ArrayList<String> values = new ArrayList<>();
+                for(ProjectTypeEntity projectTypeEntity : projectTypeEntities) {
+                    values.add(projectTypeEntity.getName());
+                }
+                values.add(values.size(), "Others");
+                addnew_spinner_typeofproject.setItems(values);
+            }else {
+                Log.d(TAG, "onPostExecute: Result is empty");
+                Snackbar.make(getView(), "Result is empty", Snackbar.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private class RetrieveSubCategoryTask extends AsyncTask<Void, Void, ArrayList<ProjectSubcategoryEntity>>{
+
+        AlertDialog dialog;
+        ArrayList<ProjectSubcategoryEntity> projectSubcategoryEntities = new ArrayList<>();
+        public RetrieveSubCategoryTask() {
+            dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
+            Log.d(TAG, "RetrieveSubCategoryTask: Started");
+        }
+
+        @Override
+        protected ArrayList<ProjectSubcategoryEntity> doInBackground(Void... voids) {
+            Log.d(TAG, "doInBackground: Opertion started");
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudTableNames.PROJECT_TYPE_SUBCATEGORY.toString());
+            try {
+                List<ParseObject> result = query.addAscendingOrder(COLUMN_NAME).find();
+                Log.d(TAG, "doInBackground: result size: " + String.valueOf(result.size()));
+                for(ParseObject parseObject : result) {
+                    ProjectSubcategoryEntity projectSubcategoryEntity = new ProjectSubcategoryEntity();
+                    projectSubcategoryEntity.setObjectId(parseObject.getObjectId());
+                    projectSubcategoryEntity.setName(parseObject.getString(COLUMN_NAME));
+                    projectSubcategoryEntity.setOthers(false);
+                    projectSubcategoryEntity.setParent(parseObject.getString(COLUMN_PARENT));
+                    projectSubcategoryEntities.add(projectSubcategoryEntity);
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+                Log.d(TAG, "doInBackground: Exception throw " + e.getMessage());
+            }
+            return projectSubcategoryEntities;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            dialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<ProjectSubcategoryEntity> projectSubcategoryEntities) {
+            dialog.dismiss();
+            Log.d(TAG, "onPostExecute: Operation done");
+            Log.d(TAG, "onPostExecute: Result size: " + String.valueOf(projectSubcategoryEntities.size()));
+            if(projectSubcategoryEntities.size() > 0) {
+                ArrayList<String> values = new ArrayList<>();
+                for(ProjectSubcategoryEntity projectSubcategoryEntity : projectSubcategoryEntities) {
+                    values.add(projectSubcategoryEntity.getName());
+                }
+                subCategory = values;
+            } else {
+                Log.d(TAG, "onPostExecute: Result is empty");
+                Snackbar.make(getView(), "Result is empty", Snackbar.LENGTH_LONG).show();
+            }
+        }
+    }
 
 }
