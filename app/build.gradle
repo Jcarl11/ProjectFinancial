@@ -50,4 +50,5 @@ dependencies {
     implementation 'org.jetbrains:annotations:15.0'
     implementation 'com.github.parse-community.Parse-SDK-Android:fcm:1.19.0'
     implementation 'com.github.d-max:spots-dialog:1.1@aar'
+    implementation 'com.github.satyan:sugar:1.3'
 }

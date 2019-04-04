@@ -56,12 +56,18 @@ public class FragmentAddNew extends Fragment {
     String selectedSubcategory = null;
     String selectedServices = null;
     public FragmentAddNew() {}
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_new, container, false);
         ButterKnife.bind(this, view);
-        new RetrieveProjectTypesTask().execute((Void)null);
+        List<ProjectTypeEntity> projectTypes = ProjectTypeEntity.listAll(ProjectTypeEntity.class);
+        Log.d(TAG, "onCreateView: ProjectTypeEntity size: " + String.valueOf(projectTypes.size()));
+        if(projectTypes.size() <= 0) {
+            new RetrieveProjectTypesTask().execute((Void)null);
+        }
         addnew_spinner_services.setOnItemSelectedListener(servicesListener());
         addnew_spinner_typeofproject.setOnItemSelectedListener(typeOfProjectListener());
         addnew_spinner_subcategory.setOnItemSelectedListener(subcategoryListener());
@@ -162,14 +168,20 @@ public class FragmentAddNew extends Fragment {
             Log.d(TAG, "doInBackground: Retrieving types");
             ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudTableNames.PROJECT_TYPE.toString());
             try {
-                List<ParseObject> result = query.addAscendingOrder(COLUMN_NAME).find();
-                Log.d(TAG, "doInBackground: result size: " + String.valueOf(result.size()));
-                for(ParseObject parseObject : result) {
-                    ProjectTypeEntity projectTypeEntity = new ProjectTypeEntity();
-                    projectTypeEntity.setObjectId(parseObject.getObjectId());
-                    projectTypeEntity.setName(parseObject.getString(COLUMN_NAME));
-                    projectTypeEntities.add(projectTypeEntity);
+                List<ProjectTypeEntity> check = ProjectTypeEntity.listAll(ProjectTypeEntity.class);
+                Log.d(TAG, "doInBackground: ProjectTypeEntity size: " + String.valueOf(check.size()));
+                if(check.size() <= 0){
+                    List<ParseObject> result = query.addAscendingOrder(COLUMN_NAME).find();
+                    Log.d(TAG, "doInBackground: result size: " + String.valueOf(result.size()));
+                    for(ParseObject parseObject : result) {
+                        ProjectTypeEntity projectTypeEntity = new ProjectTypeEntity();
+                        projectTypeEntity.setObjectId(parseObject.getObjectId());
+                        projectTypeEntity.setName(parseObject.getString(COLUMN_NAME));
+                        projectTypeEntity.save();
+                        projectTypeEntities.add(projectTypeEntity);
+                    }
                 }
+
             } catch (ParseException e) {
                 e.printStackTrace();
                 Log.d(TAG, "doInBackground: Exception thrown: " + e.getMessage());
@@ -194,7 +206,7 @@ public class FragmentAddNew extends Fragment {
                 for(ProjectTypeEntity projectTypeEntity : projectTypeEntities) {
                     values.add(projectTypeEntity.getName());
                 }
-                values.add(values.size(), "Others");
+                values.add(values.size(), "Others"); // Add 'Others' on the last position in array
                 addnew_spinner_typeofproject.setItems(values);
             }else {
                 Log.d(TAG, "onPostExecute: Result is empty");

@@ -1,11 +1,14 @@
 package com.example.ratio.Entities;
 
+import com.orm.SugarRecord;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class ProjectTypeEntity {
+public class ProjectTypeEntity extends SugarRecord<ProjectTypeEntity> {
     private String objectId;
     private String name;
     private boolean others;
@@ -42,4 +45,9 @@ public class ProjectTypeEntity {
         this.others = others;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return getName();
+    }
 }
