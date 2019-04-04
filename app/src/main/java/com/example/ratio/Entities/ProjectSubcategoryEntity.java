@@ -1,6 +1,10 @@
 package com.example.ratio.Entities;
 
-public class ProjectSubcategoryEntity implements Comparable<ProjectTypeEntity> {
+import com.orm.SugarRecord;
+
+public class ProjectSubcategoryEntity
+        extends SugarRecord<ProjectSubcategoryEntity>
+        implements Comparable<ProjectSubcategoryEntity> {
     private String objectId;
     private String name;
     private boolean others;
@@ -48,10 +52,12 @@ public class ProjectSubcategoryEntity implements Comparable<ProjectTypeEntity> {
     }
 
     @Override
-    public int compareTo(ProjectTypeEntity o) {
-        if(parent.equals(o.getObjectId())) {
-            return 0;
-        } else
-            return -1;
+    public String toString() {
+        return getName();
+    }
+
+    @Override
+    public int compareTo(ProjectSubcategoryEntity o) {
+        return this.getName().compareTo(o.name);
     }
 }

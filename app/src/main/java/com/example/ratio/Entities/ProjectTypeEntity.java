@@ -4,11 +4,12 @@ import com.orm.SugarRecord;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class ProjectTypeEntity extends SugarRecord<ProjectTypeEntity> {
+public class ProjectTypeEntity extends SugarRecord<ProjectTypeEntity> implements Comparable<ProjectTypeEntity> {
     private String objectId;
     private String name;
     private boolean others;
@@ -49,5 +50,11 @@ public class ProjectTypeEntity extends SugarRecord<ProjectTypeEntity> {
     @Override
     public String toString() {
         return getName();
+    }
+
+
+    @Override
+    public int compareTo(ProjectTypeEntity o) {
+        return this.getName().compareTo(o.name);
     }
 }

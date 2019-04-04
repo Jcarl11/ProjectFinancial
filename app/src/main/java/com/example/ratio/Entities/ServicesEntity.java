@@ -1,6 +1,9 @@
 package com.example.ratio.Entities;
 
-public class ServicesEntity {
+import com.orm.SugarRecord;
+
+public class ServicesEntity extends SugarRecord <ServicesEntity>
+        implements Comparable<ServicesEntity>{
     private String objectId;
     private String name;
     private boolean others;
@@ -35,5 +38,15 @@ public class ServicesEntity {
 
     public void setOthers(boolean others) {
         this.others = others;
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
+
+    @Override
+    public int compareTo(ServicesEntity o) {
+        return this.getName().compareTo(o.name);
     }
 }

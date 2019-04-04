@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".Fragments.FragmentAddNew">
 
@@ -76,13 +76,13 @@
             android:id="@+id/addnew_field_specificservice"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:errorEnabled="true"
-            android:visibility="gone">
+            android:visibility="gone"
+            app:errorEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Others"
+                android:hint="Services"
                 android:singleLine="true"
                 android:textColor="@android:color/black" />
 
@@ -103,6 +103,22 @@
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"/>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/addnew_field_specifictype"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:errorEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Type"
+                android:singleLine="true"
+                android:textColor="@android:color/black" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
         <com.jaredrummler.materialspinner.MaterialSpinner
             android:id="@+id/addnew_spinner_subcategory"
             app:ms_dropdown_max_height="300dp"
@@ -118,6 +134,22 @@
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:visibility="gone"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/addnew_field_specificsubcategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:errorEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Subcategory"
+                android:singleLine="true"
+                android:textColor="@android:color/black" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/addnew_button_create"

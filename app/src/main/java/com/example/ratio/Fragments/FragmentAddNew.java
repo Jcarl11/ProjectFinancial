@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.ratio.Entities.ProjectSubcategoryEntity;
+import com.example.ratio.Entities.ServicesEntity;
 import com.example.ratio.Enums.CloudTableNames;
 import com.example.ratio.Entities.ProjectTypeEntity;
 import com.example.ratio.R;
@@ -32,6 +33,7 @@ import com.parse.ParseQuery;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -48,8 +50,12 @@ public class FragmentAddNew extends Fragment {
     @BindView(R.id.addnew_spinner_services) MaterialSpinner addnew_spinner_services;
     @BindView(R.id.addnew_button_create) Button addnew_button_create;
     @BindView(R.id.addnew_field_specificservice) TextInputLayout addnew_field_specificservice;
-    ArrayList<String> subCategory = new ArrayList<>();
-    ArrayList<ProjectTypeEntity> projectTypeEntities = new ArrayList<>();
+    @BindView(R.id.addnew_field_specifictype) TextInputLayout addnew_field_specifictype;
+    @BindView(R.id.addnew_field_specificsubcategory) TextInputLayout addnew_field_specificsubcategory;
+    ArrayList<ProjectSubcategoryEntity> projectSubcategoryEntities = new ArrayList<>();
+    ProjectTypeEntity OTHERSCHOICE_TYPESOFPROJECT = new ProjectTypeEntity(null, "Others", true);
+    ProjectSubcategoryEntity OTHERSCHOICE_SUBCATEGORY = new ProjectSubcategoryEntity(null, "Others", true, null);
+    ServicesEntity OTHERSCHOICE_SERVICES = new ServicesEntity(null, "Others", true);
     public static String COLUMN_NAME = "NAME";
     public static String COLUMN_PARENT = "PARENT";
     String selectedTypeOfProject = null;
@@ -63,10 +69,32 @@ public class FragmentAddNew extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_new, container, false);
         ButterKnife.bind(this, view);
-        List<ProjectTypeEntity> projectTypes = ProjectTypeEntity.listAll(ProjectTypeEntity.class);
+        List<ProjectTypeEntity> projectTypes = ProjectTypeEntity.listAll(ProjectTypeEntity.class); // retrieve locally persisted ProjectTypeEntities
+        List<ProjectSubcategoryEntity> projectSubcategoryEntities = ProjectSubcategoryEntity.listAll(ProjectSubcategoryEntity.class); // retrieve locally persisted ProjectSubcategoryEntity
+        List<ServicesEntity> servicesEntities = ServicesEntity.listAll(ServicesEntity.class);// retrieve locally persisted ServicesEntity
         Log.d(TAG, "onCreateView: ProjectTypeEntity size: " + String.valueOf(projectTypes.size()));
+        Log.d(TAG, "onCreateView: ProjectSubcategoryEntity size: " + String.valueOf(projectSubcategoryEntities.size()));
+        Log.d(TAG, "onCreateView: ServicesEntity size: " + String.valueOf(servicesEntities.size()));
         if(projectTypes.size() <= 0) {
             new RetrieveProjectTypesTask().execute((Void)null);
+        }else{
+            Collections.sort(projectTypes);
+            projectTypes.add(projectTypes.size(), OTHERSCHOICE_TYPESOFPROJECT);
+            addnew_spinner_typeofproject.setItems(projectTypes);
+        }
+        if(projectSubcategoryEntities.size() <= 0) {
+            new RetrieveSubCategoryTask().execute((Void) null);
+        } else {
+            Collections.sort(projectSubcategoryEntities);
+            projectSubcategoryEntities.add(projectSubcategoryEntities.size(), OTHERSCHOICE_SUBCATEGORY);
+            addnew_spinner_subcategory.setItems(projectSubcategoryEntities);
+        }
+        if(servicesEntities.size() <= 0) {
+            new RetrieveServicesTask().execute((Void)null);
+        } else {
+            Collections.sort(servicesEntities);
+            servicesEntities.add(servicesEntities.size(), OTHERSCHOICE_SERVICES);
+            addnew_spinner_services.setItems(servicesEntities);
         }
         addnew_spinner_services.setOnItemSelectedListener(servicesListener());
         addnew_spinner_typeofproject.setOnItemSelectedListener(typeOfProjectListener());
@@ -85,16 +113,21 @@ public class FragmentAddNew extends Fragment {
             Log.d(TAG, "createBtnClicked: Empty");
             Toast.makeText(getContext(), "Select a service", Toast.LENGTH_SHORT).show();
             return;
+        } else if(selectedServices.equalsIgnoreCase("Others")) {
+            if(addnew_field_specificservice.getEditText().getText().toString().isEmpty()) {
+                Log.d(TAG, "createBtnClicked: Empty");
+                Toast.makeText(getContext(), "Specify the service type", Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
         if(selectedTypeOfProject == null) {
             Log.d(TAG, "createBtnClicked: Empty");
             Toast.makeText(getContext(), "Select a category", Toast.LENGTH_SHORT).show();
             return;
-        }
-        if(addnew_spinner_services.getSelectedIndex() == addnew_spinner_services.getItems().size() - 1) {
-            Log.d(TAG, "createBtnClicked: Others");
-            if(addnew_field_specificservice.getEditText().getText().toString().isEmpty()) {
-                addnew_field_specificservice.setError("Specify the service type");
+        } else if(selectedTypeOfProject.equalsIgnoreCase("Others")) {
+            if(addnew_field_specifictype.getEditText().getText().toString().isEmpty()) {
+                Log.d(TAG, "createBtnClicked: Field Empty");
+                Toast.makeText(getContext(), "Specify the project type", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
@@ -102,10 +135,14 @@ public class FragmentAddNew extends Fragment {
             Log.d(TAG, "createBtnClicked: Empty");
             Toast.makeText(getContext(), "Select a subcategory", Toast.LENGTH_SHORT).show();
             return;
+        } else if(selectedSubcategory.equalsIgnoreCase("Others")) {
+            if(addnew_field_specificsubcategory.getEditText().getText().toString().isEmpty()) {
+                Log.d(TAG, "createBtnClicked: Field Empty");
+                Toast.makeText(getContext(), "Specify the sub category", Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
-        Log.d(TAG, "createBtnClicked: " + selectedTypeOfProject);
-        Log.d(TAG, "createBtnClicked: " + selectedSubcategory);
-        Log.d(TAG, "createBtnClicked: all fields are valid");
+        Snackbar.make(getView(), "OK", Snackbar.LENGTH_LONG).show();
 
     }
     private MaterialSpinner.OnItemSelectedListener servicesListener() {
@@ -113,9 +150,12 @@ public class FragmentAddNew extends Fragment {
             @Override
             public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
                 selectedServices = item.toString();
-                addnew_field_specificservice.setVisibility(View.GONE);
-                if(position == view.getItems().size() - 1) {
-                    addnew_field_specificservice.setVisibility(View.VISIBLE);
+                if(item instanceof ServicesEntity) {
+
+                    addnew_field_specificservice.setVisibility(View.GONE);
+                    if (((ServicesEntity) item).isOthers()) {  // if the chosen category is 'Others' then show hidden field
+                        addnew_field_specificservice.setVisibility(View.VISIBLE);
+                    }
                 }
             }
         };
@@ -126,8 +166,25 @@ public class FragmentAddNew extends Fragment {
             @Override
             public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
                 selectedTypeOfProject = item.toString();
-                //addnew_spinner_subcategory.setItems(subCategories.get(position));
-                //addnew_spinner_subcategory.setVisibility(View.VISIBLE);
+                if(item instanceof ProjectTypeEntity) {
+                    if(((ProjectTypeEntity) item).isOthers() == false){ // if the chosen category is NOT 'Others' then dont't show hidden field
+                        addnew_field_specificsubcategory.setVisibility(View.GONE);
+                        addnew_field_specifictype.setVisibility(View.GONE);
+                        List<ProjectSubcategoryEntity> subs = ProjectSubcategoryEntity
+                                .findWithQuery(ProjectSubcategoryEntity.class,
+                                        "Select * from PROJECT_SUBCATEGORY_ENTITY where parent = ? Order by name ASC",
+                                        ((ProjectTypeEntity) item).getObjectId());
+                        Log.d(TAG, "onItemSelected: subs size: " + String.valueOf(subs.size()));
+                        subs.add(subs.size(),
+                                new ProjectSubcategoryEntity(null, "Others", true, null)); // Add 'Others' at the last index of array'
+                        addnew_spinner_subcategory.setItems(subs);
+                        addnew_spinner_subcategory.setVisibility(View.VISIBLE);
+                    } else {
+                        addnew_spinner_subcategory.setVisibility(View.GONE);
+                        addnew_field_specifictype.setVisibility(View.VISIBLE);
+                        addnew_field_specificsubcategory.setVisibility(View.VISIBLE);
+                    }
+                }
             }
         };
         return listener;
@@ -137,6 +194,13 @@ public class FragmentAddNew extends Fragment {
             @Override
             public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
                 selectedSubcategory = item.toString();
+                if(item instanceof ProjectSubcategoryEntity){
+                    if(((ProjectSubcategoryEntity) item).isOthers() == false) {// if the chosen category is NOT 'Others' then dont't show hidden field
+                        addnew_field_specificsubcategory.setVisibility(View.GONE);
+                    } else {
+                        addnew_field_specificsubcategory.setVisibility(View.VISIBLE);
+                    }
+                }
             }
         };
         return listener;
@@ -152,7 +216,56 @@ public class FragmentAddNew extends Fragment {
             return true;
         }
     }
+    private class RetrieveServicesTask extends AsyncTask<Void, Void, ArrayList<ServicesEntity>> {
+        AlertDialog dialog;
+        ArrayList<ServicesEntity> servicesEntities = new ArrayList<>();
+        public RetrieveServicesTask() {
+            dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
+        }
 
+        @Override
+        protected ArrayList<ServicesEntity> doInBackground(Void... voids) {
+            Log.d(TAG, "doInBackground: Operation Started");
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudTableNames.SERVICES.toString());
+            try {
+                Log.d(TAG, "doInBackground: Retrieving Services");
+                List<ParseObject> result = query.find();
+                Log.d(TAG, "doInBackground: result size: " + String.valueOf(result.size()));
+                for(ParseObject parseObject : result) {
+                    ServicesEntity servicesEntity = new ServicesEntity();
+                    servicesEntity.setObjectId(parseObject.getObjectId());
+                    servicesEntity.setName(parseObject.getString(COLUMN_NAME));
+                    servicesEntity.setOthers(false);
+                    servicesEntity.save();
+                    servicesEntities.add(servicesEntity);
+                }
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+                Log.d(TAG, "doInBackground: Exception thrown: " + e.getMessage());
+            }
+
+            return servicesEntities;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            dialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<ServicesEntity> servicesEntities) {
+            Log.d(TAG, "onPostExecute: Operation done");
+            Log.d(TAG, "onPostExecute: result size: " + String.valueOf(servicesEntities.size()));
+            dialog.dismiss();
+            if(servicesEntities.size() > 0) {
+                servicesEntities.add(servicesEntities.size(), OTHERSCHOICE_SERVICES);
+                addnew_spinner_services.setItems(servicesEntities);
+            } else {
+                Log.d(TAG, "onPostExecute: result empty");
+            }
+        }
+    }
     private class RetrieveProjectTypesTask extends AsyncTask<Void, Void, ArrayList<ProjectTypeEntity>> {
 
         AlertDialog dialog;
@@ -168,20 +281,17 @@ public class FragmentAddNew extends Fragment {
             Log.d(TAG, "doInBackground: Retrieving types");
             ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudTableNames.PROJECT_TYPE.toString());
             try {
-                List<ProjectTypeEntity> check = ProjectTypeEntity.listAll(ProjectTypeEntity.class);
-                Log.d(TAG, "doInBackground: ProjectTypeEntity size: " + String.valueOf(check.size()));
-                if(check.size() <= 0){
-                    List<ParseObject> result = query.addAscendingOrder(COLUMN_NAME).find();
-                    Log.d(TAG, "doInBackground: result size: " + String.valueOf(result.size()));
-                    for(ParseObject parseObject : result) {
-                        ProjectTypeEntity projectTypeEntity = new ProjectTypeEntity();
-                        projectTypeEntity.setObjectId(parseObject.getObjectId());
-                        projectTypeEntity.setName(parseObject.getString(COLUMN_NAME));
-                        projectTypeEntity.save();
-                        projectTypeEntities.add(projectTypeEntity);
-                    }
+                Log.d(TAG, "doInBackground: Retrieving ProjectTypeEntity...");
+                List<ParseObject> result = query.addAscendingOrder(COLUMN_NAME).find();
+                Log.d(TAG, "doInBackground: result size: " + String.valueOf(result.size()));
+                for(ParseObject parseObject : result) {
+                    ProjectTypeEntity projectTypeEntity = new ProjectTypeEntity();
+                    projectTypeEntity.setObjectId(parseObject.getObjectId());
+                    projectTypeEntity.setName(parseObject.getString(COLUMN_NAME));
+                    projectTypeEntity.setOthers(false);
+                    projectTypeEntity.save();
+                    projectTypeEntities.add(projectTypeEntity);
                 }
-
             } catch (ParseException e) {
                 e.printStackTrace();
                 Log.d(TAG, "doInBackground: Exception thrown: " + e.getMessage());
@@ -201,13 +311,8 @@ public class FragmentAddNew extends Fragment {
             Log.d(TAG, "onPostExecute: result size: " + String.valueOf(projectTypeEntities.size()));
             dialog.dismiss();
             if(projectTypeEntities.size() > 0) {
-                this.projectTypeEntities = projectTypeEntities;
-                ArrayList<String> values = new ArrayList<>();
-                for(ProjectTypeEntity projectTypeEntity : projectTypeEntities) {
-                    values.add(projectTypeEntity.getName());
-                }
-                values.add(values.size(), "Others"); // Add 'Others' on the last position in array
-                addnew_spinner_typeofproject.setItems(values);
+                projectTypeEntities.add(projectTypeEntities.size(), new ProjectTypeEntity(null, "Others", true)); // Add 'Others' on the last position in array
+                addnew_spinner_typeofproject.setItems(projectTypeEntities);
             }else {
                 Log.d(TAG, "onPostExecute: Result is empty");
                 Snackbar.make(getView(), "Result is empty", Snackbar.LENGTH_LONG).show();
@@ -229,6 +334,7 @@ public class FragmentAddNew extends Fragment {
             Log.d(TAG, "doInBackground: Opertion started");
             ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudTableNames.PROJECT_TYPE_SUBCATEGORY.toString());
             try {
+                Log.d(TAG, "doInBackground: Retrieving ProjectSubcategoryEntity...");
                 List<ParseObject> result = query.addAscendingOrder(COLUMN_NAME).find();
                 Log.d(TAG, "doInBackground: result size: " + String.valueOf(result.size()));
                 for(ParseObject parseObject : result) {
@@ -237,6 +343,7 @@ public class FragmentAddNew extends Fragment {
                     projectSubcategoryEntity.setName(parseObject.getString(COLUMN_NAME));
                     projectSubcategoryEntity.setOthers(false);
                     projectSubcategoryEntity.setParent(parseObject.getString(COLUMN_PARENT));
+                    projectSubcategoryEntity.save();
                     projectSubcategoryEntities.add(projectSubcategoryEntity);
                 }
             } catch (ParseException e) {
@@ -257,11 +364,8 @@ public class FragmentAddNew extends Fragment {
             Log.d(TAG, "onPostExecute: Operation done");
             Log.d(TAG, "onPostExecute: Result size: " + String.valueOf(projectSubcategoryEntities.size()));
             if(projectSubcategoryEntities.size() > 0) {
-                ArrayList<String> values = new ArrayList<>();
-                for(ProjectSubcategoryEntity projectSubcategoryEntity : projectSubcategoryEntities) {
-                    values.add(projectSubcategoryEntity.getName());
-                }
-                subCategory = values;
+                this.projectSubcategoryEntities = projectSubcategoryEntities;
+                //addnew_spinner_subcategory.setItems(projectSubcategoryEntities);
             } else {
                 Log.d(TAG, "onPostExecute: Result is empty");
                 Snackbar.make(getView(), "Result is empty", Snackbar.LENGTH_LONG).show();

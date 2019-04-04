@@ -1,5 +1,6 @@
 package com.example.ratio;
 
+import com.example.ratio.Entities.ProjectTypeEntity;
 import com.example.ratio.Fragments.FragmentAddNew;
 import com.example.ratio.Fragments.FragmentPortfolio;
 import com.example.ratio.Fragments.FragmentSearch;
@@ -69,6 +70,9 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             return true;
+        } else if (id == R.id.action_clearlocal) {
+            ProjectTypeEntity.deleteAll(ProjectTypeEntity.class);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -118,4 +122,5 @@ public class MainActivity extends AppCompatActivity {
                 .build()
         );
     }
+
 }
