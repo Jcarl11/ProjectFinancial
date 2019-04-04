@@ -2,7 +2,6 @@ package com.example.ratio.Fragments;
 
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
@@ -18,9 +17,14 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.ratio.Entities.ProjectSubcategoryEntity;
+import com.example.ratio.Entities.ProjectsEntity;
 import com.example.ratio.Entities.ServicesEntity;
-import com.example.ratio.Enums.CloudTableNames;
+import com.example.ratio.Enums.CloudClassNames;
 import com.example.ratio.Entities.ProjectTypeEntity;
+import com.example.ratio.Enums.PROJECT;
+import com.example.ratio.Enums.PROJECT_TYPE;
+import com.example.ratio.Enums.PROJECT_TYPE_SUBCATEGORY;
+import com.example.ratio.Enums.SERVICES;
 import com.example.ratio.R;
 import com.example.ratio.Utility;
 import com.google.android.material.snackbar.Snackbar;
@@ -30,9 +34,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,12 +54,9 @@ public class FragmentAddNew extends Fragment {
     @BindView(R.id.addnew_field_specificservice) TextInputLayout addnew_field_specificservice;
     @BindView(R.id.addnew_field_specifictype) TextInputLayout addnew_field_specifictype;
     @BindView(R.id.addnew_field_specificsubcategory) TextInputLayout addnew_field_specificsubcategory;
-    ArrayList<ProjectSubcategoryEntity> projectSubcategoryEntities = new ArrayList<>();
     ProjectTypeEntity OTHERSCHOICE_TYPESOFPROJECT = new ProjectTypeEntity(null, "Others", true);
     ProjectSubcategoryEntity OTHERSCHOICE_SUBCATEGORY = new ProjectSubcategoryEntity(null, "Others", true, null);
     ServicesEntity OTHERSCHOICE_SERVICES = new ServicesEntity(null, "Others", true);
-    public static String COLUMN_NAME = "NAME";
-    public static String COLUMN_PARENT = "PARENT";
     String selectedTypeOfProject = null;
     String selectedSubcategory = null;
     String selectedServices = null;
@@ -104,11 +103,16 @@ public class FragmentAddNew extends Fragment {
 
     @OnClick(R.id.addnew_button_create)
     public void createBtnClicked( View view ) {
+        ProjectsEntity projectsEntity = new ProjectsEntity();
         if( !validateField(addnew_field_projectname) 
                 | !validateField(addnew_field_projectcode) 
                 | !validateField(addnew_field_projectowner)) {
             return;
         }
+        projectsEntity.setProjectCode(addnew_field_projectcode.getEditText().getText().toString());
+        projectsEntity.setProjectName(addnew_field_projectname.getEditText().getText().toString().toUpperCase());
+        projectsEntity.setProjectOwner(addnew_field_projectowner.getEditText().getText().toString().toUpperCase());
+
         if(selectedServices == null) {
             Log.d(TAG, "createBtnClicked: Empty");
             Toast.makeText(getContext(), "Select a service", Toast.LENGTH_SHORT).show();
@@ -116,9 +120,13 @@ public class FragmentAddNew extends Fragment {
         } else if(selectedServices.equalsIgnoreCase("Others")) {
             if(addnew_field_specificservice.getEditText().getText().toString().isEmpty()) {
                 Log.d(TAG, "createBtnClicked: Empty");
-                Toast.makeText(getContext(), "Specify the service type", Toast.LENGTH_SHORT).show();
+                addnew_field_specificservice.setError("Specify the service type");
                 return;
+            } else {
+                projectsEntity.setProjectServices(addnew_field_specificservice.getEditText().getText().toString());
             }
+        } else {
+            projectsEntity.setProjectServices(selectedServices.toUpperCase());
         }
         if(selectedTypeOfProject == null) {
             Log.d(TAG, "createBtnClicked: Empty");
@@ -127,23 +135,35 @@ public class FragmentAddNew extends Fragment {
         } else if(selectedTypeOfProject.equalsIgnoreCase("Others")) {
             if(addnew_field_specifictype.getEditText().getText().toString().isEmpty()) {
                 Log.d(TAG, "createBtnClicked: Field Empty");
-                Toast.makeText(getContext(), "Specify the project type", Toast.LENGTH_SHORT).show();
+                addnew_field_specifictype.setError("Specify the project type");
                 return;
+            } else {
+                projectsEntity.setProjectType(addnew_field_specifictype.getEditText().getText().toString());
             }
+        } else {
+            projectsEntity.setProjectType(selectedTypeOfProject.toUpperCase());
         }
         if(selectedSubcategory == null){
-            Log.d(TAG, "createBtnClicked: Empty");
-            Toast.makeText(getContext(), "Select a subcategory", Toast.LENGTH_SHORT).show();
-            return;
+            if(selectedTypeOfProject.equalsIgnoreCase("Others")) {
+                projectsEntity.setProjectSubCategory(addnew_field_specificsubcategory.getEditText().getText().toString());
+            } else {
+                Log.d(TAG, "createBtnClicked: Empty");
+                Toast.makeText(getContext(), "Select a subcategory", Toast.LENGTH_SHORT).show();
+                return;
+            }
         } else if(selectedSubcategory.equalsIgnoreCase("Others")) {
             if(addnew_field_specificsubcategory.getEditText().getText().toString().isEmpty()) {
                 Log.d(TAG, "createBtnClicked: Field Empty");
-                Toast.makeText(getContext(), "Specify the sub category", Toast.LENGTH_SHORT).show();
+                addnew_field_specificsubcategory.setError("Specify the sub category");
                 return;
+            } else {
+                projectsEntity.setProjectSubCategory(addnew_field_specificsubcategory.getEditText().getText().toString());
             }
+        } else {
+            projectsEntity.setProjectSubCategory(selectedSubcategory.toUpperCase());
         }
-        Snackbar.make(getView(), "OK", Snackbar.LENGTH_LONG).show();
 
+        new CreateProjectTask(projectsEntity).execute((Void)null);
     }
     private MaterialSpinner.OnItemSelectedListener servicesListener() {
         MaterialSpinner.OnItemSelectedListener listener = new MaterialSpinner.OnItemSelectedListener() {
@@ -226,7 +246,7 @@ public class FragmentAddNew extends Fragment {
         @Override
         protected ArrayList<ServicesEntity> doInBackground(Void... voids) {
             Log.d(TAG, "doInBackground: Operation Started");
-            ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudTableNames.SERVICES.toString());
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudClassNames.SERVICES.toString());
             try {
                 Log.d(TAG, "doInBackground: Retrieving Services");
                 List<ParseObject> result = query.find();
@@ -234,7 +254,7 @@ public class FragmentAddNew extends Fragment {
                 for(ParseObject parseObject : result) {
                     ServicesEntity servicesEntity = new ServicesEntity();
                     servicesEntity.setObjectId(parseObject.getObjectId());
-                    servicesEntity.setName(parseObject.getString(COLUMN_NAME));
+                    servicesEntity.setName(parseObject.getString(SERVICES.NAME.toString()));
                     servicesEntity.setOthers(false);
                     servicesEntity.save();
                     servicesEntities.add(servicesEntity);
@@ -279,15 +299,15 @@ public class FragmentAddNew extends Fragment {
         @Override
         protected ArrayList<ProjectTypeEntity> doInBackground(Void... voids) {
             Log.d(TAG, "doInBackground: Retrieving types");
-            ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudTableNames.PROJECT_TYPE.toString());
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudClassNames.PROJECT_TYPE.toString());
             try {
                 Log.d(TAG, "doInBackground: Retrieving ProjectTypeEntity...");
-                List<ParseObject> result = query.addAscendingOrder(COLUMN_NAME).find();
+                List<ParseObject> result = query.addAscendingOrder(PROJECT_TYPE.NAME.toString()).find();
                 Log.d(TAG, "doInBackground: result size: " + String.valueOf(result.size()));
                 for(ParseObject parseObject : result) {
                     ProjectTypeEntity projectTypeEntity = new ProjectTypeEntity();
                     projectTypeEntity.setObjectId(parseObject.getObjectId());
-                    projectTypeEntity.setName(parseObject.getString(COLUMN_NAME));
+                    projectTypeEntity.setName(parseObject.getString(PROJECT_TYPE.NAME.toString()));
                     projectTypeEntity.setOthers(false);
                     projectTypeEntity.save();
                     projectTypeEntities.add(projectTypeEntity);
@@ -332,17 +352,17 @@ public class FragmentAddNew extends Fragment {
         @Override
         protected ArrayList<ProjectSubcategoryEntity> doInBackground(Void... voids) {
             Log.d(TAG, "doInBackground: Opertion started");
-            ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudTableNames.PROJECT_TYPE_SUBCATEGORY.toString());
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudClassNames.PROJECT_TYPE_SUBCATEGORY.toString());
             try {
                 Log.d(TAG, "doInBackground: Retrieving ProjectSubcategoryEntity...");
-                List<ParseObject> result = query.addAscendingOrder(COLUMN_NAME).find();
+                List<ParseObject> result = query.addAscendingOrder(PROJECT_TYPE_SUBCATEGORY.NAME.toString()).find();
                 Log.d(TAG, "doInBackground: result size: " + String.valueOf(result.size()));
                 for(ParseObject parseObject : result) {
                     ProjectSubcategoryEntity projectSubcategoryEntity = new ProjectSubcategoryEntity();
                     projectSubcategoryEntity.setObjectId(parseObject.getObjectId());
-                    projectSubcategoryEntity.setName(parseObject.getString(COLUMN_NAME));
+                    projectSubcategoryEntity.setName(parseObject.getString(PROJECT_TYPE_SUBCATEGORY.NAME.toString()));
                     projectSubcategoryEntity.setOthers(false);
-                    projectSubcategoryEntity.setParent(parseObject.getString(COLUMN_PARENT));
+                    projectSubcategoryEntity.setParent(parseObject.getString(PROJECT_TYPE_SUBCATEGORY.PARENT.toString()));
                     projectSubcategoryEntity.save();
                     projectSubcategoryEntities.add(projectSubcategoryEntity);
                 }
@@ -369,6 +389,56 @@ public class FragmentAddNew extends Fragment {
             } else {
                 Log.d(TAG, "onPostExecute: Result is empty");
                 Snackbar.make(getView(), "Result is empty", Snackbar.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private class CreateProjectTask extends AsyncTask<Void, Void, Boolean> {
+
+        AlertDialog dialog;
+        ProjectsEntity projectsEntity;
+        boolean successful = false;
+        public CreateProjectTask(ProjectsEntity projectEntity) {
+            this.projectsEntity = projectEntity;
+            dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            Log.d(TAG, "doInBackground: Upload started");
+            ParseObject project = new ParseObject(CloudClassNames.PROJECT.toString());
+            project.put(PROJECT.PROJECT_CODE.toString(), projectsEntity.getProjectCode());
+            project.put(PROJECT.PROJECT_TITLE.toString(), projectsEntity.getProjectName());
+            project.put(PROJECT.PROJECT_OWNER.toString(), projectsEntity.getProjectOwner());
+            project.put(PROJECT.SERVICES.toString(), projectsEntity.getProjectServices());
+            project.put(PROJECT.TYPE.toString(), projectsEntity.getProjectType());
+            project.put(PROJECT.SUBCATEGORY.toString(), projectsEntity.getProjectSubCategory());
+            try {
+                project.save();
+                successful = true;
+                Log.d(TAG, "doInBackground: project saved");
+            } catch (ParseException e) {
+                e.printStackTrace();
+                Log.d(TAG, "doInBackground: Exception thrown: " + e.getMessage());
+            }
+            return successful;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            dialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            dialog.dismiss();
+            Log.d(TAG, "onPostExecute: Operation done");
+            Log.d(TAG, "onPostExecute: result: " + String.valueOf(aBoolean));
+            if(aBoolean) {
+                Snackbar.make(getView(), "Record created successfully", Snackbar.LENGTH_LONG).show();
+            } else {
+                Log.d(TAG, "onPostExecute: Operation failed");
+                Snackbar.make(getView(), "Operation failed", Snackbar.LENGTH_LONG).show();
             }
         }
     }

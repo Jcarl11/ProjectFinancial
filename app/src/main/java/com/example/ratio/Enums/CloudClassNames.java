@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 
-public enum CloudTableNames {
+public enum CloudClassNames {
 
     EXPENSES,
     IMAGES,

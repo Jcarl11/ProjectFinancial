@@ -70,7 +70,7 @@ public class ProjectAdapter extends AbstractItem<ProjectAdapter, ProjectAdapter.
             portfolio_rowlayout_createdat.setText(item.projectsEntity.getCreatedAt());
             portfolio_rowlayout_projectcode.setText(item.projectsEntity.getProjectCode());
             portfolio_rowlayout_projectowner.setText(item.projectsEntity.getProjectOwner());
-            portfolio_rowlayout_projectcategory.setText(item.projectsEntity.getProjectCategory());
+            portfolio_rowlayout_projectcategory.setText(item.projectsEntity.getProjectType());
             portfolio_rowlayout_projecttype.setText(item.projectsEntity.getProjectType());
             portfolio_rowlayout_expenses.setText(item.projectsEntity.getProjectExpenses());
             portfolio_rowlayout_revenue.setText(item.projectsEntity.getProjectRevenue());

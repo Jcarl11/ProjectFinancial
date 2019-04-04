@@ -6,12 +6,28 @@ public class ProjectsEntity {
     String createdAt;
     String projectCode;
     String projectOwner;
-    String projectCategory;
+    String projectSubCategory;
     String projectType;
     String projectExpenses;
     String projectRevenue;
+    String projectServices;
 
     public ProjectsEntity() {}
+
+    public ProjectsEntity(String objectId, String projectName, String createdAt, String projectCode,
+                          String projectOwner, String projectSubCategory, String projectType,
+                          String projectExpenses, String projectRevenue, String projectServices) {
+        this.objectId = objectId;
+        this.projectName = projectName;
+        this.createdAt = createdAt;
+        this.projectCode = projectCode;
+        this.projectOwner = projectOwner;
+        this.projectSubCategory = projectSubCategory;
+        this.projectType = projectType;
+        this.projectExpenses = projectExpenses;
+        this.projectRevenue = projectRevenue;
+        this.projectServices = projectServices;
+    }
 
     public String getObjectId() {
         return objectId;
@@ -53,12 +69,12 @@ public class ProjectsEntity {
         this.projectOwner = projectOwner;
     }
 
-    public String getProjectCategory() {
-        return projectCategory;
+    public String getProjectSubCategory() {
+        return projectSubCategory;
     }
 
-    public void setProjectCategory(String projectCategory) {
-        this.projectCategory = projectCategory;
+    public void setProjectSubCategory(String projectSubCategory) {
+        this.projectSubCategory = projectSubCategory;
     }
 
     public String getProjectType() {
@@ -83,5 +99,13 @@ public class ProjectsEntity {
 
     public void setProjectRevenue(String projectRevenue) {
         this.projectRevenue = projectRevenue;
+    }
+
+    public String getProjectServices() {
+        return projectServices;
+    }
+
+    public void setProjectServices(String projectServices) {
+        this.projectServices = projectServices;
     }
 }

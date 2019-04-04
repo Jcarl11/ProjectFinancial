@@ -59,7 +59,7 @@ public class FragmentSearch extends Fragment {
                         projectsEntity.setCreatedAt("March 10, 2019");
                         projectsEntity.setProjectCode("HFDJ343X");
                         projectsEntity.setProjectOwner("Joey Francisco");
-                        projectsEntity.setProjectCategory("Workplace");
+                        projectsEntity.setProjectType("Workplace");
                         projectsEntity.setProjectType("Office");
                         projectsEntity.setProjectExpenses("1235.23 Php");
                         projectsEntity.setProjectRevenue("5844185.52 Php");
