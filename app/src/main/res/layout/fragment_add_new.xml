@@ -62,6 +62,19 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <Button
+            android:id="@+id/addnew_button_projectstatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Project status"
+            android:backgroundTint="@color/colorPrimaryLight" />
+
+        <com.dpizarro.autolabel.library.AutoLabelUI
+            android:id="@+id/addnew_autolabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+
         <com.jaredrummler.materialspinner.MaterialSpinner
             android:id="@+id/addnew_spinner_services"
             android:layout_width="match_parent"

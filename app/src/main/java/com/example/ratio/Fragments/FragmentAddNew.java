@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.dpizarro.autolabel.library.AutoLabelUI;
 import com.example.ratio.Entities.ProjectSubcategoryEntity;
 import com.example.ratio.Entities.ProjectsEntity;
 import com.example.ratio.Entities.ServicesEntity;
@@ -26,6 +27,7 @@ import com.example.ratio.Enums.PROJECT_TYPE;
 import com.example.ratio.Enums.PROJECT_TYPE_SUBCATEGORY;
 import com.example.ratio.Enums.SERVICES;
 import com.example.ratio.R;
+import com.example.ratio.ShowDialogCheckbox;
 import com.example.ratio.Utility;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
@@ -54,6 +56,8 @@ public class FragmentAddNew extends Fragment {
     @BindView(R.id.addnew_field_specificservice) TextInputLayout addnew_field_specificservice;
     @BindView(R.id.addnew_field_specifictype) TextInputLayout addnew_field_specifictype;
     @BindView(R.id.addnew_field_specificsubcategory) TextInputLayout addnew_field_specificsubcategory;
+    @BindView(R.id.addnew_button_projectstatus) Button addnew_button_projectstatus;
+    @BindView(R.id.addnew_autolabel) AutoLabelUI addnew_autolabel;
     ProjectTypeEntity OTHERSCHOICE_TYPESOFPROJECT = new ProjectTypeEntity(null, "Others", true);
     ProjectSubcategoryEntity OTHERSCHOICE_SUBCATEGORY = new ProjectSubcategoryEntity(null, "Others", true, null);
     ServicesEntity OTHERSCHOICE_SERVICES = new ServicesEntity(null, "Others", true);
@@ -164,6 +168,14 @@ public class FragmentAddNew extends Fragment {
         }
 
         new CreateProjectTask(projectsEntity).execute((Void)null);
+    }
+
+    @OnClick(R.id.addnew_button_projectstatus)
+    public void statusClicked(View view) {
+        ShowDialogCheckbox showDialogCheckbox = new ShowDialogCheckbox();
+        showDialogCheckbox.setAutoLabelUI(addnew_autolabel);
+        showDialogCheckbox.showDialog(getContext(), "Project status", getResources().getStringArray(R.array.statuses));
+
     }
     private MaterialSpinner.OnItemSelectedListener servicesListener() {
         MaterialSpinner.OnItemSelectedListener listener = new MaterialSpinner.OnItemSelectedListener() {
