@@ -35,7 +35,8 @@
     </string-array>
     <string-array name="statuses">
         <item>Active</item>
-        <item>Archive</item>
+        <item>Archived</item>
+        <item>Proposal</item>
     </string-array>
     <!-- Example settings for Data & Sync -->
     <string name="pref_header_data_sync">Data &amp; sync</string>

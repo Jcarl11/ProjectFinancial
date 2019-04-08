@@ -59,7 +59,7 @@ public class FragmentPortfolio extends Fragment {
 
     public ArrayList<ProjectAdapter> generateDummyData(int rowCount) {
         ArrayList<ProjectAdapter> data = new ArrayList<>();
-        for( int x = 0; x <= rowCount ; x++ ) {
+        for( int x = 0; x < rowCount ; x++ ) {
             ProjectsEntity rows = new ProjectsEntity();
             rows.setProjectCode(String.format("CT2019%s", String.valueOf(x)));
             rows.setProjectStatus("ACTIVE");

@@ -16,7 +16,7 @@
             android:id="@+id/addnew_imageview_thumbnail"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:scaleType="fitCenter"
+            android:scaleType="centerInside"
             app:srcCompat="@drawable/ic_person"
             android:layout_marginBottom="10dp"/>
 
