@@ -1,7 +1,9 @@
 package com.example.ratio.Fragments;
 
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
@@ -14,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.dpizarro.autolabel.library.AutoLabelUI;
@@ -37,7 +40,12 @@ import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.squareup.picasso.Picasso;
+import com.vincent.filepicker.Constant;
+import com.vincent.filepicker.activity.ImagePickActivity;
+import com.vincent.filepicker.filter.entity.ImageFile;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -60,6 +68,8 @@ public class FragmentAddNew extends Fragment {
     @BindView(R.id.addnew_field_specificsubcategory) TextInputLayout addnew_field_specificsubcategory;
     @BindView(R.id.addnew_button_projectstatus) Button addnew_button_projectstatus;
     @BindView(R.id.addnew_autolabel) AutoLabelUI addnew_autolabel;
+    @BindView(R.id.addnew_imageview_thumbnail) ImageView addnew_imageview_thumbnail;
+
     ProjectTypeEntity OTHERSCHOICE_TYPESOFPROJECT = new ProjectTypeEntity(null, "Others", true);
     ProjectSubcategoryEntity OTHERSCHOICE_SUBCATEGORY = new ProjectSubcategoryEntity(null, "Others", true, null);
     ServicesEntity OTHERSCHOICE_SERVICES = new ServicesEntity(null, "Others", true);
@@ -67,6 +77,7 @@ public class FragmentAddNew extends Fragment {
     String selectedSubcategory = null;
     String selectedServices = null;
     BaseDialog dialog = null;
+    BaseDialog checkBoxDialog = null;
     public FragmentAddNew() {}
 
 
@@ -107,6 +118,30 @@ public class FragmentAddNew extends Fragment {
         addnew_spinner_subcategory.setOnItemSelectedListener(subcategoryListener());
         return view;
     }
+    @OnClick(R.id.addnew_imageview_thumbnail)
+    public void imageChoose(View view) {
+        String IS_NEED_CAMERA = new String();
+        Intent intent1 = new Intent(getContext(), ImagePickActivity.class);
+        intent1.putExtra(IS_NEED_CAMERA, true);
+        intent1.putExtra(Constant.MAX_NUMBER, 1);
+        startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case Constant.REQUEST_CODE_PICK_IMAGE:
+                if (resultCode == Activity.RESULT_OK) {
+                    ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
+                    for (ImageFile file : list) {
+                        Picasso.get().load(new File(file.getPath())).into(addnew_imageview_thumbnail);
+                    }
+                } else {
+                    Snackbar.make(getView(), "Error", Snackbar.LENGTH_LONG).show();
+                }
+                break;
+        }
+    }
 
     @OnClick(R.id.addnew_button_create)
     public void createBtnClicked( View view ) {
@@ -119,7 +154,10 @@ public class FragmentAddNew extends Fragment {
         projectsEntity.setProjectCode(addnew_field_projectcode.getEditText().getText().toString());
         projectsEntity.setProjectName(addnew_field_projectname.getEditText().getText().toString().toUpperCase());
         projectsEntity.setProjectOwner(addnew_field_projectowner.getEditText().getText().toString().toUpperCase());
-
+        if(addnew_imageview_thumbnail.getDrawable().getConstantState().equals(getResources().getDrawable(R.drawable.ic_person).getConstantState()) ) {
+            Toast.makeText(getContext(), "Select a project thumbnail", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if(selectedServices == null) {
             Log.d(TAG, "createBtnClicked: Empty");
             Toast.makeText(getContext(), "Select a service", Toast.LENGTH_SHORT).show();
@@ -169,18 +207,14 @@ public class FragmentAddNew extends Fragment {
         } else {
             projectsEntity.setProjectSubCategory(selectedSubcategory.toUpperCase());
         }
-        dialog = new BasicDialog(getContext(), "Title message", "Body Message");
-        dialog.showDialog();
-        //new CreateProjectTask(projectsEntity).execute((Void)null);
+        new CreateProjectTask(projectsEntity).execute((Void)null);
     }
 
     @OnClick(R.id.addnew_button_projectstatus)
     public void statusClicked(View view) {
-        dialog = new CheckBoxDialog(getContext(),
-                "Status",
-                getResources().getStringArray(R.array.statuses));
-        ((CheckBoxDialog) dialog).setAutoLabelUI(addnew_autolabel);
-        dialog.showDialog();
+        checkBoxDialog = new CheckBoxDialog(getContext(), "Status", getResources().getStringArray(R.array.statuses));
+        ((CheckBoxDialog) checkBoxDialog).setAutoLabelUI(addnew_autolabel);
+        checkBoxDialog.showDialog();
 
     }
     private MaterialSpinner.OnItemSelectedListener servicesListener() {

@@ -7,12 +7,11 @@ import android.content.DialogInterface;
 import java.util.List;
 
 public abstract class BaseDialog {
-
+    String[] sourceList = null;
     AlertDialog.Builder dialogBuilder = null;
     Context context;
     String title;
     String message;
-    String[] sourceList = null;
 
     public BaseDialog(Context context, String title, String message) {
         this.context = context;
@@ -24,14 +23,6 @@ public abstract class BaseDialog {
     public BaseDialog(Context context, String title, String[] sourceList) {
         this.context = context;
         this.title = title;
-        this.sourceList = sourceList;
-        dialogBuilder = new AlertDialog.Builder(context);
-    }
-
-    public BaseDialog(Context context, String title, String message, String[] sourceList) {
-        this.context = context;
-        this.title = title;
-        this.message = message;
         this.sourceList = sourceList;
         dialogBuilder = new AlertDialog.Builder(context);
     }

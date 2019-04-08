@@ -4,11 +4,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import com.dpizarro.autolabel.library.AutoLabelUI;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class CheckBoxDialog extends BaseDialog {
     AutoLabelUI autoLabelUI = null;
     ArrayList<String> selectedValues = new ArrayList<>();
-
     public CheckBoxDialog(Context context, String title, String[] sourceList) {
         super(context, title, sourceList);
     }
@@ -61,4 +61,5 @@ public class CheckBoxDialog extends BaseDialog {
     public void setAutoLabelUI(AutoLabelUI autoLabelUI) {
         this.autoLabelUI = autoLabelUI;
     }
+
 }

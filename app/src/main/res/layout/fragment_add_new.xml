@@ -10,8 +10,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="10dp">
+        android:layout_marginBottom="30dp">
 
+        <ImageView
+            android:id="@+id/addnew_imageview_thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_person"
+            android:layout_marginBottom="10dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/addnew_field_projectcode"
