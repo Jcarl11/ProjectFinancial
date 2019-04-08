@@ -1,49 +1,38 @@
-package com.example.ratio;
+package com.example.ratio.Dialogs;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.widget.Toast;
-
 import com.dpizarro.autolabel.library.AutoLabelUI;
-import com.dpizarro.autolabel.library.Label;
-import com.google.android.material.snackbar.Snackbar;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
-public class ShowDialogCheckbox implements BaseDialog {
+public class CheckBoxDialog extends BaseDialog {
     AutoLabelUI autoLabelUI = null;
-    AlertDialog.Builder dialog;
-    Context context;
     ArrayList<String> selectedValues = new ArrayList<>();
+
+    public CheckBoxDialog(Context context, String title, String[] sourceList) {
+        super(context, title, sourceList);
+    }
+
     @Override
-    public void showDialog(Context context, String title, String[] source) {
-        this.context = context;
-        dialog = new AlertDialog.Builder(context);
-        dialog.setTitle(title);
-        dialog.setCancelable(true);
-        dialog.setPositiveButton("Confirm", setPositiveButton());
-        dialog.setNegativeButton("Cancel", setNegativeButton());
-        dialog.setMultiChoiceItems(source, null, new DialogInterface.OnMultiChoiceClickListener() {
+    public void showDialog() {
+        dialogBuilder.setTitle(title);
+        dialogBuilder.setPositiveButton("OK", positiveButton());
+        dialogBuilder.setNegativeButton("CANCEL", negativeButton());
+        dialogBuilder.setMultiChoiceItems(sourceList, null, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                 if(isChecked) {
-                    selectedValues.add(source[which]);
-                } else if(selectedValues.contains(source[which])) {
+                    selectedValues.add(sourceList[which]);
+                } else if(selectedValues.contains(sourceList[which])) {
                     selectedValues.remove(which);
                 }
             }
         });
-        Dialog myDialog = dialog.create();
-        myDialog.show();
-
+        dialogBuilder.show();
     }
 
     @Override
-    public DialogInterface.OnClickListener setPositiveButton() {
+    public DialogInterface.OnClickListener positiveButton() {
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -59,11 +48,11 @@ public class ShowDialogCheckbox implements BaseDialog {
     }
 
     @Override
-    public DialogInterface.OnClickListener setNegativeButton() {
+    public DialogInterface.OnClickListener negativeButton() {
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
+                dialog.dismiss();
             }
         };
         return listener;

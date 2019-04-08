@@ -17,6 +17,8 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.dpizarro.autolabel.library.AutoLabelUI;
+import com.example.ratio.Dialogs.BaseDialog;
+import com.example.ratio.Dialogs.BasicDialog;
 import com.example.ratio.Entities.ProjectSubcategoryEntity;
 import com.example.ratio.Entities.ProjectsEntity;
 import com.example.ratio.Entities.ServicesEntity;
@@ -27,7 +29,7 @@ import com.example.ratio.Enums.PROJECT_TYPE;
 import com.example.ratio.Enums.PROJECT_TYPE_SUBCATEGORY;
 import com.example.ratio.Enums.SERVICES;
 import com.example.ratio.R;
-import com.example.ratio.ShowDialogCheckbox;
+import com.example.ratio.Dialogs.CheckBoxDialog;
 import com.example.ratio.Utility;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
@@ -64,6 +66,7 @@ public class FragmentAddNew extends Fragment {
     String selectedTypeOfProject = null;
     String selectedSubcategory = null;
     String selectedServices = null;
+    BaseDialog dialog = null;
     public FragmentAddNew() {}
 
 
@@ -166,15 +169,18 @@ public class FragmentAddNew extends Fragment {
         } else {
             projectsEntity.setProjectSubCategory(selectedSubcategory.toUpperCase());
         }
-
-        new CreateProjectTask(projectsEntity).execute((Void)null);
+        dialog = new BasicDialog(getContext(), "Title message", "Body Message");
+        dialog.showDialog();
+        //new CreateProjectTask(projectsEntity).execute((Void)null);
     }
 
     @OnClick(R.id.addnew_button_projectstatus)
     public void statusClicked(View view) {
-        ShowDialogCheckbox showDialogCheckbox = new ShowDialogCheckbox();
-        showDialogCheckbox.setAutoLabelUI(addnew_autolabel);
-        showDialogCheckbox.showDialog(getContext(), "Project status", getResources().getStringArray(R.array.statuses));
+        dialog = new CheckBoxDialog(getContext(),
+                "Status",
+                getResources().getStringArray(R.array.statuses));
+        ((CheckBoxDialog) dialog).setAutoLabelUI(addnew_autolabel);
+        dialog.showDialog();
 
     }
     private MaterialSpinner.OnItemSelectedListener servicesListener() {
