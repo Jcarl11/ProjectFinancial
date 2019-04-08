@@ -11,23 +11,10 @@ public class ProjectsEntity {
     String projectExpenses;
     String projectRevenue;
     String projectServices;
+    String projectStatus;
+    String imagePath;
 
     public ProjectsEntity() {}
-
-    public ProjectsEntity(String objectId, String projectName, String createdAt, String projectCode,
-                          String projectOwner, String projectSubCategory, String projectType,
-                          String projectExpenses, String projectRevenue, String projectServices) {
-        this.objectId = objectId;
-        this.projectName = projectName;
-        this.createdAt = createdAt;
-        this.projectCode = projectCode;
-        this.projectOwner = projectOwner;
-        this.projectSubCategory = projectSubCategory;
-        this.projectType = projectType;
-        this.projectExpenses = projectExpenses;
-        this.projectRevenue = projectRevenue;
-        this.projectServices = projectServices;
-    }
 
     public String getObjectId() {
         return objectId;
@@ -107,5 +94,21 @@ public class ProjectsEntity {
 
     public void setProjectServices(String projectServices) {
         this.projectServices = projectServices;
+    }
+
+    public String getProjectStatus() {
+        return projectStatus;
+    }
+
+    public void setProjectStatus(String projectStatus) {
+        this.projectStatus = projectStatus;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }

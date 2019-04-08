@@ -1,12 +1,14 @@
 package com.example.ratio.Adapters;
 
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.ratio.Entities.ProjectsEntity;
 import com.example.ratio.R;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.items.AbstractItem;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -25,7 +27,7 @@ public class ProjectAdapter extends AbstractItem<ProjectAdapter, ProjectAdapter.
 
     @Override
     public int getType() {
-        return R.id.portfolio_recyclerview_projectlist;
+        return R.id.portfolio_recyclerview;
     }
 
     @Override
@@ -42,22 +44,15 @@ public class ProjectAdapter extends AbstractItem<ProjectAdapter, ProjectAdapter.
 
     public class ViewHolder extends FastAdapter.ViewHolder<ProjectAdapter> {
 
-        @BindView(R.id.portfolio_rowlayout_projectname)
-        public TextView portfolio_rowlayout_projectname;
-        @BindView(R.id.portfolio_rowlayout_createdat)
-        TextView portfolio_rowlayout_createdat;
-        @BindView(R.id.portfolio_rowlayout_projectcode)
-        TextView portfolio_rowlayout_projectcode;
-        @BindView(R.id.portfolio_rowlayout_projectowner)
-        TextView portfolio_rowlayout_projectowner;
-        @BindView(R.id.portfolio_rowlayout_projectcategory)
-        TextView portfolio_rowlayout_projectcategory;
-        @BindView(R.id.portfolio_rowlayout_projecttype)
-        TextView portfolio_rowlayout_projecttype;
-        @BindView(R.id.portfolio_rowlayout_expenses)
-        TextView portfolio_rowlayout_expenses;
-        @BindView(R.id.portfolio_rowlayout_revenue)
-        TextView portfolio_rowlayout_revenue;
+        @BindView(R.id.portfolio_row_code)
+        public TextView portfolio_row_code;
+        @BindView(R.id.portfolio_row_image)
+        ImageView portfolio_row_image;
+        @BindView(R.id.portfolio_row_status)
+        TextView portfolio_row_status;
+        @BindView(R.id.portfolio_row_projectname)
+        TextView portfolio_row_projectname;
+
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -66,26 +61,18 @@ public class ProjectAdapter extends AbstractItem<ProjectAdapter, ProjectAdapter.
 
         @Override
         public void bindView(ProjectAdapter item, List<Object> payloads) {
-            portfolio_rowlayout_projectname.setText(item.projectsEntity.getProjectName());
-            portfolio_rowlayout_createdat.setText(item.projectsEntity.getCreatedAt());
-            portfolio_rowlayout_projectcode.setText(item.projectsEntity.getProjectCode());
-            portfolio_rowlayout_projectowner.setText(item.projectsEntity.getProjectOwner());
-            portfolio_rowlayout_projectcategory.setText(item.projectsEntity.getProjectType());
-            portfolio_rowlayout_projecttype.setText(item.projectsEntity.getProjectType());
-            portfolio_rowlayout_expenses.setText(item.projectsEntity.getProjectExpenses());
-            portfolio_rowlayout_revenue.setText(item.projectsEntity.getProjectRevenue());
+            portfolio_row_code.setText(item.projectsEntity.getProjectCode());
+            portfolio_row_status.setText(item.projectsEntity.getProjectStatus());
+            portfolio_row_projectname.setText(item.projectsEntity.getProjectName());
+            Picasso.get().load(item.projectsEntity.getImagePath()).into(portfolio_row_image);
         }
 
         @Override
         public void unbindView(ProjectAdapter item) {
-            portfolio_rowlayout_projectname.setText(null);
-            portfolio_rowlayout_createdat.setText(null);
-            portfolio_rowlayout_projectcode.setText(null);
-            portfolio_rowlayout_projectowner.setText(null);
-            portfolio_rowlayout_projectcategory.setText(null);
-            portfolio_rowlayout_projecttype.setText(null);
-            portfolio_rowlayout_expenses.setText(null);
-            portfolio_rowlayout_revenue.setText(null);
+            portfolio_row_code.setText(null);
+            portfolio_row_status.setText(null);
+            portfolio_row_projectname.setText(null);
+            portfolio_row_image.setImageDrawable(null);
         }
     }
 }
