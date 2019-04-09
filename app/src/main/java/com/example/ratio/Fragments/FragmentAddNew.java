@@ -4,8 +4,12 @@ package com.example.ratio.Fragments;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -16,6 +20,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -35,7 +42,6 @@ import com.example.ratio.R;
 import com.example.ratio.Dialogs.CheckBoxDialog;
 import com.example.ratio.Utility;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -56,20 +62,20 @@ import java.util.List;
 public class FragmentAddNew extends Fragment {
 
     private static final String TAG = "FragmentAddNew";
-    @BindView(R.id.addnew_field_projectname) TextInputLayout addnew_field_projectname;
-    @BindView(R.id.addnew_field_projectcode) TextInputLayout addnew_field_projectcode;
-    @BindView(R.id.addnew_field_projectowner) TextInputLayout addnew_field_projectowner;
+    @BindView(R.id.addnew_field_projectname) EditText addnew_field_projectname;
+    @BindView(R.id.addnew_field_projectcode) EditText addnew_field_projectcode;
+    @BindView(R.id.addnew_field_projectowner) EditText addnew_field_projectowner;
     @BindView(R.id.addnew_spinner_typeofproject) MaterialSpinner addnew_spinner_typeofproject;
     @BindView(R.id.addnew_spinner_subcategory) MaterialSpinner addnew_spinner_subcategory;
     @BindView(R.id.addnew_spinner_services) MaterialSpinner addnew_spinner_services;
     @BindView(R.id.addnew_button_create) Button addnew_button_create;
-    @BindView(R.id.addnew_field_specificservice) TextInputLayout addnew_field_specificservice;
-    @BindView(R.id.addnew_field_specifictype) TextInputLayout addnew_field_specifictype;
-    @BindView(R.id.addnew_field_specificsubcategory) TextInputLayout addnew_field_specificsubcategory;
-    @BindView(R.id.addnew_button_projectstatus) Button addnew_button_projectstatus;
-    @BindView(R.id.addnew_autolabel) AutoLabelUI addnew_autolabel;
+    @BindView(R.id.addnew_field_specificservice) EditText addnew_field_specificservice;
+    @BindView(R.id.addnew_field_specifictype) EditText addnew_field_specifictype;
+    @BindView(R.id.addnew_field_specificsubcategory) EditText addnew_field_specificsubcategory;
     @BindView(R.id.addnew_imageview_thumbnail) ImageView addnew_imageview_thumbnail;
-
+    @BindView(R.id.addnew_checkbox_active) CheckBox addnew_checkbox_active;
+    @BindView(R.id.addnew_checkbox_archived) CheckBox addnew_checkbox_archived;
+    @BindView(R.id.addnew_checkbox_proposal) CheckBox addnew_checkbox_proposal;
     ProjectTypeEntity OTHERSCHOICE_TYPESOFPROJECT = new ProjectTypeEntity(null, "Others", true);
     ProjectSubcategoryEntity OTHERSCHOICE_SUBCATEGORY = new ProjectSubcategoryEntity(null, "Others", true, null);
     ServicesEntity OTHERSCHOICE_SERVICES = new ServicesEntity(null, "Others", true);
@@ -92,6 +98,36 @@ public class FragmentAddNew extends Fragment {
         Log.d(TAG, "onCreateView: ProjectTypeEntity size: " + String.valueOf(projectTypes.size()));
         Log.d(TAG, "onCreateView: ProjectSubcategoryEntity size: " + String.valueOf(projectSubcategoryEntities.size()));
         Log.d(TAG, "onCreateView: ServicesEntity size: " + String.valueOf(servicesEntities.size()));
+        addnew_checkbox_active.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    addnew_checkbox_active.setError(null);
+                    addnew_checkbox_archived.setError(null);
+                    addnew_checkbox_proposal.setError(null);
+                }
+            }
+        });
+        addnew_checkbox_archived.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    addnew_checkbox_active.setError(null);
+                    addnew_checkbox_archived.setError(null);
+                    addnew_checkbox_proposal.setError(null);
+                }
+            }
+        });
+        addnew_checkbox_proposal.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    addnew_checkbox_active.setError(null);
+                    addnew_checkbox_archived.setError(null);
+                    addnew_checkbox_proposal.setError(null);
+                }
+            }
+        });
         if(projectTypes.size() <= 0) {
             new RetrieveProjectTypesTask().execute((Void)null);
         }else{
@@ -127,11 +163,13 @@ public class FragmentAddNew extends Fragment {
         startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case Constant.REQUEST_CODE_PICK_IMAGE:
                 if (resultCode == Activity.RESULT_OK) {
+                    addnew_imageview_thumbnail.setBackground(null);
                     ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
                     for (ImageFile file : list) {
                         Picasso.get().load(new File(file.getPath())).into(addnew_imageview_thumbnail);
@@ -143,84 +181,45 @@ public class FragmentAddNew extends Fragment {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @OnClick(R.id.addnew_button_create)
     public void createBtnClicked( View view ) {
         ProjectsEntity projectsEntity = new ProjectsEntity();
         if( !validateField(addnew_field_projectname) 
                 | !validateField(addnew_field_projectcode) 
-                | !validateField(addnew_field_projectowner)) {
+                | !validateField(addnew_field_projectowner) | !validateThumbnail(addnew_imageview_thumbnail)
+            | !validateCheckbox() | !validateServices(selectedServices) | !validateTypeOfProject(selectedTypeOfProject)
+            | !validateSubcategory(selectedSubcategory)) {
             return;
         }
-        projectsEntity.setProjectCode(addnew_field_projectcode.getEditText().getText().toString());
-        projectsEntity.setProjectName(addnew_field_projectname.getEditText().getText().toString().toUpperCase());
-        projectsEntity.setProjectOwner(addnew_field_projectowner.getEditText().getText().toString().toUpperCase());
-        if(addnew_imageview_thumbnail.getDrawable().getConstantState().equals(getResources().getDrawable(R.drawable.ic_person).getConstantState()) ) {
-            Toast.makeText(getContext(), "Select a project thumbnail", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if(selectedServices == null) {
-            Log.d(TAG, "createBtnClicked: Empty");
-            Toast.makeText(getContext(), "Select a service", Toast.LENGTH_SHORT).show();
-            return;
-        } else if(selectedServices.equalsIgnoreCase("Others")) {
-            if(addnew_field_specificservice.getEditText().getText().toString().isEmpty()) {
-                Log.d(TAG, "createBtnClicked: Empty");
-                addnew_field_specificservice.setError("Specify the service type");
-                return;
-            } else {
-                projectsEntity.setProjectServices(addnew_field_specificservice.getEditText().getText().toString());
-            }
-        } else {
-            projectsEntity.setProjectServices(selectedServices.toUpperCase());
-        }
-        if(selectedTypeOfProject == null) {
-            Log.d(TAG, "createBtnClicked: Empty");
-            Toast.makeText(getContext(), "Select a category", Toast.LENGTH_SHORT).show();
-            return;
-        } else if(selectedTypeOfProject.equalsIgnoreCase("Others")) {
-            if(addnew_field_specifictype.getEditText().getText().toString().isEmpty()) {
-                Log.d(TAG, "createBtnClicked: Field Empty");
-                addnew_field_specifictype.setError("Specify the project type");
-                return;
-            } else {
-                projectsEntity.setProjectType(addnew_field_specifictype.getEditText().getText().toString());
-            }
-        } else {
-            projectsEntity.setProjectType(selectedTypeOfProject.toUpperCase());
-        }
-        if(selectedSubcategory == null){
-            if(selectedTypeOfProject.equalsIgnoreCase("Others")) {
-                projectsEntity.setProjectSubCategory(addnew_field_specificsubcategory.getEditText().getText().toString());
-            } else {
-                Log.d(TAG, "createBtnClicked: Empty");
-                Toast.makeText(getContext(), "Select a subcategory", Toast.LENGTH_SHORT).show();
+
+        if(selectedServices.equalsIgnoreCase("Others")) {
+            if(!validateField(addnew_field_specificservice)) {
                 return;
             }
-        } else if(selectedSubcategory.equalsIgnoreCase("Others")) {
-            if(addnew_field_specificsubcategory.getEditText().getText().toString().isEmpty()) {
-                Log.d(TAG, "createBtnClicked: Field Empty");
-                addnew_field_specificsubcategory.setError("Specify the sub category");
-                return;
-            } else {
-                projectsEntity.setProjectSubCategory(addnew_field_specificsubcategory.getEditText().getText().toString());
-            }
-        } else {
-            projectsEntity.setProjectSubCategory(selectedSubcategory.toUpperCase());
         }
-        new CreateProjectTask(projectsEntity).execute((Void)null);
+        if(selectedTypeOfProject.equalsIgnoreCase("Others")) {
+            if(!validateField(addnew_field_specifictype) | !validateField(addnew_field_specificsubcategory)) {
+                return;
+            }
+        }
+        if(selectedSubcategory.equalsIgnoreCase("Others")) {
+            if(!validateField(addnew_field_specificsubcategory)) {
+                return;
+            }
+        }
+        projectsEntity.setProjectCode(addnew_field_projectcode.getText().toString());
+        projectsEntity.setProjectName(addnew_field_projectname.getText().toString().toUpperCase());
+        projectsEntity.setProjectOwner(addnew_field_projectowner.getText().toString().toUpperCase());
+        Snackbar.make(getView(), "OK", Snackbar.LENGTH_SHORT).show();
+        //new CreateProjectTask(projectsEntity).execute((Void)null);
     }
 
-    @OnClick(R.id.addnew_button_projectstatus)
-    public void statusClicked(View view) {
-        checkBoxDialog = new CheckBoxDialog(getContext(), "Status", getResources().getStringArray(R.array.statuses));
-        ((CheckBoxDialog) checkBoxDialog).setAutoLabelUI(addnew_autolabel);
-        checkBoxDialog.showDialog();
-
-    }
     private MaterialSpinner.OnItemSelectedListener servicesListener() {
         MaterialSpinner.OnItemSelectedListener listener = new MaterialSpinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
+                addnew_spinner_services.setBackgroundColor(getResources().getColor(R.color.colorPrimaryLight));
                 selectedServices = item.toString();
                 if(item instanceof ServicesEntity) {
 
@@ -237,6 +236,7 @@ public class FragmentAddNew extends Fragment {
         MaterialSpinner.OnItemSelectedListener listener = new MaterialSpinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
+                addnew_spinner_typeofproject.setBackgroundColor(getResources().getColor(R.color.colorPrimaryLight));
                 selectedTypeOfProject = item.toString();
                 if(item instanceof ProjectTypeEntity) {
                     if(((ProjectTypeEntity) item).isOthers() == false){ // if the chosen category is NOT 'Others' then dont't show hidden field
@@ -265,6 +265,7 @@ public class FragmentAddNew extends Fragment {
         MaterialSpinner.OnItemSelectedListener listener = new MaterialSpinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
+                addnew_spinner_subcategory.setBackgroundColor(getResources().getColor(R.color.colorPrimaryLight));
                 selectedSubcategory = item.toString();
                 if(item instanceof ProjectSubcategoryEntity){
                     if(((ProjectSubcategoryEntity) item).isOthers() == false) {// if the chosen category is NOT 'Others' then dont't show hidden field
@@ -277,8 +278,8 @@ public class FragmentAddNew extends Fragment {
         };
         return listener;
     }
-    private boolean validateField(TextInputLayout input) {
-        String inputString = input.getEditText().getText().toString().trim();
+    private boolean validateField(EditText input) {
+        String inputString = input.getText().toString().trim();
 
         if (inputString.isEmpty()) {
             input.setError("Field can't be empty");
@@ -288,6 +289,63 @@ public class FragmentAddNew extends Fragment {
             return true;
         }
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    private boolean validateThumbnail(ImageView imageView) {
+        if(imageView.getDrawable().getConstantState().equals(getResources().getDrawable(R.drawable.ic_person).getConstantState())) {
+            imageView.setBackground(getResources().getDrawable(R.drawable.bg_error));
+            return false;
+        } else {
+            imageView.setBackground(null);
+            return true;
+        }
+    }
+    private boolean validateCheckbox() {
+        if(!addnew_checkbox_active.isChecked() && !addnew_checkbox_archived.isChecked() && !addnew_checkbox_proposal.isChecked()) {
+            addnew_checkbox_active.setError("Choose at least 1");
+            addnew_checkbox_archived.setError("Choose at least 1");
+            addnew_checkbox_proposal.setError("Choose at least 1");
+            return false;
+        } else {
+            addnew_checkbox_active.setError(null);
+            addnew_checkbox_archived.setError(null);
+            addnew_checkbox_proposal.setError(null);
+            return true;
+        }
+    }
+
+    private boolean validateServices(String selected) {
+        if(selected == null) {
+            addnew_spinner_services.setBackgroundColor(Color.RED);
+            return false;
+        } else {
+            addnew_spinner_services.setBackgroundColor(getResources().getColor(R.color.colorPrimaryLight));
+            return true;
+        }
+    }
+    private boolean validateTypeOfProject(String selected) {
+        if(selected == null) {
+            addnew_spinner_typeofproject.setBackgroundColor(Color.RED);
+            return false;
+        } else {
+            addnew_spinner_typeofproject.setBackgroundColor(getResources().getColor(R.color.colorPrimaryLight));
+            return true;
+        }
+    }
+
+    private boolean validateSubcategory(String selected) {
+        if(selected == null) {
+            addnew_spinner_subcategory.setBackgroundColor(Color.RED);
+            return false;
+        } else {
+            addnew_spinner_subcategory.setBackgroundColor(getResources().getColor(R.color.colorPrimaryLight));
+            return true;
+        }
+    }
+
+
+
+
     private class RetrieveServicesTask extends AsyncTask<Void, Void, ArrayList<ServicesEntity>> {
         AlertDialog dialog;
         ArrayList<ServicesEntity> servicesEntities = new ArrayList<>();
