@@ -85,5 +85,6 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="clear_local_storage">Clear local storage</string>
+    <string name="logout">Logout</string>
 
 </resources>

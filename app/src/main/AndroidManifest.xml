@@ -15,8 +15,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:icon">
-        <activity android:name=".LoginActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity android:name=".RegisterActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden"></activity>
+        <activity
+            android:name=".LoginActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden"/>
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"

@@ -17,7 +17,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -79,6 +81,12 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.action_clearlocal) {
             ProjectTypeEntity.deleteAll(ProjectTypeEntity.class);
             return true;
+        } else if(id == R.id.action_logout) {
+
+            ParseUser.logOut();
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -128,5 +136,7 @@ public class MainActivity extends AppCompatActivity {
                 .build()
         );
     }
+
+
 
 }

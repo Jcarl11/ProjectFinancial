@@ -13,4 +13,10 @@
         android:orderInCategory="100"
         android:title="@string/clear_local_storage"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_logout"
+        android:orderInCategory="100"
+        android:title="@string/logout"
+        app:showAsAction="never" />
 </menu>
