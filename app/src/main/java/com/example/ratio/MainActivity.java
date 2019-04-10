@@ -6,6 +6,7 @@ import com.example.ratio.Fragments.FragmentPortfolio;
 import com.example.ratio.Fragments.FragmentSearch;
 import com.google.android.material.tabs.TabLayout;
 import com.parse.Parse;
+import com.parse.ParseUser;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,22 +36,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initializeParse();
-        mViewPager = (ViewPager) findViewById(R.id.container);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        mSectionsPagerAdapter.addFragment(new FragmentAddNew(), "Add new");
-        mSectionsPagerAdapter.addFragment(new FragmentPortfolio(), "Portfolio");
-        mSectionsPagerAdapter.addFragment(new FragmentSearch(), "Search");
-        // Set up the ViewPager with the sections adapter.
 
-        mViewPager.setAdapter(mSectionsPagerAdapter);
+        if(ParseUser.getCurrentUser() != null) {
+            mViewPager = (ViewPager) findViewById(R.id.container);
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+            mSectionsPagerAdapter.addFragment(new FragmentAddNew(), "Add new");
+            mSectionsPagerAdapter.addFragment(new FragmentPortfolio(), "Portfolio");
+            mSectionsPagerAdapter.addFragment(new FragmentSearch(), "Search");
+            // Set up the ViewPager with the sections adapter.
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+            mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+            TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
+            mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+            tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+        } else {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
+        }
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
