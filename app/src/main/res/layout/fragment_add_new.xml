@@ -104,19 +104,14 @@
             android:background="#efeded"
             android:layout_marginTop="10dp" />
 
-        <com.jaredrummler.materialspinner.MaterialSpinner
+
+        <com.isapanah.awesomespinner.AwesomeSpinner
             android:id="@+id/addnew_spinner_services"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:ms_dropdown_max_height="300dp"
-            app:ms_dropdown_height="wrap_content"
-            app:ms_hint="Services"
-            app:ms_arrow_tint="@color/colorPrimary"
-            app:ms_hide_arrow="false"
-            app:ms_background_color="@color/colorPrimaryLight"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"/>
+            app:spinnerDirection="ltr"
+            app:spinnerHint="Services"
+            android:layout_margin="10dp"/>
 
         <EditText
             android:id="@+id/addnew_field_specificservice"
@@ -130,20 +125,13 @@
             android:padding="16dp"
             android:layout_margin="10dp"/>
 
-        <com.jaredrummler.materialspinner.MaterialSpinner
+        <com.isapanah.awesomespinner.AwesomeSpinner
             android:id="@+id/addnew_spinner_typeofproject"
-            app:ms_dropdown_max_height="300dp"
-            app:ms_dropdown_height="wrap_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:ms_hint="Type of project"
-            app:ms_arrow_tint="@color/colorPrimary"
-            app:ms_hide_arrow="false"
-            app:ms_background_color="@color/colorPrimaryLight"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"/>
+            app:spinnerDirection="ltr"
+            app:spinnerHint="Select a category"
+            android:layout_margin="10dp"/>
 
         <EditText
             android:id="@+id/addnew_field_specifictype"
@@ -157,20 +145,14 @@
             android:padding="16dp"
             android:layout_margin="10dp"/>
 
-        <com.jaredrummler.materialspinner.MaterialSpinner
+
+        <com.isapanah.awesomespinner.AwesomeSpinner
             android:id="@+id/addnew_spinner_subcategory"
-            app:ms_dropdown_max_height="300dp"
-            app:ms_dropdown_height="wrap_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:ms_hint="Subcategory"
-            app:ms_arrow_tint="@color/colorPrimary"
-            app:ms_hide_arrow="false"
-            app:ms_background_color="@color/colorPrimaryLight"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            app:spinnerDirection="ltr"
+            app:spinnerHint="Subcategory"
+            android:layout_margin="10dp"
             android:visibility="gone"/>
 
         <EditText

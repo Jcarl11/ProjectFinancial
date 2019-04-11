@@ -54,4 +54,5 @@ dependencies {
     implementation 'com.github.davidpizarro:autolabelui:1.0.1'
     implementation 'com.vincent.filepicker:MultiTypeFilePicker:1.0.8'
     implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'com.github.sadra:AwesomeSpinner:1.5.1'
 }

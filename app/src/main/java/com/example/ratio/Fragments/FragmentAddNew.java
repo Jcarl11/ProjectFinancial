@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -42,6 +43,7 @@ import com.example.ratio.R;
 import com.example.ratio.Dialogs.CheckBoxDialog;
 import com.example.ratio.Utility;
 import com.google.android.material.snackbar.Snackbar;
+import com.isapanah.awesomespinner.AwesomeSpinner;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -65,9 +67,9 @@ public class FragmentAddNew extends Fragment {
     @BindView(R.id.addnew_field_projectname) EditText addnew_field_projectname;
     @BindView(R.id.addnew_field_projectcode) EditText addnew_field_projectcode;
     @BindView(R.id.addnew_field_projectowner) EditText addnew_field_projectowner;
-    @BindView(R.id.addnew_spinner_typeofproject) MaterialSpinner addnew_spinner_typeofproject;
-    @BindView(R.id.addnew_spinner_subcategory) MaterialSpinner addnew_spinner_subcategory;
-    @BindView(R.id.addnew_spinner_services) MaterialSpinner addnew_spinner_services;
+    @BindView(R.id.addnew_spinner_typeofproject) AwesomeSpinner addnew_spinner_typeofproject;
+    @BindView(R.id.addnew_spinner_subcategory) AwesomeSpinner addnew_spinner_subcategory;
+    @BindView(R.id.addnew_spinner_services) AwesomeSpinner addnew_spinner_services;
     @BindView(R.id.addnew_button_create) Button addnew_button_create;
     @BindView(R.id.addnew_field_specificservice) EditText addnew_field_specificservice;
     @BindView(R.id.addnew_field_specifictype) EditText addnew_field_specifictype;
@@ -79,13 +81,9 @@ public class FragmentAddNew extends Fragment {
     ProjectTypeEntity OTHERSCHOICE_TYPESOFPROJECT = new ProjectTypeEntity(null, "Others", true);
     ProjectSubcategoryEntity OTHERSCHOICE_SUBCATEGORY = new ProjectSubcategoryEntity(null, "Others", true, null);
     ServicesEntity OTHERSCHOICE_SERVICES = new ServicesEntity(null, "Others", true);
-    String selectedTypeOfProject = null;
-    String selectedSubcategory = null;
-    String selectedServices = null;
     BaseDialog dialog = null;
     BaseDialog checkBoxDialog = null;
     public FragmentAddNew() {}
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -133,26 +131,39 @@ public class FragmentAddNew extends Fragment {
         }else{
             Collections.sort(projectTypes);
             projectTypes.add(projectTypes.size(), OTHERSCHOICE_TYPESOFPROJECT);
-            addnew_spinner_typeofproject.setItems(projectTypes);
+            addnew_spinner_typeofproject.setAdapter(adapter(convertList(projectTypes)));
         }
         if(projectSubcategoryEntities.size() <= 0) {
             new RetrieveSubCategoryTask().execute((Void) null);
         } else {
             Collections.sort(projectSubcategoryEntities);
             projectSubcategoryEntities.add(projectSubcategoryEntities.size(), OTHERSCHOICE_SUBCATEGORY);
-            addnew_spinner_subcategory.setItems(projectSubcategoryEntities);
+            addnew_spinner_subcategory.setAdapter(adapter(convertList(projectSubcategoryEntities)));
         }
         if(servicesEntities.size() <= 0) {
             new RetrieveServicesTask().execute((Void)null);
         } else {
             Collections.sort(servicesEntities);
             servicesEntities.add(servicesEntities.size(), OTHERSCHOICE_SERVICES);
-            addnew_spinner_services.setItems(servicesEntities);
+            addnew_spinner_services.setAdapter(adapter(convertList(servicesEntities)));
         }
-        addnew_spinner_services.setOnItemSelectedListener(servicesListener());
-        addnew_spinner_typeofproject.setOnItemSelectedListener(typeOfProjectListener());
-        addnew_spinner_subcategory.setOnItemSelectedListener(subcategoryListener());
+        addnew_spinner_typeofproject.setOnSpinnerItemClickListener(typeOfProjectListener());
+        addnew_spinner_services.setOnSpinnerItemClickListener(servicesListener());
+        addnew_spinner_subcategory.setOnSpinnerItemClickListener(subcategoryListener());
         return view;
+    }
+
+    private ArrayAdapter<String> adapter(List<String> data) {
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, data);
+        return adapter;
+    }
+
+    private List<String> convertList(List<?> originalList) {
+        List<String> result = new ArrayList<>();
+        for(Object name : originalList) {
+            result.add(name.toString());
+        }
+        return result;
     }
     @OnClick(R.id.addnew_imageview_thumbnail)
     public void imageChoose(View view) {
@@ -188,22 +199,21 @@ public class FragmentAddNew extends Fragment {
         if( !validateField(addnew_field_projectname) 
                 | !validateField(addnew_field_projectcode) 
                 | !validateField(addnew_field_projectowner) | !validateThumbnail(addnew_imageview_thumbnail)
-            | !validateCheckbox() | !validateServices(selectedServices) | !validateTypeOfProject(selectedTypeOfProject)
-            | !validateSubcategory(selectedSubcategory)) {
+            | !validateCheckbox() | !validateSpinner(addnew_spinner_services) | !validateSpinner(addnew_spinner_typeofproject)
+            | !validateSpinner(addnew_spinner_subcategory)) {
             return;
         }
-
-        if(selectedServices.equalsIgnoreCase("Others")) {
+        if(addnew_spinner_services.getSelectedItem().equalsIgnoreCase("Others")) {
             if(!validateField(addnew_field_specificservice)) {
                 return;
             }
         }
-        if(selectedTypeOfProject.equalsIgnoreCase("Others")) {
+        if(addnew_spinner_typeofproject.getSelectedItem().equalsIgnoreCase("Others")) {
             if(!validateField(addnew_field_specifictype) | !validateField(addnew_field_specificsubcategory)) {
                 return;
             }
         }
-        if(selectedSubcategory.equalsIgnoreCase("Others")) {
+        if(addnew_spinner_subcategory.getSelectedItem().equalsIgnoreCase("Others")) {
             if(!validateField(addnew_field_specificsubcategory)) {
                 return;
             }
@@ -215,64 +225,42 @@ public class FragmentAddNew extends Fragment {
         //new CreateProjectTask(projectsEntity).execute((Void)null);
     }
 
-    private MaterialSpinner.OnItemSelectedListener servicesListener() {
-        MaterialSpinner.OnItemSelectedListener listener = new MaterialSpinner.OnItemSelectedListener() {
+    private AwesomeSpinner.onSpinnerItemClickListener<String> servicesListener() {
+        AwesomeSpinner.onSpinnerItemClickListener<String> listener = new AwesomeSpinner.onSpinnerItemClickListener<String>() {
             @Override
-            public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
-                addnew_spinner_services.setBackgroundColor(getResources().getColor(R.color.colorPrimaryLight));
-                selectedServices = item.toString();
-                if(item instanceof ServicesEntity) {
-
+            public void onItemSelected(int position, String itemAtPosition) {
+                if(itemAtPosition.equalsIgnoreCase("Others")) {
+                    addnew_field_specificservice.setVisibility(View.VISIBLE);
+                } else {
                     addnew_field_specificservice.setVisibility(View.GONE);
-                    if (((ServicesEntity) item).isOthers()) {  // if the chosen category is 'Others' then show hidden field
-                        addnew_field_specificservice.setVisibility(View.VISIBLE);
-                    }
                 }
             }
         };
         return listener;
     }
-    private MaterialSpinner.OnItemSelectedListener typeOfProjectListener() {
-        MaterialSpinner.OnItemSelectedListener listener = new MaterialSpinner.OnItemSelectedListener() {
+    private AwesomeSpinner.onSpinnerItemClickListener<String> typeOfProjectListener() {
+        AwesomeSpinner.onSpinnerItemClickListener<String> listener = new AwesomeSpinner.onSpinnerItemClickListener<String>() {
             @Override
-            public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
-                addnew_spinner_typeofproject.setBackgroundColor(getResources().getColor(R.color.colorPrimaryLight));
-                selectedTypeOfProject = item.toString();
-                if(item instanceof ProjectTypeEntity) {
-                    if(((ProjectTypeEntity) item).isOthers() == false){ // if the chosen category is NOT 'Others' then dont't show hidden field
-                        addnew_field_specificsubcategory.setVisibility(View.GONE);
-                        addnew_field_specifictype.setVisibility(View.GONE);
-                        List<ProjectSubcategoryEntity> subs = ProjectSubcategoryEntity
-                                .findWithQuery(ProjectSubcategoryEntity.class,
-                                        "Select * from PROJECT_SUBCATEGORY_ENTITY where parent = ? Order by name ASC",
-                                        ((ProjectTypeEntity) item).getObjectId());
-                        Log.d(TAG, "onItemSelected: subs size: " + String.valueOf(subs.size()));
-                        subs.add(subs.size(),
-                                new ProjectSubcategoryEntity(null, "Others", true, null)); // Add 'Others' at the last index of array'
-                        addnew_spinner_subcategory.setItems(subs);
-                        addnew_spinner_subcategory.setVisibility(View.VISIBLE);
-                    } else {
-                        addnew_spinner_subcategory.setVisibility(View.GONE);
-                        addnew_field_specifictype.setVisibility(View.VISIBLE);
-                        addnew_field_specificsubcategory.setVisibility(View.VISIBLE);
-                    }
+            public void onItemSelected(int position, String itemAtPosition) {
+                if(itemAtPosition.equalsIgnoreCase("Others")) {
+                    addnew_field_specifictype.setVisibility(View.VISIBLE);
+                    addnew_field_specificsubcategory.setVisibility(View.VISIBLE);
+                } else {
+                    addnew_field_specifictype.setVisibility(View.GONE);
+                    addnew_field_specificsubcategory.setVisibility(View.GONE);
                 }
             }
         };
         return listener;
     }
-    private MaterialSpinner.OnItemSelectedListener subcategoryListener() {
-        MaterialSpinner.OnItemSelectedListener listener = new MaterialSpinner.OnItemSelectedListener() {
+    private AwesomeSpinner.onSpinnerItemClickListener<String> subcategoryListener() {
+        AwesomeSpinner.onSpinnerItemClickListener<String> listener = new AwesomeSpinner.onSpinnerItemClickListener<String>() {
             @Override
-            public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
-                addnew_spinner_subcategory.setBackgroundColor(getResources().getColor(R.color.colorPrimaryLight));
-                selectedSubcategory = item.toString();
-                if(item instanceof ProjectSubcategoryEntity){
-                    if(((ProjectSubcategoryEntity) item).isOthers() == false) {// if the chosen category is NOT 'Others' then dont't show hidden field
-                        addnew_field_specificsubcategory.setVisibility(View.GONE);
-                    } else {
-                        addnew_field_specificsubcategory.setVisibility(View.VISIBLE);
-                    }
+            public void onItemSelected(int position, String itemAtPosition) {
+                if(itemAtPosition.equalsIgnoreCase("Others")) {
+                    addnew_field_specificsubcategory.setVisibility(View.VISIBLE);
+                } else {
+                    addnew_field_specificsubcategory.setVisibility(View.GONE);
                 }
             }
         };
@@ -314,37 +302,16 @@ public class FragmentAddNew extends Fragment {
         }
     }
 
-    private boolean validateServices(String selected) {
-        if(selected == null) {
-            addnew_spinner_services.setBackgroundColor(Color.RED);
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    private boolean validateSpinner(AwesomeSpinner servicesSpinner) {
+        if(servicesSpinner.getSelectedItemPosition() == -1) {
+            servicesSpinner.setBackground(getResources().getDrawable(R.drawable.bg_error));
             return false;
         } else {
-            addnew_spinner_services.setBackgroundColor(getResources().getColor(R.color.colorPrimaryLight));
+            addnew_spinner_services.setBackground(null);
             return true;
         }
     }
-    private boolean validateTypeOfProject(String selected) {
-        if(selected == null) {
-            addnew_spinner_typeofproject.setBackgroundColor(Color.RED);
-            return false;
-        } else {
-            addnew_spinner_typeofproject.setBackgroundColor(getResources().getColor(R.color.colorPrimaryLight));
-            return true;
-        }
-    }
-
-    private boolean validateSubcategory(String selected) {
-        if(selected == null) {
-            addnew_spinner_subcategory.setBackgroundColor(Color.RED);
-            return false;
-        } else {
-            addnew_spinner_subcategory.setBackgroundColor(getResources().getColor(R.color.colorPrimaryLight));
-            return true;
-        }
-    }
-
-
-
 
     private class RetrieveServicesTask extends AsyncTask<Void, Void, ArrayList<ServicesEntity>> {
         AlertDialog dialog;
@@ -390,7 +357,7 @@ public class FragmentAddNew extends Fragment {
             dialog.dismiss();
             if(servicesEntities.size() > 0) {
                 servicesEntities.add(servicesEntities.size(), OTHERSCHOICE_SERVICES);
-                addnew_spinner_services.setItems(servicesEntities);
+                addnew_spinner_services.setAdapter(adapter(convertList(servicesEntities)));
             } else {
                 Log.d(TAG, "onPostExecute: result empty");
             }
@@ -441,8 +408,8 @@ public class FragmentAddNew extends Fragment {
             Log.d(TAG, "onPostExecute: result size: " + String.valueOf(projectTypeEntities.size()));
             dialog.dismiss();
             if(projectTypeEntities.size() > 0) {
-                projectTypeEntities.add(projectTypeEntities.size(), new ProjectTypeEntity(null, "Others", true)); // Add 'Others' on the last position in array
-                addnew_spinner_typeofproject.setItems(projectTypeEntities);
+                projectTypeEntities.add(OTHERSCHOICE_TYPESOFPROJECT); // Add 'Others' on the last position in array
+                addnew_spinner_typeofproject.setAdapter(adapter(convertList(projectTypeEntities)));
             }else {
                 Log.d(TAG, "onPostExecute: Result is empty");
                 Snackbar.make(getView(), "Result is empty", Snackbar.LENGTH_LONG).show();
@@ -494,8 +461,8 @@ public class FragmentAddNew extends Fragment {
             Log.d(TAG, "onPostExecute: Operation done");
             Log.d(TAG, "onPostExecute: Result size: " + String.valueOf(projectSubcategoryEntities.size()));
             if(projectSubcategoryEntities.size() > 0) {
-                this.projectSubcategoryEntities = projectSubcategoryEntities;
-                //addnew_spinner_subcategory.setItems(projectSubcategoryEntities);
+                projectSubcategoryEntities.add(OTHERSCHOICE_SUBCATEGORY); // Add 'Others' on the last position in array
+                addnew_spinner_subcategory.setAdapter(adapter(convertList(projectSubcategoryEntities)));
             } else {
                 Log.d(TAG, "onPostExecute: Result is empty");
                 Snackbar.make(getView(), "Result is empty", Snackbar.LENGTH_LONG).show();
