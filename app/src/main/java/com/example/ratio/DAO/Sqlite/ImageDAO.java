@@ -27,7 +27,7 @@ public class ImageDAO implements BaseDAO<Image> {
     }
 
     @Override
-    public boolean update(Image oldRecord, Image newRecord) {
+    public boolean update(Image newRecord) {
         return false;
     }
 

@@ -28,7 +28,7 @@ public class ServicesDAO implements BaseDAO<Services> {
 
 
     @Override
-    public boolean update(Services oldRecord, Services newRecord) {
+    public boolean update(Services newRecord) {
         return false;
     }
 

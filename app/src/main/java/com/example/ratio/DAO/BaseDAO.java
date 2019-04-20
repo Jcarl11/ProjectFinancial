@@ -9,7 +9,7 @@ public interface BaseDAO<T> {
     int insertAll(List<T> objectList);
     T get(String objectId);
     List<T> getBulk(String sqlCommand);
-    boolean update(T oldRecord, T newRecord);
+    boolean update(T newRecord);
     int delete(T object);
     int deleteAll(List<T> objectList);
 }

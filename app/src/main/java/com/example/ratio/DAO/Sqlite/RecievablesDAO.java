@@ -27,7 +27,7 @@ public class RecievablesDAO implements BaseDAO<Recievables> {
     }
 
     @Override
-    public boolean update(Recievables oldRecord, Recievables newRecord) {
+    public boolean update(Recievables newRecord) {
         return false;
     }
 

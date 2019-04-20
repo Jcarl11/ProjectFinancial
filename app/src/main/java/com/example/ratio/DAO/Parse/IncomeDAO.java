@@ -28,7 +28,7 @@ public class IncomeDAO implements BaseDAO<Income> {
 
 
     @Override
-    public boolean update(Income oldRecord, Income newRecord) {
+    public boolean update(Income newRecord) {
         return false;
     }
 

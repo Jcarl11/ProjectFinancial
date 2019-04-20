@@ -27,7 +27,7 @@ public class StatusDAO implements BaseDAO<Status> {
     }
 
     @Override
-    public boolean update(Status oldRecord, Status newRecord) {
+    public boolean update(Status newRecord) {
         return false;
     }
 

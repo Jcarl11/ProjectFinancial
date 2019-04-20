@@ -27,7 +27,7 @@ public class SubCategoryDAO implements BaseDAO<Subcategory> {
     }
 
     @Override
-    public boolean update(Subcategory oldRecord, Subcategory newRecord) {
+    public boolean update(Subcategory newRecord) {
         return false;
     }
 

@@ -28,7 +28,7 @@ public class ProjectDAO implements BaseDAO<Projects> {
 
 
     @Override
-    public boolean update(Projects oldRecord, Projects newRecord) {
+    public boolean update(Projects newRecord) {
         return false;
     }
 

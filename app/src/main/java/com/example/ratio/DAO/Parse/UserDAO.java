@@ -126,7 +126,7 @@ public class UserDAO implements BaseDAO<User> {
 
 
     @Override
-    public boolean update(User oldRecord, User newRecord) {
+    public boolean update(User newRecord) {
         boolean isSuccessful = false;
         if(newRecord.getEmail() != null){
             try {

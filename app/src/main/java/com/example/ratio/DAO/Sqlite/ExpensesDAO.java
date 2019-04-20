@@ -27,7 +27,7 @@ public class ExpensesDAO implements BaseDAO<Expenses> {
     }
 
     @Override
-    public boolean update(Expenses oldRecord, Expenses newRecord) {
+    public boolean update(Expenses newRecord) {
         return false;
     }
 
