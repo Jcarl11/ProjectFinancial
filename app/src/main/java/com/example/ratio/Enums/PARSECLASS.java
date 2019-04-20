@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 
-public enum CloudClassNames {
+public enum PARSECLASS {
 
     EXPENSES,
     IMAGES,

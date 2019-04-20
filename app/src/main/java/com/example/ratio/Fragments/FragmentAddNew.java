@@ -25,13 +25,11 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.dpizarro.autolabel.library.AutoLabelUI;
-import com.example.ratio.Dialogs.BaseDialog;
 import com.example.ratio.Entities.ProjectType;
 import com.example.ratio.Entities.Projects;
 import com.example.ratio.Entities.Subcategory;
 import com.example.ratio.Entities.Services;
-import com.example.ratio.Enums.CloudClassNames;
+import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.PROJECT;
 import com.example.ratio.Enums.PROJECT_TYPE;
 import com.example.ratio.Enums.PROJECT_TYPE_SUBCATEGORY;
@@ -50,7 +48,6 @@ import com.vincent.filepicker.filter.entity.ImageFile;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -293,7 +290,7 @@ public class FragmentAddNew extends Fragment {
         @Override
         protected ArrayList<Services> doInBackground(Void... voids) {
             Log.d(TAG, "doInBackground: Operation Started");
-            ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudClassNames.SERVICES.toString());
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.SERVICES.toString());
             try {
                 Log.d(TAG, "doInBackground: Retrieving Services");
                 List<ParseObject> result = query.find();
@@ -345,7 +342,7 @@ public class FragmentAddNew extends Fragment {
         @Override
         protected ArrayList<ProjectType> doInBackground(Void... voids) {
             Log.d(TAG, "doInBackground: Retrieving types");
-            ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudClassNames.PROJECT_TYPE.toString());
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.PROJECT_TYPE.toString());
             try {
                 Log.d(TAG, "doInBackground: Retrieving ProjectType...");
                 List<ParseObject> result = query.addAscendingOrder(PROJECT_TYPE.NAME.toString()).find();
@@ -397,7 +394,7 @@ public class FragmentAddNew extends Fragment {
         @Override
         protected ArrayList<Subcategory> doInBackground(Void... voids) {
             Log.d(TAG, "doInBackground: Opertion started");
-            ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudClassNames.PROJECT_TYPE_SUBCATEGORY.toString());
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.PROJECT_TYPE_SUBCATEGORY.toString());
             try {
                 Log.d(TAG, "doInBackground: Retrieving Subcategory...");
                 List<ParseObject> result = query.addAscendingOrder(PROJECT_TYPE_SUBCATEGORY.NAME.toString()).find();
@@ -450,7 +447,7 @@ public class FragmentAddNew extends Fragment {
         @Override
         protected Boolean doInBackground(Void... voids) {
             Log.d(TAG, "doInBackground: Upload started");
-            ParseObject project = new ParseObject(CloudClassNames.PROJECT.toString());
+            ParseObject project = new ParseObject(PARSECLASS.PROJECT.toString());
             project.put(PROJECT.PROJECT_CODE.toString(), projects.getProjectCode());
             project.put(PROJECT.PROJECT_TITLE.toString(), projects.getProjectName());
             project.put(PROJECT.PROJECT_OWNER.toString(), projects.getProjectOwner());
