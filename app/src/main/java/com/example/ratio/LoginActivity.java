@@ -1,6 +1,4 @@
 package com.example.ratio;
-
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -13,25 +11,27 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.ratio.Dialogs.BaseDialog;
 import com.example.ratio.Dialogs.BasicDialog;
-import com.example.ratio.Entities.UserEntity;
+import com.example.ratio.Entities.User;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputLayout;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 
+import org.jetbrains.annotations.Nullable;
+
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
-    @BindView(R.id.login_username) EditText login_username;
-    @BindView(R.id.login_password) EditText login_password;
     @BindView(R.id.login_forgotpassword) TextView login_forgotpassword;
     @BindView(R.id.login_button) Button login_button;
     @BindView(R.id.login_createaccount) TextView login_createaccount;
+    @BindView(R.id.login_username) TextInputLayout login_username;
+    @BindView(R.id.login_password) TextInputLayout login_password;
     BaseDialog basicDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,10 +44,11 @@ public class LoginActivity extends AppCompatActivity {
         if(!validateField(login_username) | !validateField(login_password)) {
             return;
         }
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUsername(login_username.getText().toString().trim());
-        userEntity.setPassword(login_password.getText().toString().trim());
-        new LoginTask(userEntity).execute((Void)null);
+        User user = new User();
+        user.setUsername(login_username.getEditText().getText().toString().trim());
+        user.setPassword(login_password.getEditText().getText().toString().trim());
+        //new LoginTask(user).execute((Void)null);
+
     }
 
     @OnClick(R.id.login_forgotpassword)
@@ -75,23 +76,23 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private boolean validateField(EditText editText) {
-        String value = editText.getText().toString().trim();
+    private boolean validateField(TextInputLayout editText) {
+        String value = editText.getEditText().getText().toString().trim();
         if(value.isEmpty()) {
             editText.setError("Field cannot be empty");
             return false;
         } else {
             editText.setError(null);
-             return true;
+            return true;
         }
     }
 
     private class LoginTask extends AsyncTask<Void, Void, Boolean> {
         AlertDialog dialog;
-        UserEntity userEntity;
+        User user;
         boolean isSuccessful = false;
-        public LoginTask(UserEntity userEntity) {
-            this.userEntity = userEntity;
+        public LoginTask(User user) {
+            this.user = user;
             dialog = Utility.getInstance().showLoading(LoginActivity.this, "Logging in", false);
         }
 
@@ -99,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
         protected Boolean doInBackground(Void... voids) {
             try {
                 Log.d(TAG, "doInBackground: Logging in user...");
-                ParseUser.logIn(userEntity.getUsername(), userEntity.getPassword());
+                ParseUser.logIn(user.getUsername(), user.getPassword());
                 isSuccessful = true;
                 Log.d(TAG, "doInBackground: Login successful");
 

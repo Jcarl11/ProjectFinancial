@@ -4,7 +4,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.ratio.Entities.ProjectsEntity;
+import com.example.ratio.Entities.Projects;
 import com.example.ratio.R;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.items.AbstractItem;
@@ -18,10 +18,10 @@ import butterknife.ButterKnife;
 
 public class ProjectAdapter extends AbstractItem<ProjectAdapter, ProjectAdapter.ViewHolder> {
 
-    private ProjectsEntity projectsEntity;
+    private Projects projects;
 
-    public ProjectAdapter(ProjectsEntity projectsEntity) {
-        this.projectsEntity = projectsEntity;
+    public ProjectAdapter(Projects projects) {
+        this.projects = projects;
     }
 
 
@@ -61,10 +61,10 @@ public class ProjectAdapter extends AbstractItem<ProjectAdapter, ProjectAdapter.
 
         @Override
         public void bindView(ProjectAdapter item, List<Object> payloads) {
-            portfolio_row_code.setText(item.projectsEntity.getProjectCode());
-            portfolio_row_status.setText(item.projectsEntity.getProjectStatus());
-            portfolio_row_projectname.setText(item.projectsEntity.getProjectName());
-            Picasso.get().load(item.projectsEntity.getImagePath()).into(portfolio_row_image);
+            portfolio_row_code.setText(item.projects.getProjectCode());
+            portfolio_row_status.setText(item.projects.getProjectStatus().getName());
+            portfolio_row_projectname.setText(item.projects.getProjectName());
+            Picasso.get().load(item.projects.getThumbnail().getFilePath()).into(portfolio_row_image);
         }
 
         @Override

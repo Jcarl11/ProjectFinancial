@@ -16,25 +16,31 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
 import com.example.ratio.Adapters.ProjectAdapter;
-import com.example.ratio.Entities.ProjectsEntity;
+import com.example.ratio.Entities.Expenses;
+import com.example.ratio.Entities.Income;
+import com.example.ratio.Entities.ProjectType;
+import com.example.ratio.Entities.Projects;
 import com.example.ratio.R;
 import com.google.android.material.textfield.TextInputLayout;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class FragmentSearch extends Fragment {
+    private static final String TAG = "FragmentSearch";
     public FragmentSearch() {}
 
-    private static final String TAG = "FragmentSearch";
     @BindView(R.id.search_field_search) TextInputLayout search_field_search;
     @BindView(R.id.search_recyclerview) RecyclerView search_recyclerview;
     ItemAdapter itemAdapter = new ItemAdapter();
+    List<Expenses> expensesList = new ArrayList<>();
+    List<Income> incomeList = new ArrayList<>();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -43,6 +49,13 @@ public class FragmentSearch extends Fragment {
         search_field_search.getEditText().setOnEditorActionListener(listener());
         search_recyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
         search_recyclerview.setHasFixedSize(true);
+        expensesList.add(new Expenses("1DE2CF", "MY EXPENSES", "1234.75", false, "14:35:12 2019-08-22"));
+        expensesList.add(new Expenses("1DE2CF", "MY EXPENSES", "1234.75", false, "14:35:12 2019-08-22"));
+        expensesList.add(new Expenses("1DE2CF", "MY EXPENSES", "1234.75", false, "14:35:12 2019-08-22"));
+
+        incomeList.add(new Income("1DE2CF", "MY EXPENSES", "1234.75", false, "14:35:12 2019-08-22"));
+        incomeList.add(new Income("1DE2CF", "MY EXPENSES", "1234.75", false, "14:35:12 2019-08-22"));
+        incomeList.add(new Income("1DE2CF", "MY EXPENSES", "1234.75", false, "14:35:12 2019-08-22"));
         return view;
     }
 
@@ -51,21 +64,20 @@ public class FragmentSearch extends Fragment {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if(actionId == EditorInfo.IME_ACTION_DONE) {
-                    if(isNull(search_field_search.getEditText().getText().toString()) == false) {
+                    if(isNull(search_field_search.getEditText().getText().toString())) {
                         search_field_search.setError(null);
                         ArrayList<ProjectAdapter> values = new ArrayList<>();
-                        ProjectsEntity projectsEntity = new ProjectsEntity();
-                        projectsEntity.setProjectName("Project Title sample");
-                        projectsEntity.setCreatedAt("March 10, 2019");
-                        projectsEntity.setProjectCode("HFDJ343X");
-                        projectsEntity.setProjectOwner("Joey Francisco");
-                        projectsEntity.setProjectType("Workplace");
-                        projectsEntity.setProjectType("Office");
-                        projectsEntity.setProjectExpenses("1235.23 Php");
-                        projectsEntity.setProjectRevenue("5844185.52 Php");
+                        Projects projects = new Projects();
+                        projects.setProjectName("Project Title sample");
+                        projects.setCreatedAt("March 10, 2019");
+                        projects.setProjectCode("HFDJ343X");
+                        projects.setProjectOwner("Joey Francisco");
+                        projects.setProjectType(new ProjectType("Sample ProjectType", false));
+                        projects.setProjectExpenses(expensesList);
+                        projects.setProjectIncome(incomeList);
                         FastAdapter fastAdapter = FastAdapter.with(itemAdapter);
                         search_recyclerview.setAdapter(fastAdapter);
-                        values.add(new ProjectAdapter(projectsEntity));
+                        values.add(new ProjectAdapter(projects));
                         itemAdapter.add(values);
                     } else {
                         search_field_search.setError("This field cannot be empty");

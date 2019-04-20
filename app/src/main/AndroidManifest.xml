@@ -16,11 +16,11 @@
         android:theme="@style/AppTheme"
         tools:replace="android:icon">
         <activity android:name=".RegisterActivity"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:theme="@style/LoginRegister"
             android:windowSoftInputMode="stateHidden"></activity>
         <activity
             android:name=".LoginActivity"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:theme="@style/LoginRegister"
             android:windowSoftInputMode="stateHidden"/>
         <activity
             android:name=".SettingsActivity"

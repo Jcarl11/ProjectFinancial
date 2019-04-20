@@ -1,6 +1,6 @@
 package com.example.ratio;
 
-import com.example.ratio.Entities.ProjectTypeEntity;
+import com.example.ratio.Entities.ProjectType;
 import com.example.ratio.Fragments.FragmentAddNew;
 import com.example.ratio.Fragments.FragmentPortfolio;
 import com.example.ratio.Fragments.FragmentSearch;
@@ -17,9 +17,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import android.app.AlertDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -79,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             return true;
         } else if (id == R.id.action_clearlocal) {
-            ProjectTypeEntity.deleteAll(ProjectTypeEntity.class);
+            ProjectType.deleteAll(ProjectType.class);
             return true;
         } else if(id == R.id.action_logout) {
 

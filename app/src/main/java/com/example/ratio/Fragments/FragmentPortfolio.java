@@ -7,31 +7,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.TextView;
 
 import com.example.ratio.Adapters.ProjectAdapter;
-import com.example.ratio.Entities.ProjectsEntity;
+import com.example.ratio.Entities.Projects;
 import com.example.ratio.R;
-import com.google.android.material.snackbar.Snackbar;
-import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.mikepenz.fastadapter.FastAdapter;
-import com.mikepenz.fastadapter.IAdapter;
-import com.mikepenz.fastadapter.IItem;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
-import com.mikepenz.fastadapter.listeners.OnClickListener;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 
 /**
@@ -60,7 +47,7 @@ public class FragmentPortfolio extends Fragment {
     public ArrayList<ProjectAdapter> generateDummyData(int rowCount) {
         ArrayList<ProjectAdapter> data = new ArrayList<>();
         for( int x = 0; x < rowCount ; x++ ) {
-            ProjectsEntity rows = new ProjectsEntity();
+            Projects rows = new Projects();
             rows.setProjectCode(String.format("CT2019%s", String.valueOf(x)));
             rows.setProjectStatus("ACTIVE");
             rows.setProjectName(String.format("Project number %s", String.valueOf(x)));

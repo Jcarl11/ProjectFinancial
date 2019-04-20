@@ -4,7 +4,6 @@ package com.example.ratio.Fragments;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,26 +24,22 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.dpizarro.autolabel.library.AutoLabelUI;
 import com.example.ratio.Dialogs.BaseDialog;
-import com.example.ratio.Dialogs.BasicDialog;
-import com.example.ratio.Entities.ProjectSubcategoryEntity;
-import com.example.ratio.Entities.ProjectsEntity;
-import com.example.ratio.Entities.ServicesEntity;
+import com.example.ratio.Entities.ProjectType;
+import com.example.ratio.Entities.Projects;
+import com.example.ratio.Entities.Subcategory;
+import com.example.ratio.Entities.Services;
 import com.example.ratio.Enums.CloudClassNames;
-import com.example.ratio.Entities.ProjectTypeEntity;
 import com.example.ratio.Enums.PROJECT;
 import com.example.ratio.Enums.PROJECT_TYPE;
 import com.example.ratio.Enums.PROJECT_TYPE_SUBCATEGORY;
 import com.example.ratio.Enums.SERVICES;
 import com.example.ratio.R;
-import com.example.ratio.Dialogs.CheckBoxDialog;
 import com.example.ratio.Utility;
 import com.google.android.material.snackbar.Snackbar;
 import com.isapanah.awesomespinner.AwesomeSpinner;
-import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -78,9 +73,9 @@ public class FragmentAddNew extends Fragment {
     @BindView(R.id.addnew_checkbox_active) CheckBox addnew_checkbox_active;
     @BindView(R.id.addnew_checkbox_archived) CheckBox addnew_checkbox_archived;
     @BindView(R.id.addnew_checkbox_proposal) CheckBox addnew_checkbox_proposal;
-    ProjectTypeEntity OTHERSCHOICE_TYPESOFPROJECT = new ProjectTypeEntity(null, "Others", true);
-    ProjectSubcategoryEntity OTHERSCHOICE_SUBCATEGORY = new ProjectSubcategoryEntity(null, "Others", true, null);
-    ServicesEntity OTHERSCHOICE_SERVICES = new ServicesEntity(null, "Others", true);
+    ProjectType OTHERSCHOICE_TYPESOFPROJECT = new ProjectType("Others", true);
+    Subcategory OTHERSCHOICE_SUBCATEGORY = new Subcategory("Others", true, null);
+    Services OTHERSCHOICE_SERVICES = new Services("Others", true);
     BaseDialog dialog = null;
     BaseDialog checkBoxDialog = null;
     public FragmentAddNew() {}
@@ -90,12 +85,7 @@ public class FragmentAddNew extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_new, container, false);
         ButterKnife.bind(this, view);
-        List<ProjectTypeEntity> projectTypes = ProjectTypeEntity.listAll(ProjectTypeEntity.class); // retrieve locally persisted ProjectTypeEntities
-        List<ProjectSubcategoryEntity> projectSubcategoryEntities = ProjectSubcategoryEntity.listAll(ProjectSubcategoryEntity.class); // retrieve locally persisted ProjectSubcategoryEntity
-        List<ServicesEntity> servicesEntities = ServicesEntity.listAll(ServicesEntity.class);// retrieve locally persisted ServicesEntity
-        Log.d(TAG, "onCreateView: ProjectTypeEntity size: " + String.valueOf(projectTypes.size()));
-        Log.d(TAG, "onCreateView: ProjectSubcategoryEntity size: " + String.valueOf(projectSubcategoryEntities.size()));
-        Log.d(TAG, "onCreateView: ServicesEntity size: " + String.valueOf(servicesEntities.size()));
+
         addnew_checkbox_active.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -126,27 +116,9 @@ public class FragmentAddNew extends Fragment {
                 }
             }
         });
-        if(projectTypes.size() <= 0) {
-            new RetrieveProjectTypesTask().execute((Void)null);
-        }else{
-            Collections.sort(projectTypes);
-            projectTypes.add(projectTypes.size(), OTHERSCHOICE_TYPESOFPROJECT);
-            addnew_spinner_typeofproject.setAdapter(adapter(convertList(projectTypes)));
-        }
-        if(projectSubcategoryEntities.size() <= 0) {
-            new RetrieveSubCategoryTask().execute((Void) null);
-        } else {
-            Collections.sort(projectSubcategoryEntities);
-            projectSubcategoryEntities.add(projectSubcategoryEntities.size(), OTHERSCHOICE_SUBCATEGORY);
-            addnew_spinner_subcategory.setAdapter(adapter(convertList(projectSubcategoryEntities)));
-        }
-        if(servicesEntities.size() <= 0) {
-            new RetrieveServicesTask().execute((Void)null);
-        } else {
-            Collections.sort(servicesEntities);
-            servicesEntities.add(servicesEntities.size(), OTHERSCHOICE_SERVICES);
-            addnew_spinner_services.setAdapter(adapter(convertList(servicesEntities)));
-        }
+        new RetrieveProjectTypesTask().execute((Void)null);
+        new RetrieveSubCategoryTask().execute((Void) null);
+        new RetrieveServicesTask().execute((Void)null);
         addnew_spinner_typeofproject.setOnSpinnerItemClickListener(typeOfProjectListener());
         addnew_spinner_services.setOnSpinnerItemClickListener(servicesListener());
         addnew_spinner_subcategory.setOnSpinnerItemClickListener(subcategoryListener());
@@ -195,7 +167,7 @@ public class FragmentAddNew extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @OnClick(R.id.addnew_button_create)
     public void createBtnClicked( View view ) {
-        ProjectsEntity projectsEntity = new ProjectsEntity();
+        Projects projects = new Projects();
         if( !validateField(addnew_field_projectname) 
                 | !validateField(addnew_field_projectcode) 
                 | !validateField(addnew_field_projectowner) | !validateThumbnail(addnew_imageview_thumbnail)
@@ -218,11 +190,11 @@ public class FragmentAddNew extends Fragment {
                 return;
             }
         }
-        projectsEntity.setProjectCode(addnew_field_projectcode.getText().toString());
-        projectsEntity.setProjectName(addnew_field_projectname.getText().toString().toUpperCase());
-        projectsEntity.setProjectOwner(addnew_field_projectowner.getText().toString().toUpperCase());
+        projects.setProjectCode(addnew_field_projectcode.getText().toString());
+        projects.setProjectName(addnew_field_projectname.getText().toString().toUpperCase());
+        projects.setProjectOwner(addnew_field_projectowner.getText().toString().toUpperCase());
         Snackbar.make(getView(), "OK", Snackbar.LENGTH_SHORT).show();
-        //new CreateProjectTask(projectsEntity).execute((Void)null);
+        //new CreateProjectTask(projects).execute((Void)null);
     }
 
     private AwesomeSpinner.onSpinnerItemClickListener<String> servicesListener() {
@@ -313,15 +285,15 @@ public class FragmentAddNew extends Fragment {
         }
     }
 
-    private class RetrieveServicesTask extends AsyncTask<Void, Void, ArrayList<ServicesEntity>> {
+    private class RetrieveServicesTask extends AsyncTask<Void, Void, ArrayList<Services>> {
         AlertDialog dialog;
-        ArrayList<ServicesEntity> servicesEntities = new ArrayList<>();
+        ArrayList<Services> servicesEntities = new ArrayList<>();
         public RetrieveServicesTask() {
             dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
         }
 
         @Override
-        protected ArrayList<ServicesEntity> doInBackground(Void... voids) {
+        protected ArrayList<Services> doInBackground(Void... voids) {
             Log.d(TAG, "doInBackground: Operation Started");
             ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudClassNames.SERVICES.toString());
             try {
@@ -329,11 +301,10 @@ public class FragmentAddNew extends Fragment {
                 List<ParseObject> result = query.find();
                 Log.d(TAG, "doInBackground: result size: " + String.valueOf(result.size()));
                 for(ParseObject parseObject : result) {
-                    ServicesEntity servicesEntity = new ServicesEntity();
+                    Services servicesEntity = new Services();
                     servicesEntity.setObjectId(parseObject.getObjectId());
                     servicesEntity.setName(parseObject.getString(SERVICES.NAME.toString()));
                     servicesEntity.setOthers(false);
-                    servicesEntity.save();
                     servicesEntities.add(servicesEntity);
                 }
 
@@ -351,7 +322,7 @@ public class FragmentAddNew extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(ArrayList<ServicesEntity> servicesEntities) {
+        protected void onPostExecute(ArrayList<Services> servicesEntities) {
             Log.d(TAG, "onPostExecute: Operation done");
             Log.d(TAG, "onPostExecute: result size: " + String.valueOf(servicesEntities.size()));
             dialog.dismiss();
@@ -363,10 +334,10 @@ public class FragmentAddNew extends Fragment {
             }
         }
     }
-    private class RetrieveProjectTypesTask extends AsyncTask<Void, Void, ArrayList<ProjectTypeEntity>> {
+    private class RetrieveProjectTypesTask extends AsyncTask<Void, Void, ArrayList<ProjectType>> {
 
         AlertDialog dialog;
-        ArrayList<ProjectTypeEntity> projectTypeEntities = new ArrayList<>();
+        ArrayList<ProjectType> projectTypeEntities = new ArrayList<>();
 
         public RetrieveProjectTypesTask() {
             Log.d(TAG, "RetrieveProjectTypesTask: Started");
@@ -374,20 +345,19 @@ public class FragmentAddNew extends Fragment {
         }
 
         @Override
-        protected ArrayList<ProjectTypeEntity> doInBackground(Void... voids) {
+        protected ArrayList<ProjectType> doInBackground(Void... voids) {
             Log.d(TAG, "doInBackground: Retrieving types");
             ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudClassNames.PROJECT_TYPE.toString());
             try {
-                Log.d(TAG, "doInBackground: Retrieving ProjectTypeEntity...");
+                Log.d(TAG, "doInBackground: Retrieving ProjectType...");
                 List<ParseObject> result = query.addAscendingOrder(PROJECT_TYPE.NAME.toString()).find();
                 Log.d(TAG, "doInBackground: result size: " + String.valueOf(result.size()));
                 for(ParseObject parseObject : result) {
-                    ProjectTypeEntity projectTypeEntity = new ProjectTypeEntity();
-                    projectTypeEntity.setObjectId(parseObject.getObjectId());
-                    projectTypeEntity.setName(parseObject.getString(PROJECT_TYPE.NAME.toString()));
-                    projectTypeEntity.setOthers(false);
-                    projectTypeEntity.save();
-                    projectTypeEntities.add(projectTypeEntity);
+                    ProjectType projectType = new ProjectType();
+                    projectType.setObjectId(parseObject.getObjectId());
+                    projectType.setName(parseObject.getString(PROJECT_TYPE.NAME.toString()));
+                    projectType.setOthers(false);
+                    projectTypeEntities.add(projectType);
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
@@ -403,7 +373,7 @@ public class FragmentAddNew extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(ArrayList<ProjectTypeEntity> projectTypeEntities) {
+        protected void onPostExecute(ArrayList<ProjectType> projectTypeEntities) {
             Log.d(TAG, "onPostExecute: Operation done");
             Log.d(TAG, "onPostExecute: result size: " + String.valueOf(projectTypeEntities.size()));
             dialog.dismiss();
@@ -417,31 +387,30 @@ public class FragmentAddNew extends Fragment {
         }
     }
 
-    private class RetrieveSubCategoryTask extends AsyncTask<Void, Void, ArrayList<ProjectSubcategoryEntity>>{
+    private class RetrieveSubCategoryTask extends AsyncTask<Void, Void, ArrayList<Subcategory>>{
 
         AlertDialog dialog;
-        ArrayList<ProjectSubcategoryEntity> projectSubcategoryEntities = new ArrayList<>();
+        ArrayList<Subcategory> projectSubcategoryEntities = new ArrayList<>();
         public RetrieveSubCategoryTask() {
             dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
             Log.d(TAG, "RetrieveSubCategoryTask: Started");
         }
 
         @Override
-        protected ArrayList<ProjectSubcategoryEntity> doInBackground(Void... voids) {
+        protected ArrayList<Subcategory> doInBackground(Void... voids) {
             Log.d(TAG, "doInBackground: Opertion started");
             ParseQuery<ParseObject> query = ParseQuery.getQuery(CloudClassNames.PROJECT_TYPE_SUBCATEGORY.toString());
             try {
-                Log.d(TAG, "doInBackground: Retrieving ProjectSubcategoryEntity...");
+                Log.d(TAG, "doInBackground: Retrieving Subcategory...");
                 List<ParseObject> result = query.addAscendingOrder(PROJECT_TYPE_SUBCATEGORY.NAME.toString()).find();
                 Log.d(TAG, "doInBackground: result size: " + String.valueOf(result.size()));
                 for(ParseObject parseObject : result) {
-                    ProjectSubcategoryEntity projectSubcategoryEntity = new ProjectSubcategoryEntity();
-                    projectSubcategoryEntity.setObjectId(parseObject.getObjectId());
-                    projectSubcategoryEntity.setName(parseObject.getString(PROJECT_TYPE_SUBCATEGORY.NAME.toString()));
-                    projectSubcategoryEntity.setOthers(false);
-                    projectSubcategoryEntity.setParent(parseObject.getString(PROJECT_TYPE_SUBCATEGORY.PARENT.toString()));
-                    projectSubcategoryEntity.save();
-                    projectSubcategoryEntities.add(projectSubcategoryEntity);
+                    Subcategory subcategory = new Subcategory();
+                    subcategory.setObjectId(parseObject.getObjectId());
+                    subcategory.setName(parseObject.getString(PROJECT_TYPE_SUBCATEGORY.NAME.toString()));
+                    subcategory.setOthers(false);
+                    subcategory.setParent(parseObject.getString(PROJECT_TYPE_SUBCATEGORY.PARENT.toString()));
+                    projectSubcategoryEntities.add(subcategory);
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
@@ -456,7 +425,7 @@ public class FragmentAddNew extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(ArrayList<ProjectSubcategoryEntity> projectSubcategoryEntities) {
+        protected void onPostExecute(ArrayList<Subcategory> projectSubcategoryEntities) {
             dialog.dismiss();
             Log.d(TAG, "onPostExecute: Operation done");
             Log.d(TAG, "onPostExecute: Result size: " + String.valueOf(projectSubcategoryEntities.size()));
@@ -473,10 +442,10 @@ public class FragmentAddNew extends Fragment {
     private class CreateProjectTask extends AsyncTask<Void, Void, Boolean> {
 
         AlertDialog dialog;
-        ProjectsEntity projectsEntity;
+        Projects projects;
         boolean successful = false;
-        public CreateProjectTask(ProjectsEntity projectEntity) {
-            this.projectsEntity = projectEntity;
+        public CreateProjectTask(Projects projectEntity) {
+            this.projects = projectEntity;
             dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
         }
 
@@ -484,12 +453,12 @@ public class FragmentAddNew extends Fragment {
         protected Boolean doInBackground(Void... voids) {
             Log.d(TAG, "doInBackground: Upload started");
             ParseObject project = new ParseObject(CloudClassNames.PROJECT.toString());
-            project.put(PROJECT.PROJECT_CODE.toString(), projectsEntity.getProjectCode());
-            project.put(PROJECT.PROJECT_TITLE.toString(), projectsEntity.getProjectName());
-            project.put(PROJECT.PROJECT_OWNER.toString(), projectsEntity.getProjectOwner());
-            project.put(PROJECT.SERVICES.toString(), projectsEntity.getProjectServices());
-            project.put(PROJECT.TYPE.toString(), projectsEntity.getProjectType());
-            project.put(PROJECT.SUBCATEGORY.toString(), projectsEntity.getProjectSubCategory());
+            project.put(PROJECT.PROJECT_CODE.toString(), projects.getProjectCode());
+            project.put(PROJECT.PROJECT_TITLE.toString(), projects.getProjectName());
+            project.put(PROJECT.PROJECT_OWNER.toString(), projects.getProjectOwner());
+            project.put(PROJECT.SERVICES.toString(), projects.getProjectServices());
+            project.put(PROJECT.TYPE.toString(), projects.getProjectType());
+            project.put(PROJECT.SUBCATEGORY.toString(), projects.getProjectSubCategory());
             try {
                 project.save();
                 successful = true;

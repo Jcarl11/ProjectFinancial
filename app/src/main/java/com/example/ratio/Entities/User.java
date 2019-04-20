@@ -1,21 +1,9 @@
 package com.example.ratio.Entities;
 
-public class UserEntity {
-    private String objectId;
+public class User extends Entity {
     private String email;
     private String username;
     private String password;
-
-    public UserEntity() {
-    }
-
-    public String getObjectId() {
-        return objectId;
-    }
-
-    public void setObjectId(String objectId) {
-        this.objectId = objectId;
-    }
 
     public String getEmail() {
         return email;
