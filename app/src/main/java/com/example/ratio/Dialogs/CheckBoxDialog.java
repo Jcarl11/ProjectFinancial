@@ -7,17 +7,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class CheckBoxDialog extends BaseDialog {
-    AutoLabelUI autoLabelUI = null;
-    ArrayList<String> selectedValues = new ArrayList<>();
-    public CheckBoxDialog(Context context, String title, String[] sourceList) {
-        super(context, title, sourceList);
+
+    private AutoLabelUI autoLabelUI = null;
+    private ArrayList<String> selectedValues = new ArrayList<>();
+
+    public CheckBoxDialog(Context context) {
+        super(context);
     }
 
     @Override
     public void showDialog() {
         dialogBuilder.setTitle(title);
-        dialogBuilder.setPositiveButton("OK", positiveButton());
-        dialogBuilder.setNegativeButton("CANCEL", negativeButton());
+        dialogBuilder.setCancelable(cancellable);
+        dialogBuilder.setPositiveButton(positiveText, positiveButton());
+        dialogBuilder.setNegativeButton(negativeText, negativeButton());
         dialogBuilder.setMultiChoiceItems(sourceList, null, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which, boolean isChecked) {

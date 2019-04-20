@@ -37,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
+        basicDialog = new BasicDialog(this);
     }
 
     @OnClick(R.id.login_button)
@@ -65,11 +66,13 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if(requestCode == 1) {
             if(resultCode == RESULT_OK) {
-                basicDialog = new BasicDialog(this, "Result", "Account registered successfully");
+                basicDialog.setTitle("Result");
+                basicDialog.setMessage("Account registered successfully");
                 basicDialog.showDialog();
             } else if(resultCode == RESULT_CANCELED) {
                 if(data != null) {
-                    basicDialog = new BasicDialog(this, "Result", "Register failed");
+                    basicDialog.setTitle("Result");
+                    basicDialog.setMessage("Register failed");
                     basicDialog.showDialog();
                 }
             }
@@ -123,8 +126,10 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
                 finish();
             } else {
-                basicDialog = new BasicDialog(LoginActivity.this, "Result","Wrong credentials" );
+                basicDialog.setTitle("Result");
+                basicDialog.setMessage("Wrong credentials");
                 basicDialog.showDialog();
+
             }
         }
     }

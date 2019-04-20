@@ -7,51 +7,50 @@ import android.content.DialogInterface;
 import java.util.List;
 
 public abstract class BaseDialog {
-    String[] sourceList = null;
-    AlertDialog.Builder dialogBuilder = null;
-    Context context;
-    String title;
-    String message;
+    protected String title = "Title";
+    protected String message = "Message";
+    protected boolean cancellable = true;
+    protected String[] sourceList = null;
+    protected String positiveText = "OK";
+    protected String negativeText = "NO";
+    protected AlertDialog.Builder dialogBuilder = null;
+    protected Context context;
 
-    public BaseDialog(Context context, String title, String message) {
+    public BaseDialog(Context context) {
         this.context = context;
+        dialogBuilder = new AlertDialog.Builder(context);
+    }
+
+    public void showDialog(){
+        dialogBuilder.setTitle(title)
+                .setMessage(message)
+                .setCancelable(cancellable).show();
+    }
+
+    protected abstract DialogInterface.OnClickListener positiveButton();
+    protected abstract DialogInterface.OnClickListener negativeButton();
+
+    public void setTitle(String title) {
         this.title = title;
+    }
+
+    public void setMessage(String message) {
         this.message = message;
-        dialogBuilder = new AlertDialog.Builder(context);
     }
 
-    public BaseDialog(Context context, String title, String[] sourceList) {
-        this.context = context;
-        this.title = title;
+    public void setCancellable(boolean cancellable) {
+        this.cancellable = cancellable;
+    }
+
+    public void setSourceList(String[] sourceList) {
         this.sourceList = sourceList;
-        dialogBuilder = new AlertDialog.Builder(context);
     }
 
-    public void showDialog() {
-        dialogBuilder
-                .setTitle(title)
-                .setCancelable(true)
-                .setMessage(message);
-        dialogBuilder.show();
+    public void setPositiveText(String positiveText) {
+        this.positiveText = positiveText;
     }
 
-    public DialogInterface.OnClickListener positiveButton() {
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        };
-        return listener;
+    public void setNegativeText(String negativeText) {
+        this.negativeText = negativeText;
     }
-    public DialogInterface.OnClickListener negativeButton() {
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        };
-        return listener;
-    }
-
 }

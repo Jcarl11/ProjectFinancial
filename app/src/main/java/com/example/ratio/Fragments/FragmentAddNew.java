@@ -76,8 +76,6 @@ public class FragmentAddNew extends Fragment {
     ProjectType OTHERSCHOICE_TYPESOFPROJECT = new ProjectType("Others", true);
     Subcategory OTHERSCHOICE_SUBCATEGORY = new Subcategory("Others", true, null);
     Services OTHERSCHOICE_SERVICES = new Services("Others", true);
-    BaseDialog dialog = null;
-    BaseDialog checkBoxDialog = null;
     public FragmentAddNew() {}
 
     @Override
