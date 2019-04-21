@@ -57,6 +57,7 @@ public class StatusDAO implements BaseDAO<Status> {
     @Override
     public Status get(String objectId) {
         Log.d(TAG, "get: Started...");
+        parseObject = null;
         ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.STATUS.toString());
         try {
             Log.d(TAG, "get: Retriving object...");
@@ -126,12 +127,17 @@ public class StatusDAO implements BaseDAO<Status> {
     public int delete(Status object) {
         Log.d(TAG, "delete: Started...");
         result = 0;
+        parseObject = null;
         ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.STATUS.toString());
         try {
+            Log.d(TAG, "delete: Retrieving object...");
+            parseObject = query.get(object.getObjectId());
+            Log.d(TAG, "delete: Object Retrieved");
             Log.d(TAG, "delete: Deleting...");
-            query.get(object.getObjectId());
-            result = 1;
+            parseObject.delete();
             Log.d(TAG, "delete: Object deleted");
+            result = 1;
+
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "delete: Exception thrown: " + e.getMessage());
