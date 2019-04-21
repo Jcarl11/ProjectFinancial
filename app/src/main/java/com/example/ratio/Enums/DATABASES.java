@@ -1,6 +1,6 @@
 package com.example.ratio.Enums;
 
-public enum Databases {
+public enum DATABASES {
     PARSE,
     SQLITE
 }

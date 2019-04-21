@@ -5,6 +5,7 @@ import android.util.Log;
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.Entities.User;
 import com.example.ratio.Enums.PARSECLASS;
+import com.example.ratio.Utility;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -14,6 +15,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.Nullable;
 
 public class UserDAO implements BaseDAO<User> {
     private static final String TAG = "UserDAO";
@@ -97,13 +100,13 @@ public class UserDAO implements BaseDAO<User> {
     }
 
     @Override
-    public List<User> getBulk(String sqlCommand) { // SQL Command can be nullable, Applicable only to Sqlite, Can also be used for limiting the number of result
+    public List<User> getBulk(@Nullable String sqlCommand) { // this parameter can be nullable, Applicable only to Sqlite, Can also be used for limiting the number of result
         Log.d(TAG, "getBulk: started");
-        defaultLimit = checkIfInteger(sqlCommand) == true ? Integer.valueOf(sqlCommand) : 50;
+        defaultLimit = Utility.getInstance().checkIfInteger(sqlCommand) == true ? Integer.valueOf(sqlCommand) : 50; // check sqlCommand if integer then convert, if not assign default limit to 50(No change)
         Log.d(TAG, "getBulk: Limit set to " + String.valueOf(defaultLimit));
         List<User> userEntityList = new ArrayList<>();
         ParseQuery<ParseUser> getbulk = ParseUser.getQuery();
-        getbulk.setLimit(defaultLimit); // default limit of 50 rows
+        getbulk.setLimit(defaultLimit);
         try {
             Log.d(TAG, "getBulk: Retrieving users...");
             List<ParseUser> userList = getbulk.find();
@@ -162,14 +165,5 @@ public class UserDAO implements BaseDAO<User> {
         return 0;
     }
 
-    private boolean checkIfInteger(String input){
-        boolean isInteger = false;
-        try{
-            Integer.parseInt(input);
-            isInteger = true;
-        }catch(Exception ex){
-            Log.d(TAG, "checkIfInteger: Exception thrown: " + ex.getMessage());
-        }
-        return isInteger;
-    }
+
 }

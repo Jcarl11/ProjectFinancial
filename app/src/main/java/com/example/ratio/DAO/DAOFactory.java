@@ -2,7 +2,7 @@ package com.example.ratio.DAO;
 
 import com.example.ratio.DAO.Parse.ParseFactory;
 import com.example.ratio.DAO.Sqlite.SqliteFactory;
-import com.example.ratio.Enums.Databases;
+import com.example.ratio.Enums.DATABASES;
 
 public abstract class DAOFactory {
     public abstract BaseDAO getUserDAO();
@@ -16,7 +16,7 @@ public abstract class DAOFactory {
     public abstract BaseDAO getProjectTypeDAO();
     public abstract BaseDAO getSubcategoryDAO();
 
-    public static DAOFactory getDatabase(Databases db){
+    public static DAOFactory getDatabase(DATABASES db){
         DAOFactory daoFactory = null;
         switch (db){
             case PARSE:

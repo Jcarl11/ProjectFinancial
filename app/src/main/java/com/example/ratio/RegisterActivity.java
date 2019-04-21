@@ -13,10 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import com.example.ratio.DAO.BaseDAO;
-import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.Entities.User;
-import com.example.ratio.Enums.Databases;
 import com.google.android.material.textfield.TextInputLayout;
 import com.parse.ParseException;
 import com.parse.ParseUser;
