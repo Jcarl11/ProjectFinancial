@@ -1,9 +1,6 @@
 package com.example.ratio;
 
 import androidx.appcompat.app.AppCompatActivity;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -13,32 +10,42 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.ratio.DAO.BaseDAO;
+import com.example.ratio.DAO.DAOFactory;
+import com.example.ratio.DAO.Parse.UserDAO;
+import com.example.ratio.Dialogs.BaseDialog;
+import com.example.ratio.Dialogs.BasicDialog;
 import com.example.ratio.Entities.User;
+import com.example.ratio.Enums.DATABASES;
 import com.google.android.material.textfield.TextInputLayout;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.Click;
+import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.UiThread;
+import org.androidannotations.annotations.ViewById;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@EActivity(R.layout.activity_register)
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "RegisterActivity";
-    @BindView(R.id.register_email) TextInputLayout register_email;
-    @BindView(R.id.register_username) TextInputLayout register_username;
-    @BindView(R.id.register_password) TextInputLayout register_password;
-    @BindView(R.id.register_repassword) TextInputLayout register_repassword;
-    @BindView(R.id.register_submit) Button register_submit;
+    @ViewById TextInputLayout register_email;
+    @ViewById TextInputLayout register_username;
+    @ViewById TextInputLayout register_password;
+    @ViewById TextInputLayout register_repassword;
+    @ViewById Button register_submit;
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
-        ButterKnife.bind(this);
-    }
+    AlertDialog dialog;
 
-    @OnClick(R.id.register_submit)
-    public void submitClicked(View view){
+
+    @Click(R.id.register_submit)
+    void submitClicked(View view){
         if(!validateField(register_email) | !validateField(register_username)
                 | !validateField(register_password) | !validateField(register_repassword)) {
             return;
@@ -55,9 +62,29 @@ public class RegisterActivity extends AppCompatActivity {
         user.setEmail(register_email.getEditText().getText().toString().trim());
         user.setUsername(register_username.getEditText().getText().toString().trim());
         user.setPassword(register_password.getEditText().getText().toString().trim());
-        new RegisterTask(user).execute((Void) null);
-    }
+        dialog = Utility.getInstance().showLoading(this, "Please wait", false);
+        dialog.show();
+        registerUser(user);
 
+    }
+    @Background void registerUser(User user){
+        DAOFactory factory = DAOFactory.getDatabase(DATABASES.PARSE);
+        BaseDAO<User> userDAO = factory.getUserDAO();
+        int result = userDAO.insert(user);
+        registerDone(result);
+    }
+    @UiThread void registerDone(int result){
+        dialog.dismiss();
+        Bundle bundle = new Bundle();
+        bundle.putInt("RESULT", result);
+        if(result <= 0) {
+            setResult(RESULT_CANCELED, new Intent().putExtras(bundle));
+            finish();
+            return;
+        }
+        setResult(RESULT_OK, new Intent().putExtras(bundle));
+        finish();
+    }
     private boolean validateField(TextInputLayout editText) {
         String data = editText.getEditText().getText().toString().trim();
         if(data.isEmpty()) {
@@ -69,56 +96,6 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
-    private class RegisterTask extends AsyncTask<Void, Void, Boolean> {
-
-        AlertDialog dialog;
-        User user;
-        boolean isSuccessful = false;
-        public RegisterTask(User user) {
-            this.user = user;
-            Log.d(TAG, "RegisterTask: Constructor");
-            dialog = Utility.getInstance().showLoading(RegisterActivity.this, "Please wait", false);
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... voids) {
-            Log.d(TAG, "doInBackground: Operation started");
-            ParseUser parseUser = new ParseUser();
-            parseUser.setEmail(user.getEmail());
-            parseUser.setUsername(user.getUsername());
-            parseUser.setPassword(user.getPassword());
-            try {
-                Log.d(TAG, "doInBackground: Signing up user...");
-                parseUser.signUp();
-                ParseUser.logOut();
-                isSuccessful = true;
-                Log.d(TAG, "doInBackground: Signup successful");
-            } catch (ParseException e) {
-                e.printStackTrace();
-                Log.d(TAG, "doInBackground: Signup failed, Exception thrown: " + e.getMessage());
-            }
-            return isSuccessful;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            dialog.show();
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            dialog.dismiss();
-            Bundle bundle = new Bundle();
-            bundle.putBoolean("RESULT", aBoolean);
-            if(aBoolean) {
-                setResult(RESULT_OK, new Intent().putExtras(bundle));
-                finish();
-            } else {
-                setResult(RESULT_CANCELED, new Intent().putExtras(bundle));
-                finish();
-            }
-        }
-    }
     public boolean validateEmailAddress(TextInputLayout textInputLayout) {
         String emailStr = textInputLayout.getEditText().getText().toString().trim();
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX .matcher(emailStr);

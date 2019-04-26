@@ -10,11 +10,13 @@ import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.items.AbstractItem;
 import com.squareup.picasso.Picasso;
 
+import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.ViewById;
+
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class ProjectAdapter extends AbstractItem<ProjectAdapter, ProjectAdapter.ViewHolder> {
 
@@ -41,22 +43,20 @@ public class ProjectAdapter extends AbstractItem<ProjectAdapter, ProjectAdapter.
         return new ViewHolder(v);
     }
 
-
     public class ViewHolder extends FastAdapter.ViewHolder<ProjectAdapter> {
 
-        @BindView(R.id.portfolio_row_code)
-        public TextView portfolio_row_code;
-        @BindView(R.id.portfolio_row_image)
+        TextView portfolio_row_code;
         ImageView portfolio_row_image;
-        @BindView(R.id.portfolio_row_status)
         TextView portfolio_row_status;
-        @BindView(R.id.portfolio_row_projectname)
         TextView portfolio_row_projectname;
 
 
         public ViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this, itemView);
+            portfolio_row_code = (TextView) itemView.findViewById(R.id.portfolio_row_code);
+            portfolio_row_image = (ImageView) itemView.findViewById(R.id.portfolio_row_image);
+            portfolio_row_status = (TextView) itemView.findViewById(R.id.portfolio_row_status);
+            portfolio_row_projectname = (TextView) itemView.findViewById(R.id.portfolio_row_projectname);
         }
 
         @Override

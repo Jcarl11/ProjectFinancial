@@ -7,19 +7,17 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name="com.orm.SugarApp"
         android:allowBackup="true"
         android:icon="@drawable/ratiologo"
         android:label="@string/app_name"
         android:roundIcon="@drawable/ratiologo"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        tools:replace="android:icon">
-        <activity android:name=".RegisterActivity"
+        android:theme="@style/AppTheme">
+        <activity android:name=".RegisterActivity_"
             android:theme="@style/LoginRegister"
             android:windowSoftInputMode="stateHidden"></activity>
         <activity
-            android:name=".LoginActivity"
+            android:name=".LoginActivity_"
             android:theme="@style/LoginRegister"
             android:windowSoftInputMode="stateHidden"/>
         <activity
@@ -31,7 +29,7 @@
                 android:value="com.example.ratio.MainActivity" />
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".MainActivity_"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden">
@@ -50,19 +48,7 @@
             android:value="@string/back4app_app_id" />
         <meta-data
             android:name="com.parse.CLIENT_KEY"
-            android:value="@string/back4app_client_key" />
-        <meta-data
-            android:name="DATABASE"
-            android:value="LocalStorage.db" />
-        <meta-data
-            android:name="VERSION"
-            android:value="2" />
-        <meta-data
-            android:name="QUERY_LOG"
-            android:value="true" />
-        <meta-data
-            android:name="DOMAIN_PACKAGE_NAME"
-            android:value="com.example.ratio.Entities" />
+            android:value="@string/back4app_client_key" /> />
     </application>
 
 </manifest>

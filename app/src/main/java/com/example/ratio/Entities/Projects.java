@@ -1,5 +1,7 @@
 package com.example.ratio.Entities;
 
+import org.json.JSONArray;
+
 import java.util.List;
 
 public class Projects extends Entity {
@@ -15,6 +17,7 @@ public class Projects extends Entity {
     private Status projectStatus;
     private Image thumbnail;
     private boolean deleted;
+    private JSONArray tags;
 
     public String getProjectName() {
         return projectName;
@@ -110,5 +113,13 @@ public class Projects extends Entity {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public JSONArray getTags() {
+        return tags;
+    }
+
+    public void setTags(JSONArray tags) {
+        this.tags = tags;
     }
 }

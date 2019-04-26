@@ -1,7 +1,5 @@
 package com.example.ratio.Entities;
 
-import com.orm.SugarRecord;
-
 public class Services extends Entity{
     private String name;
     private boolean others;
@@ -33,4 +31,6 @@ public class Services extends Entity{
     public String toString() {
         return getName();
     }
+
+
 }

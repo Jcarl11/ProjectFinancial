@@ -1,6 +1,9 @@
 package com.example.ratio;
 
-import com.example.ratio.Entities.ProjectType;
+import com.example.ratio.DAO.DAOFactory;
+import com.example.ratio.DAO.UserOperations;
+import com.example.ratio.Entities.User;
+import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Fragments.FragmentAddNew;
 import com.example.ratio.Fragments.FragmentPortfolio;
 import com.example.ratio.Fragments.FragmentSearch;
@@ -9,6 +12,7 @@ import com.parse.Parse;
 import com.parse.ParseUser;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -17,79 +21,82 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.app.AlertDialog;
 import android.content.Intent;
-import android.os.Bundle;
-import android.view.Menu;
+import android.util.Log;
 import android.view.MenuItem;
+
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
+import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@EActivity(R.layout.activity_main)
+@OptionsMenu(R.menu.menu_main)
 public class MainActivity extends AppCompatActivity {
-
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    private ViewPager mViewPager;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    private static final String TAG = "MainActivity";
+    SectionsPagerAdapter mSectionsPagerAdapter;
+    @ViewById ViewPager container;
+    @ViewById Toolbar toolbar;
+    @ViewById TabLayout tabs;
+    @OptionsMenuItem MenuItem action_settings;
+    @OptionsMenuItem MenuItem action_clearlocal;
+    @OptionsMenuItem MenuItem action_logout;
+    DAOFactory parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
+    DAOFactory sqliteFactory = DAOFactory.getDatabase(DATABASES.SQLITE);
+    AlertDialog alertDialog;
+    @AfterViews
+    void afterView(){
+        setSupportActionBar(toolbar);
         initializeParse();
-
-        if(ParseUser.getCurrentUser() != null) {
-            mViewPager = (ViewPager) findViewById(R.id.container);
-            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar);
-            mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-            mSectionsPagerAdapter.addFragment(new FragmentAddNew(), "Add new");
-            mSectionsPagerAdapter.addFragment(new FragmentPortfolio(), "Portfolio");
-            mSectionsPagerAdapter.addFragment(new FragmentSearch(), "Search");
-            // Set up the ViewPager with the sections adapter.
-
-            mViewPager.setAdapter(mSectionsPagerAdapter);
-
-            TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-
-            mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-            tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
-        } else {
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        if(ParseUser.getCurrentUser() == null){
+            LoginActivity_.intent(this).start();
             finish();
+            return;
         }
-    }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-            return true;
-        } else if (id == R.id.action_clearlocal) {
-            ProjectType.deleteAll(ProjectType.class);
-            return true;
-        } else if(id == R.id.action_logout) {
-
-            ParseUser.logOut();
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
-            finish();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        mSectionsPagerAdapter.addFragment(new FragmentAddNew(), "Add new");
+        mSectionsPagerAdapter.addFragment(new FragmentPortfolio(), "Portfolio");
+        mSectionsPagerAdapter.addFragment(new FragmentSearch(), "Search");
+        container.setAdapter(mSectionsPagerAdapter);
+        container.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
+        tabs.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(container));
     }
 
+    @OptionsItem(R.id.action_settings)
+    void settingsClicked(){
+        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+    }
+
+    @OptionsItem(R.id.action_clearlocal)
+    void clearLocalStorage(){
+        Log.d(TAG, "clearLocalStorage: Clicked");
+    }
+
+    @OptionsItem(R.id.action_logout)
+    void logoutClicked(){
+        alertDialog = Utility.getInstance().showLoading(this, "Logging out", false);
+        alertDialog.show();
+        logoutTask();
+
+    }
+    @Background void logoutTask(){
+        UserOperations<User> userUserOperations = (UserOperations<User>) parseFactory.getUserDAO();
+        userUserOperations.logoutUser();
+        logoutDone();
+    }
+
+    @UiThread void logoutDone(){
+        alertDialog.dismiss();
+        LoginActivity_.intent(this).start();
+        finish();
+    }
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to

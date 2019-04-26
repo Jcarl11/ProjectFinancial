@@ -6,6 +6,16 @@ public class Image extends Entity {
     private String filePath;
     private boolean deleted;
 
+    public Image() {
+    }
+
+    public Image(String parent, String fileName, String filePath, boolean deleted) {
+        this.parent = parent;
+        this.fileName = fileName;
+        this.filePath = filePath;
+        this.deleted = deleted;
+    }
+
     public String getParent() {
         return parent;
     }

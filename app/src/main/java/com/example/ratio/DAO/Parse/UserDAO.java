@@ -3,14 +3,12 @@ package com.example.ratio.DAO.Parse;
 import android.util.Log;
 
 import com.example.ratio.DAO.BaseDAO;
+import com.example.ratio.DAO.UserOperations;
 import com.example.ratio.Entities.User;
-import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Utility;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,7 +16,7 @@ import java.util.List;
 
 import androidx.annotation.Nullable;
 
-public class UserDAO implements BaseDAO<User> {
+public class UserDAO implements BaseDAO<User>, UserOperations<User> {
     private static final String TAG = "UserDAO";
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
     ParseUser parseUser = null;
@@ -165,5 +163,35 @@ public class UserDAO implements BaseDAO<User> {
         return 0;
     }
 
+    @Override
+    public User loginUser(User userObject) {
+        Log.d(TAG, "loginUser: Started...");
+        ParseUser user = null;
+        User userEntity = null;
+        try {
+            Log.d(TAG, "loginUser: Logging in user...");
+            user = ParseUser.logIn(userObject.getUsername(), userObject.getPassword());
+            Log.d(TAG, "loginUser: User logged in: " + user.getObjectId());
+            Log.d(TAG, "loginUser: User logged in: " + user.getUsername());
+        } catch (ParseException e) {
+            e.printStackTrace();
+            Log.d(TAG, "loginUser: Exception thrown: " + e.getMessage());
+        }
+        if(user != null){
+            userEntity = new User();
+            userEntity.setObjectId(user.getObjectId());
+            userEntity.setCreatedAt(dateFormat.format(user.getCreatedAt()));
+            userEntity.setUpdatedAt(dateFormat.format(user.getUpdatedAt()));
+            userEntity.setUsername(user.getUsername());
+            userEntity.setEmail(user.getEmail());
+        }
+        return userEntity;
+    }
 
+    @Override
+    public void logoutUser() {
+        Log.d(TAG, "logoutUser: Logging out user...");
+        ParseUser.logOut();
+        Log.d(TAG, "logoutUser: Logout finished");
+    }
 }

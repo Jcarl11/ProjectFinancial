@@ -1,6 +1,5 @@
 package com.example.ratio.Entities;
 
-import com.orm.SugarRecord;
 
 public class Subcategory extends Entity {
     private String name;

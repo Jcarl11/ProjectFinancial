@@ -6,5 +6,8 @@ public enum PROJECT {
     PROJECT_OWNER,
     SERVICES,
     TYPE,
-    SUBCATEGORY
+    SUBCATEGORY,
+    STATUS,
+    DELETED,
+    Tags
 }

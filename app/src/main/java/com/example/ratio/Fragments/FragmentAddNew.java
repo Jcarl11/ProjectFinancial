@@ -10,9 +10,6 @@ import android.os.Bundle;
 
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,6 +43,11 @@ import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.ImagePickActivity;
 import com.vincent.filepicker.filter.entity.ImageFile;
 
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Click;
+import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.ViewById;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,34 +55,30 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
+@EFragment(R.layout.fragment_add_new)
 public class FragmentAddNew extends Fragment {
 
     private static final String TAG = "FragmentAddNew";
-    @BindView(R.id.addnew_field_projectname) EditText addnew_field_projectname;
-    @BindView(R.id.addnew_field_projectcode) EditText addnew_field_projectcode;
-    @BindView(R.id.addnew_field_projectowner) EditText addnew_field_projectowner;
-    @BindView(R.id.addnew_spinner_typeofproject) AwesomeSpinner addnew_spinner_typeofproject;
-    @BindView(R.id.addnew_spinner_subcategory) AwesomeSpinner addnew_spinner_subcategory;
-    @BindView(R.id.addnew_spinner_services) AwesomeSpinner addnew_spinner_services;
-    @BindView(R.id.addnew_button_create) Button addnew_button_create;
-    @BindView(R.id.addnew_field_specificservice) EditText addnew_field_specificservice;
-    @BindView(R.id.addnew_field_specifictype) EditText addnew_field_specifictype;
-    @BindView(R.id.addnew_field_specificsubcategory) EditText addnew_field_specificsubcategory;
-    @BindView(R.id.addnew_imageview_thumbnail) ImageView addnew_imageview_thumbnail;
-    @BindView(R.id.addnew_checkbox_active) CheckBox addnew_checkbox_active;
-    @BindView(R.id.addnew_checkbox_archived) CheckBox addnew_checkbox_archived;
-    @BindView(R.id.addnew_checkbox_proposal) CheckBox addnew_checkbox_proposal;
+    @ViewById EditText addnew_field_projectname;
+    @ViewById EditText addnew_field_projectcode;
+    @ViewById EditText addnew_field_projectowner;
+    @ViewById AwesomeSpinner addnew_spinner_typeofproject;
+    @ViewById AwesomeSpinner addnew_spinner_subcategory;
+    @ViewById AwesomeSpinner addnew_spinner_services;
+    @ViewById Button addnew_button_create;
+    @ViewById EditText addnew_field_specificservice;
+    @ViewById EditText addnew_field_specifictype;
+    @ViewById EditText addnew_field_specificsubcategory;
+    @ViewById ImageView addnew_imageview_thumbnail;
+    @ViewById CheckBox addnew_checkbox_active;
+    @ViewById CheckBox addnew_checkbox_archived;
+    @ViewById CheckBox addnew_checkbox_proposal;
     ProjectType OTHERSCHOICE_TYPESOFPROJECT = new ProjectType("Others", true);
     Subcategory OTHERSCHOICE_SUBCATEGORY = new Subcategory("Others", true, null);
     Services OTHERSCHOICE_SERVICES = new Services("Others", true);
     public FragmentAddNew() {}
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_add_new, container, false);
-        ButterKnife.bind(this, view);
-
+    @AfterViews void afterView(){
         addnew_checkbox_active.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -117,7 +115,6 @@ public class FragmentAddNew extends Fragment {
         addnew_spinner_typeofproject.setOnSpinnerItemClickListener(typeOfProjectListener());
         addnew_spinner_services.setOnSpinnerItemClickListener(servicesListener());
         addnew_spinner_subcategory.setOnSpinnerItemClickListener(subcategoryListener());
-        return view;
     }
 
     private ArrayAdapter<String> adapter(List<String> data) {
@@ -132,8 +129,8 @@ public class FragmentAddNew extends Fragment {
         }
         return result;
     }
-    @OnClick(R.id.addnew_imageview_thumbnail)
-    public void imageChoose(View view) {
+    @Click(R.id.addnew_imageview_thumbnail)
+    void imageChoose(View view) {
         String IS_NEED_CAMERA = new String();
         Intent intent1 = new Intent(getContext(), ImagePickActivity.class);
         intent1.putExtra(IS_NEED_CAMERA, true);
@@ -160,8 +157,8 @@ public class FragmentAddNew extends Fragment {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    @OnClick(R.id.addnew_button_create)
-    public void createBtnClicked( View view ) {
+    @Click(R.id.addnew_button_create)
+    void createBtnClicked( View view ) {
         Projects projects = new Projects();
         if( !validateField(addnew_field_projectname) 
                 | !validateField(addnew_field_projectcode) 
