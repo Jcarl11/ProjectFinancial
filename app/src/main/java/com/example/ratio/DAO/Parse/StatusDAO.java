@@ -6,16 +6,14 @@ import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.STATUS;
-import com.example.ratio.Utility;
+import com.example.ratio.Utilities.Utility;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Queue;
 
 public class StatusDAO implements BaseDAO<Status> {
     private static final String TAG = "StatusDAO";

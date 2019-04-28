@@ -4,9 +4,10 @@ import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.DAO.UserOperations;
 import com.example.ratio.Entities.User;
 import com.example.ratio.Enums.DATABASES;
-import com.example.ratio.Fragments.FragmentAddNew;
+import com.example.ratio.Fragments.FragmentAddNew_;
 import com.example.ratio.Fragments.FragmentPortfolio;
 import com.example.ratio.Fragments.FragmentSearch;
+import com.example.ratio.Utilities.Utility;
 import com.google.android.material.tabs.TabLayout;
 import com.parse.Parse;
 import com.parse.ParseUser;
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        mSectionsPagerAdapter.addFragment(new FragmentAddNew(), "Add new");
+        mSectionsPagerAdapter.addFragment(new FragmentAddNew_(), "Add new");
         mSectionsPagerAdapter.addFragment(new FragmentPortfolio(), "Portfolio");
         mSectionsPagerAdapter.addFragment(new FragmentSearch(), "Search");
         container.setAdapter(mSectionsPagerAdapter);

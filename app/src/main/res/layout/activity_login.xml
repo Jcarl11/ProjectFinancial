@@ -53,8 +53,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="70dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-            android:textColorHint="@android:color/white"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:textColorHint="#a9acb2"
+            app:boxStrokeColor="@android:color/white"
             app:layout_constraintTop_toBottomOf="@+id/imageView"
             app:layout_constraintStart_toStartOf="@id/guideline"
             app:layout_constraintEnd_toEndOf="@id/guideline2">
@@ -62,8 +63,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
                 android:singleLine="true"
+                android:textColor="@android:color/white"
                 android:hint="Username"/>
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -75,9 +76,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             app:passwordToggleEnabled="true"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-            android:textColorHint="@android:color/white"
             app:passwordToggleTint="@android:color/white"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@android:color/white"
+            android:textColorHint="#a9acb2"
             app:layout_constraintTop_toBottomOf="@+id/login_username"
             app:layout_constraintStart_toStartOf="@id/guideline"
             app:layout_constraintEnd_toStartOf="@id/guideline2">

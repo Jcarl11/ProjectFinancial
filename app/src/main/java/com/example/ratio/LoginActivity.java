@@ -13,6 +13,7 @@ import com.example.ratio.Dialogs.BaseDialog;
 import com.example.ratio.Dialogs.BasicDialog;
 import com.example.ratio.Entities.User;
 import com.example.ratio.Enums.DATABASES;
+import com.example.ratio.Utilities.Utility;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 

@@ -6,7 +6,7 @@ import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.Entities.Recievables;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.RECIEVABLES;
-import com.example.ratio.Utility;
+import com.example.ratio.Utilities.Utility;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;

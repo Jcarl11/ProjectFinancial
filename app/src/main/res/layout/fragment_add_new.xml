@@ -11,51 +11,82 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginBottom="30dp">
-
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="5dp"
+            android:background="#efeded" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="PROFILE"
+            android:textSize="12sp"
+            android:layout_margin="10dp"/>
         <ImageView
             android:id="@+id/addnew_imageview_thumbnail"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:layout_marginTop="20dp"
             android:scaleType="centerInside"
             app:srcCompat="@drawable/ic_person"
             android:layout_marginBottom="10dp"/>
-
-        <EditText
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#efeded" />
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/addnew_field_projectcode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Code"
-            android:background="@drawable/edittext_bg"
-            android:singleLine="true"
-            android:inputType="textCapCharacters"
-            android:padding="16dp"
-            android:layout_margin="10dp"/>
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:textColorHint="#a9acb2"
+            android:layout_margin="10dp">
 
-        <EditText
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:inputType="textCapCharacters"
+                android:singleLine="true"
+                android:hint="Code"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/addnew_field_projectname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Project title"
-            android:background="@drawable/edittext_bg"
-            android:singleLine="true"
-            android:inputType="textCapCharacters"
-            android:padding="16dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"/>
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:textColorHint="#a9acb2"
+            android:layout_margin="10dp">
 
-        <EditText
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:inputType="textCapCharacters"
+                android:singleLine="true"
+                android:hint="Project Title"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/addnew_field_projectowner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Owner"
-            android:background="@drawable/edittext_bg"
-            android:singleLine="true"
-            android:inputType="textCapCharacters"
-            android:padding="16dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"/>
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:textColorHint="#a9acb2"
+            android:layout_margin="10dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:inputType="textCapCharacters"
+                android:singleLine="true"
+                android:hint="Owner"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -113,17 +144,24 @@
             app:spinnerHint="Services"
             android:layout_margin="10dp"/>
 
-        <EditText
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/addnew_field_specificservice"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Services"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:visibility="gone"
-            android:background="@drawable/edittext_bg"
-            android:singleLine="true"
-            android:inputType="textCapCharacters"
-            android:padding="16dp"
-            android:layout_margin="10dp"/>
+            android:textColorHint="#a9acb2"
+            android:layout_margin="10dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:inputType="textCapCharacters"
+                android:singleLine="true"
+                android:hint="Other services"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.isapanah.awesomespinner.AwesomeSpinner
             android:id="@+id/addnew_spinner_typeofproject"
@@ -133,17 +171,24 @@
             app:spinnerHint="Select a category"
             android:layout_margin="10dp"/>
 
-        <EditText
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/addnew_field_specifictype"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Type"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:visibility="gone"
-            android:background="@drawable/edittext_bg"
-            android:singleLine="true"
-            android:inputType="textCapCharacters"
-            android:padding="16dp"
-            android:layout_margin="10dp"/>
+            android:textColorHint="#a9acb2"
+            android:layout_margin="10dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:inputType="textCapCharacters"
+                android:singleLine="true"
+                android:hint="Other type"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
 
 
         <com.isapanah.awesomespinner.AwesomeSpinner
@@ -155,17 +200,24 @@
             android:layout_margin="10dp"
             android:visibility="gone"/>
 
-        <EditText
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/addnew_field_specificsubcategory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Subcategory"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:visibility="gone"
-            android:background="@drawable/edittext_bg"
-            android:singleLine="true"
-            android:inputType="textCapCharacters"
-            android:padding="16dp"
-            android:layout_margin="10dp"/>
+            android:textColorHint="#a9acb2"
+            android:layout_margin="10dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:inputType="textCapCharacters"
+                android:singleLine="true"
+                android:hint="Subcategory"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/addnew_button_create"

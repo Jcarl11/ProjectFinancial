@@ -6,20 +6,16 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Bundle;
 
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.example.ratio.Entities.ProjectType;
@@ -32,8 +28,9 @@ import com.example.ratio.Enums.PROJECT_TYPE;
 import com.example.ratio.Enums.PROJECT_TYPE_SUBCATEGORY;
 import com.example.ratio.Enums.SERVICES;
 import com.example.ratio.R;
-import com.example.ratio.Utility;
+import com.example.ratio.Utilities.Utility;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputLayout;
 import com.isapanah.awesomespinner.AwesomeSpinner;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -59,16 +56,16 @@ import java.util.List;
 public class FragmentAddNew extends Fragment {
 
     private static final String TAG = "FragmentAddNew";
-    @ViewById EditText addnew_field_projectname;
-    @ViewById EditText addnew_field_projectcode;
-    @ViewById EditText addnew_field_projectowner;
+    @ViewById TextInputLayout addnew_field_projectname;
+    @ViewById TextInputLayout addnew_field_projectcode;
+    @ViewById TextInputLayout addnew_field_projectowner;
     @ViewById AwesomeSpinner addnew_spinner_typeofproject;
     @ViewById AwesomeSpinner addnew_spinner_subcategory;
     @ViewById AwesomeSpinner addnew_spinner_services;
     @ViewById Button addnew_button_create;
-    @ViewById EditText addnew_field_specificservice;
-    @ViewById EditText addnew_field_specifictype;
-    @ViewById EditText addnew_field_specificsubcategory;
+    @ViewById TextInputLayout addnew_field_specificservice;
+    @ViewById TextInputLayout addnew_field_specifictype;
+    @ViewById TextInputLayout addnew_field_specificsubcategory;
     @ViewById ImageView addnew_imageview_thumbnail;
     @ViewById CheckBox addnew_checkbox_active;
     @ViewById CheckBox addnew_checkbox_archived;
@@ -182,9 +179,9 @@ public class FragmentAddNew extends Fragment {
                 return;
             }
         }
-        projects.setProjectCode(addnew_field_projectcode.getText().toString());
-        projects.setProjectName(addnew_field_projectname.getText().toString().toUpperCase());
-        projects.setProjectOwner(addnew_field_projectowner.getText().toString().toUpperCase());
+        projects.setProjectCode(addnew_field_projectcode.getEditText().getText().toString());
+        projects.setProjectName(addnew_field_projectname.getEditText().getText().toString().toUpperCase());
+        projects.setProjectOwner(addnew_field_projectowner.getEditText().getText().toString().toUpperCase());
         Snackbar.make(getView(), "OK", Snackbar.LENGTH_SHORT).show();
         //new CreateProjectTask(projects).execute((Void)null);
     }
@@ -230,8 +227,8 @@ public class FragmentAddNew extends Fragment {
         };
         return listener;
     }
-    private boolean validateField(EditText input) {
-        String inputString = input.getText().toString().trim();
+    private boolean validateField(TextInputLayout input) {
+        String inputString = input.getEditText().getText().toString().trim();
 
         if (inputString.isEmpty()) {
             input.setError("Field can't be empty");

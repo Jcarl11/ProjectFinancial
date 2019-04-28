@@ -1,4 +1,4 @@
-package com.example.ratio;
+package com.example.ratio.Utilities;
 
 import android.app.AlertDialog;
 import android.content.Context;

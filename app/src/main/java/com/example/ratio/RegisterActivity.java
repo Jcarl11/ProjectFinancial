@@ -4,24 +4,17 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
-import com.example.ratio.DAO.Parse.UserDAO;
-import com.example.ratio.Dialogs.BaseDialog;
-import com.example.ratio.Dialogs.BasicDialog;
 import com.example.ratio.Entities.User;
 import com.example.ratio.Enums.DATABASES;
+import com.example.ratio.Utilities.Utility;
 import com.google.android.material.textfield.TextInputLayout;
-import com.parse.ParseException;
-import com.parse.ParseUser;
 
-import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
