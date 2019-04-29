@@ -18,16 +18,15 @@ import java.util.List;
 
 public class IncomeDAO implements BaseDAO<Income> {
     private static final String TAG = "IncomeDAO";
-    DateTransform dateTransform = new DateTransform();
-    int result = 0;
-    int defaultLimit = 50;
-    boolean isSuccessful = false;
-    ParseObject parseObject = null;
+    private DateTransform dateTransform = new DateTransform();
+    private int result = 0;
+    private int defaultLimit = 50;
+    private boolean isSuccessful = false;
+    private ParseObject parseObject = null;
 
     @Override
-    public int insert(Income objectEntity) {
+    public Income insert(Income objectEntity) {
         Log.d(TAG, "insert: Started...");
-        int result = 0;
         ParseObject insertIncome = new ParseObject(PARSECLASS.INCOME.toString());
         insertIncome.put(INCOME.PARENT.toString(), objectEntity.getParent());
         insertIncome.put(INCOME.ATTACHMENTS.toString(), objectEntity.isAttachments());
@@ -37,26 +36,37 @@ public class IncomeDAO implements BaseDAO<Income> {
         try {
             Log.d(TAG, "insert: Saving record...");
             insertIncome.save();
-            result = 1;
             Log.d(TAG, "insert: Record saved!");
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "insert: Exception thrown: " + e.getMessage());
         }
-        return result;
+        Income income = new Income();
+        income.setObjectId(insertIncome.getObjectId());
+        income.setCreatedAt(dateTransform.toDateString(insertIncome.getCreatedAt()));
+        income.setUpdatedAt(dateTransform.toDateString(insertIncome.getUpdatedAt()));
+        income.setAmount(insertIncome.getString(INCOME.AMOUNT.toString()));
+        income.setAttachments(insertIncome.getBoolean(INCOME.ATTACHMENTS.toString()));
+        income.setDescription(insertIncome.getString(INCOME.DESCRIPTION.toString()));
+        income.setParent(insertIncome.getString(INCOME.PARENT.toString()));
+        income.setTimestamp(dateTransform.toDateString(insertIncome.getDate(INCOME.TIMESTAMP.toString())));
+        return income;
     }
 
     @Override
     public int insertAll(List<Income> objectList) {
         Log.d(TAG, "insertAll: Strated...");
-        int result = 0;
+        List<String> ids = new ArrayList<>();
         for(Income income : objectList) {
-            result += insert(income);
+            String id = insert(income).getObjectId();
+            if(id != null) {
+                ids.add(id);
+            }
         }
-        Log.d(TAG, "insertAll: Result: " + result);
-        Log.d(TAG, "insertAll: Failed operations: " + String.valueOf(objectList.size() - result));
+        Log.d(TAG, "insertAll: Result: " + ids.size());
+        Log.d(TAG, "insertAll: Failed operations: " + String.valueOf(objectList.size() - ids.size()));
 
-        return result;
+        return ids.size();
     }
 
     @Override
@@ -65,7 +75,7 @@ public class IncomeDAO implements BaseDAO<Income> {
         parseObject = null;
         ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.INCOME.toString());
         try {
-            Log.d(TAG, "get: Retriving object...");
+            Log.d(TAG, "get: Retrieving object...");
             parseObject = query.get(objectId);
             Log.d(TAG, "get: Object retrieved: " + parseObject.getObjectId());
         } catch (ParseException e) {
@@ -118,9 +128,8 @@ public class IncomeDAO implements BaseDAO<Income> {
 
 
     @Override
-    public boolean update(Income newRecord) {
+    public Income update(Income newRecord) {
         Log.d(TAG, "update: Started...");
-        isSuccessful = false;
         ParseObject incomeUpdate = new ParseObject(PARSECLASS.INCOME.toString());
         incomeUpdate.put(INCOME.TIMESTAMP.toString(), dateTransform.toISO8601Date(newRecord.getTimestamp()));
         incomeUpdate.put(INCOME.PARENT.toString(), newRecord.getParent());
@@ -130,13 +139,21 @@ public class IncomeDAO implements BaseDAO<Income> {
         try {
             Log.d(TAG, "update: Saving record...");
             incomeUpdate.save();
-            isSuccessful = true;
             Log.d(TAG, "update: Record saved!");
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "update: Exception thrown: " + e.getMessage());
         }
-        return isSuccessful;
+        Income income = new Income();
+        income.setObjectId(incomeUpdate.getObjectId());
+        income.setCreatedAt(dateTransform.toDateString(incomeUpdate.getCreatedAt()));
+        income.setUpdatedAt(dateTransform.toDateString(incomeUpdate.getUpdatedAt()));
+        income.setAmount(incomeUpdate.getString(INCOME.AMOUNT.toString()));
+        income.setAttachments(incomeUpdate.getBoolean(INCOME.ATTACHMENTS.toString()));
+        income.setDescription(incomeUpdate.getString(INCOME.DESCRIPTION.toString()));
+        income.setParent(incomeUpdate.getString(INCOME.PARENT.toString()));
+        income.setTimestamp(dateTransform.toDateString(incomeUpdate.getDate(INCOME.TIMESTAMP.toString())));
+        return income;
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.Entities.Subcategory;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.PROJECT_TYPE_SUBCATEGORY;
+import com.example.ratio.Utilities.DateTransform;
 import com.example.ratio.Utilities.Utility;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -19,37 +20,45 @@ import androidx.annotation.Nullable;
 
 public class SubCategoryDAO implements BaseDAO<Subcategory> {
     private static final String TAG = "SubCategoryDAO";
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-    int result = 0;
-    boolean isSuccessful = false;
-    int defaultLimit = 50;
-    ParseObject parseObject = null;
+    private DateTransform dateTransform = new DateTransform();
+    private int result = 0;
+    private boolean isSuccessful = false;
+    private int defaultLimit = 50;
+    private ParseObject parseObject = null;
+
     @Override
-    public int insert(Subcategory objectEntity) {
+    public Subcategory insert(Subcategory objectEntity) {
         Log.d(TAG, "insert: started");
-        result = 0;
         ParseObject insert = new ParseObject(PARSECLASS.PROJECT_TYPE_SUBCATEGORY.toString());
         insert.put(PROJECT_TYPE_SUBCATEGORY.PARENT.toString(), objectEntity.getParent());
         insert.put(PROJECT_TYPE_SUBCATEGORY.NAME.toString(), objectEntity.getName());
         try {
             Log.d(TAG, "insert: Saving record...");
             insert.save();
-            result = 1;
             Log.d(TAG, "insert: Save finished");
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "insert: Exception thrown: " + e.getMessage());
         }
-        return result;
+        Subcategory subcategory = new Subcategory();
+        subcategory.setObjectId(insert.getObjectId());
+        subcategory.setCreatedAt(dateTransform.toISO8601String(insert.getCreatedAt()));
+        subcategory.setUpdatedAt(dateTransform.toISO8601String(insert.getUpdatedAt()));
+        subcategory.setName(insert.getString(PROJECT_TYPE_SUBCATEGORY.OTHERS.toString()));
+        subcategory.setParent(insert.getString(PROJECT_TYPE_SUBCATEGORY.PARENT.toString()));
+        subcategory.setOthers(insert.getBoolean(PROJECT_TYPE_SUBCATEGORY.OTHERS.toString()));
+        return subcategory;
     }
 
     @Override
     public int insertAll(List<Subcategory> objectList) {
         Log.d(TAG, "insertAll: started");
         Log.d(TAG, "insertAll: objectList size: " + String.valueOf(objectList.size()));
+
         int res = 0;
         for(Subcategory subcategory : objectList){
-            res += insert(subcategory);
+            insert(subcategory);
+            res++;
         }
         Log.d(TAG, "insertAll: Result: " + String.valueOf(res));
         Log.d(TAG, "insertAll: Failed operations: " + String.valueOf(objectList.size() - res));
@@ -72,9 +81,9 @@ public class SubCategoryDAO implements BaseDAO<Subcategory> {
         }
         Subcategory subcategory = new Subcategory();
         subcategory.setObjectId(parseObject.getObjectId());
-        subcategory.setCreatedAt(dateFormat.format(parseObject.getCreatedAt()));
-        subcategory.setUpdatedAt(dateFormat.format(parseObject.getUpdatedAt()));
-        subcategory.setName(parseObject.getString(PROJECT_TYPE_SUBCATEGORY.OTHERS.toString()));
+        subcategory.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+        subcategory.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
+        subcategory.setName(parseObject.getString(PROJECT_TYPE_SUBCATEGORY.NAME.toString()));
         subcategory.setParent(parseObject.getString(PROJECT_TYPE_SUBCATEGORY.PARENT.toString()));
         subcategory.setOthers(parseObject.getBoolean(PROJECT_TYPE_SUBCATEGORY.OTHERS.toString()));
         return subcategory;
@@ -95,8 +104,8 @@ public class SubCategoryDAO implements BaseDAO<Subcategory> {
             for(ParseObject subcategory : parseObjects){
                 Subcategory categories = new Subcategory();
                 categories.setObjectId(subcategory.getObjectId());
-                categories.setCreatedAt(dateFormat.format(subcategory.getCreatedAt()));
-                categories.setUpdatedAt(dateFormat.format(subcategory.getUpdatedAt()));
+                categories.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+                categories.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
                 categories.setName(subcategory.getString(PROJECT_TYPE_SUBCATEGORY.NAME.toString()));
                 categories.setParent(subcategory.getString(PROJECT_TYPE_SUBCATEGORY.PARENT.toString()));
                 categories.setOthers(subcategory.getBoolean(PROJECT_TYPE_SUBCATEGORY.OTHERS.toString()));
@@ -110,25 +119,31 @@ public class SubCategoryDAO implements BaseDAO<Subcategory> {
     }
 
     @Override
-    public boolean update(Subcategory newRecord) {
+    public Subcategory update(Subcategory newRecord) {
         Log.d(TAG, "update: Started...");
-        isSuccessful = false;
         ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.PROJECT_TYPE_SUBCATEGORY.toString());
+        ParseObject parseObject = null;
         try {
             Log.d(TAG, "update: Retrieving object");
-            ParseObject parseObject = query.get(newRecord.getObjectId());
+            parseObject = query.get(newRecord.getObjectId());
             parseObject.put(PROJECT_TYPE_SUBCATEGORY.NAME.toString(), newRecord.getName());
             parseObject.put(PROJECT_TYPE_SUBCATEGORY.PARENT.toString(), newRecord.getParent());
             parseObject.put(PROJECT_TYPE_SUBCATEGORY.OTHERS.toString(), newRecord.isOthers());
             Log.d(TAG, "update: Updating record...");
             parseObject.save();
-            isSuccessful = true;
             Log.d(TAG, "update: Update finished");
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "update: Exception thrown: " + e.getMessage());
         }
-        return isSuccessful;
+        Subcategory subcategory = new Subcategory();
+        subcategory.setObjectId(parseObject.getObjectId());
+        subcategory.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+        subcategory.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
+        subcategory.setName(parseObject.getString(PROJECT_TYPE_SUBCATEGORY.OTHERS.toString()));
+        subcategory.setParent(parseObject.getString(PROJECT_TYPE_SUBCATEGORY.PARENT.toString()));
+        subcategory.setOthers(parseObject.getBoolean(PROJECT_TYPE_SUBCATEGORY.OTHERS.toString()));
+        return subcategory;
     }
 
     @Override

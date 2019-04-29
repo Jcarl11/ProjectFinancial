@@ -6,6 +6,7 @@ import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.Entities.ProjectType;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.PROJECT_TYPE;
+import com.example.ratio.Utilities.DateTransform;
 import com.example.ratio.Utilities.Utility;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -17,41 +18,47 @@ import java.util.List;
 
 public class ProjectTypeDAO implements BaseDAO<ProjectType> {
     private static final String TAG = "ProjectTypeDAO";
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-    int result = 0;
-    int defaultLimit = 50;
-    boolean isSuccessful = false;
-    ParseObject parseObject = null;
+    private DateTransform dateTransform = new DateTransform();
+    private int result = 0;
+    private int defaultLimit = 50;
+    private boolean isSuccessful = false;
+    private ParseObject parseObject = null;
 
     @Override
-    public int insert(ProjectType objectEntity) {
+    public ProjectType insert(ProjectType objectEntity) {
         Log.d(TAG, "insert: Started...");
-        result = 0;
         ParseObject parseObject = new ParseObject(PARSECLASS.PROJECT_TYPE.toString());
         parseObject.put(PROJECT_TYPE.NAME.toString(), objectEntity.getName());
         try {
             Log.d(TAG, "insert: Saving...");
             parseObject.save();
-            result = 1;
             Log.d(TAG, "insert: Done");
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "insert: Exception thrown: " + e.getMessage());
         }
-        return result;
+        ProjectType projectType = new ProjectType();
+        projectType.setObjectId(parseObject.getObjectId());
+        projectType.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+        projectType.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
+        projectType.setName(parseObject.getString(PROJECT_TYPE.NAME.toString()));
+        projectType.setOthers(parseObject.getBoolean(PROJECT_TYPE.OTHERS.toString()));
+        return projectType;
     }
 
     @Override
     public int insertAll(List<ProjectType> objectList) {
         Log.d(TAG, "insertAll: Started...");
-        int res = 0;
+        List<String> ids = new ArrayList<>();
         for(ProjectType projectType : objectList){
-            res += insert(projectType);
+            String id = insert(projectType).getObjectId();
+            if(id != null)
+                ids.add(id);
         }
 
-        Log.d(TAG, "insertAll: Result: " + String.valueOf(res));
-        Log.d(TAG, "insertAll: Failed operations: " + String.valueOf(objectList.size() - res));
-        return res;
+        Log.d(TAG, "insertAll: Result: " + String.valueOf(ids.size()));
+        Log.d(TAG, "insertAll: Failed operations: " + String.valueOf(objectList.size() - ids.size()));
+        return ids.size();
     }
 
     @Override
@@ -69,8 +76,8 @@ public class ProjectTypeDAO implements BaseDAO<ProjectType> {
         }
         ProjectType projectType = new ProjectType();
         projectType.setObjectId(parseObject.getObjectId());
-        projectType.setCreatedAt(dateFormat.format(parseObject.getCreatedAt()));
-        projectType.setUpdatedAt(dateFormat.format(parseObject.getUpdatedAt()));
+        projectType.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+        projectType.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
         projectType.setName(parseObject.getString(PROJECT_TYPE.NAME.toString()));
         projectType.setOthers(parseObject.getBoolean(PROJECT_TYPE.OTHERS.toString()));
         return projectType;
@@ -91,8 +98,8 @@ public class ProjectTypeDAO implements BaseDAO<ProjectType> {
             for(ParseObject parseObject : parseObjects){
                 ProjectType projectType = new ProjectType();
                 projectType.setObjectId(parseObject.getObjectId());
-                projectType.setCreatedAt(dateFormat.format(parseObject.getCreatedAt()));
-                projectType.setUpdatedAt(dateFormat.format(parseObject.getUpdatedAt()));
+                projectType.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+                projectType.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
                 projectType.setName(parseObject.getString(PROJECT_TYPE.NAME.toString()));
                 projectType.setOthers(parseObject.getBoolean(PROJECT_TYPE.OTHERS.toString()));
                 projectTypeList.add(projectType);
@@ -106,23 +113,26 @@ public class ProjectTypeDAO implements BaseDAO<ProjectType> {
 
 
     @Override
-    public boolean update(ProjectType newRecord) {
+    public ProjectType update(ProjectType newRecord) {
         Log.d(TAG, "update: Started...");
-        isSuccessful = false;
         ParseObject parseObject = new ParseObject(PARSECLASS.PROJECT_TYPE.toString());
         parseObject.put(PROJECT_TYPE.NAME.toString(), newRecord.getName());
         parseObject.put(PROJECT_TYPE.OTHERS.toString(), newRecord.isOthers());
         try {
             Log.d(TAG, "update: Saving record...");
             parseObject.save();
-            isSuccessful = true;
             Log.d(TAG, "update: Save finished");
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "update: Exception thrown: " + e.getMessage());
         }
-
-        return isSuccessful;
+        ProjectType projectType = new ProjectType();
+        projectType.setObjectId(parseObject.getObjectId());
+        projectType.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+        projectType.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
+        projectType.setName(parseObject.getString(PROJECT_TYPE.NAME.toString()));
+        projectType.setOthers(parseObject.getBoolean(PROJECT_TYPE.OTHERS.toString()));
+        return projectType;
     }
 
     @Override

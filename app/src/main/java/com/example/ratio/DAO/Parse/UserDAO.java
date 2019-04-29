@@ -5,6 +5,7 @@ import android.util.Log;
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.UserOperations;
 import com.example.ratio.Entities.User;
+import com.example.ratio.Utilities.DateTransform;
 import com.example.ratio.Utilities.Utility;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -18,14 +19,13 @@ import androidx.annotation.Nullable;
 
 public class UserDAO implements BaseDAO<User>, UserOperations<User> {
     private static final String TAG = "UserDAO";
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-    ParseUser parseUser = null;
-    int result = 0;
-    int defaultLimit = 50;
+    private DateTransform dateTransform = new DateTransform();
+    private ParseUser parseUser = null;
+    private int result = 0;
+    private int defaultLimit = 50;
     @Override
-    public int insert(User objectEntity) {
+    public User insert(User objectEntity) {
         Log.d(TAG, "insert: inserting user " + objectEntity.getObjectId());
-        result = -1;
         ParseUser register = new ParseUser();
         register.setEmail(objectEntity.getEmail());
         register.setUsername(objectEntity.getUsername());
@@ -37,12 +37,17 @@ public class UserDAO implements BaseDAO<User>, UserOperations<User> {
             Log.d(TAG, "insert: Logging out account");
             ParseUser.logOut();
             Log.d(TAG, "insert: logout done");
-            result = 1;
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "insert: Exception thrown: " + e.getMessage());
         }
-        return result;
+        User userEntity = new User();
+        userEntity.setObjectId(register.getObjectId());
+        userEntity.setCreatedAt(dateTransform.toISO8601String(register.getCreatedAt()));
+        userEntity.setUpdatedAt(dateTransform.toISO8601String(register.getUpdatedAt()));
+        userEntity.setEmail(register.getEmail());
+        userEntity.setUsername(register.getUsername());
+        return userEntity;
     }
 
     @Override
@@ -89,8 +94,8 @@ public class UserDAO implements BaseDAO<User>, UserOperations<User> {
 
         User userEntity = new User();
         userEntity.setObjectId(parseUser.getObjectId());
-        userEntity.setCreatedAt(dateFormat.format(parseUser.getCreatedAt()));
-        userEntity.setUpdatedAt(dateFormat.format(parseUser.getUpdatedAt()));
+        userEntity.setCreatedAt(dateTransform.toISO8601String(parseUser.getCreatedAt()));
+        userEntity.setUpdatedAt(dateTransform.toISO8601String(parseUser.getUpdatedAt()));
         userEntity.setEmail(parseUser.getEmail());
         userEntity.setUsername(parseUser.getUsername());
 
@@ -112,8 +117,8 @@ public class UserDAO implements BaseDAO<User>, UserOperations<User> {
             for(ParseUser users : userList){
                 User user = new User();
                 user.setObjectId(users.getObjectId());
-                user.setCreatedAt(dateFormat.format(users.getCreatedAt()));
-                user.setUpdatedAt(dateFormat.format(users.getUpdatedAt()));
+                user.setCreatedAt(dateTransform.toISO8601String(parseUser.getCreatedAt()));
+                user.setUpdatedAt(dateTransform.toISO8601String(parseUser.getUpdatedAt()));
                 user.setEmail(users.getEmail());
                 user.setUsername(users.getUsername());
                 userEntityList.add(user);
@@ -127,20 +132,24 @@ public class UserDAO implements BaseDAO<User>, UserOperations<User> {
 
 
     @Override
-    public boolean update(User newRecord) {
-        boolean isSuccessful = false;
+    public User update(User newRecord) {
         if(newRecord.getEmail() != null){
             try {
                 Log.d(TAG, "update: sending request...");
                 ParseUser.requestPasswordReset(newRecord.getEmail());
-                isSuccessful = true;
                 Log.d(TAG, "update: change password request sent");
             } catch (ParseException e) {
                 e.printStackTrace();
                 Log.d(TAG, "update: Exception thrown: " + e.getMessage());
             }
         }
-        return isSuccessful;
+        User userEntity = new User();
+        userEntity.setObjectId(ParseUser.getCurrentUser().getObjectId());
+        userEntity.setCreatedAt(dateTransform.toISO8601String(ParseUser.getCurrentUser().getCreatedAt()));
+        userEntity.setUpdatedAt(dateTransform.toISO8601String(ParseUser.getCurrentUser().getUpdatedAt()));
+        userEntity.setEmail(ParseUser.getCurrentUser().getEmail());
+        userEntity.setUsername(ParseUser.getCurrentUser().getUsername());
+        return userEntity;
     }
 
     @Override
@@ -180,8 +189,8 @@ public class UserDAO implements BaseDAO<User>, UserOperations<User> {
         if(user != null){
             userEntity = new User();
             userEntity.setObjectId(user.getObjectId());
-            userEntity.setCreatedAt(dateFormat.format(user.getCreatedAt()));
-            userEntity.setUpdatedAt(dateFormat.format(user.getUpdatedAt()));
+            userEntity.setCreatedAt(dateTransform.toISO8601String(parseUser.getCreatedAt()));
+            userEntity.setUpdatedAt(dateTransform.toISO8601String(parseUser.getUpdatedAt()));
             userEntity.setUsername(user.getUsername());
             userEntity.setEmail(user.getEmail());
         }

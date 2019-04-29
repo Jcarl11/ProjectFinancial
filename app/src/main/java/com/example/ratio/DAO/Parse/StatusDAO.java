@@ -6,6 +6,7 @@ import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.STATUS;
+import com.example.ratio.Utilities.DateTransform;
 import com.example.ratio.Utilities.Utility;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -17,13 +18,14 @@ import java.util.List;
 
 public class StatusDAO implements BaseDAO<Status> {
     private static final String TAG = "StatusDAO";
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-    int result = 0;
-    int defaultLimit = 50;
-    boolean isSuccessful = false;
-    ParseObject parseObject = null;
+    private DateTransform dateTransform = new DateTransform();
+    private int result = 0;
+    private int defaultLimit = 50;
+    private boolean isSuccessful = false;
+    private ParseObject parseObject = null;
+
     @Override
-    public int insert(Status objectEntity) {
+    public Status insert(Status objectEntity) {
         Log.d(TAG, "insert: Started...");
         result = 0;
         ParseObject parseObject = new ParseObject(PARSECLASS.STATUS.toString());
@@ -37,20 +39,28 @@ public class StatusDAO implements BaseDAO<Status> {
             e.printStackTrace();
             Log.d(TAG, "insert: Exception thrown: " + e.getMessage());
         }
-        return result;
+        Status status = new Status();
+        status.setObjectId(parseObject.getObjectId());
+        status.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+        status.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
+        status.setName(parseObject.getString(STATUS.NAME.toString()));
+
+        return status;
     }
 
     @Override
     public int insertAll(List<Status> objectList) {
         Log.d(TAG, "insertAll: Started...");
-        int res = 0;
+        List<String> operations = new ArrayList<>();
         for(Status status : objectList){
-            res += insert(status);
-            Log.d(TAG, "insertAll: res: " + String.valueOf(res));
+            String id = insert(status).getObjectId();
+            if(id != null) {
+                operations.add(id);
+            }
         }
-        Log.d(TAG, "insertAll: Result: " + String.valueOf(res));
-        Log.d(TAG, "insertAll: Failed operations: " + String.valueOf(objectList.size() - res));
-        return res;
+        Log.d(TAG, "insertAll: Result: " + String.valueOf(operations.size()));
+        Log.d(TAG, "insertAll: Failed operations: " + String.valueOf(objectList.size() - operations.size()));
+        return operations.size();
     }
 
     @Override
@@ -69,8 +79,8 @@ public class StatusDAO implements BaseDAO<Status> {
 
         Status status = new Status();
         status.setObjectId(parseObject.getObjectId());
-        status.setCreatedAt(dateFormat.format(parseObject.getCreatedAt()));
-        status.setUpdatedAt(dateFormat.format(parseObject.getUpdatedAt()));
+        status.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+        status.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
         status.setName(parseObject.getString(STATUS.NAME.toString()));
 
         return status;
@@ -91,8 +101,8 @@ public class StatusDAO implements BaseDAO<Status> {
             for(ParseObject parseObject : parseObjects){
                 Status status = new Status();
                 status.setObjectId(parseObject.getObjectId());
-                status.setCreatedAt(dateFormat.format(parseObject.getCreatedAt()));
-                status.setUpdatedAt(dateFormat.format(parseObject.getUpdatedAt()));
+                status.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+                status.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
                 status.setName(parseObject.getString(STATUS.NAME.toString()));
                 statuses.add(status);
             }
@@ -104,22 +114,25 @@ public class StatusDAO implements BaseDAO<Status> {
     }
 
     @Override
-    public boolean update(Status newRecord) {
+    public Status update(Status newRecord) {
         Log.d(TAG, "update: Started...");
-        isSuccessful = false;
         ParseObject parseObject = new ParseObject(PARSECLASS.STATUS.toString());
         parseObject.put(STATUS.NAME.toString(), newRecord.getName());
         try {
             Log.d(TAG, "update: Saving record...");
             parseObject.save();
-            isSuccessful = true;
             Log.d(TAG, "update: Save finished");
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "update: Exception thrown: " + e.getMessage());
         }
+        Status status = new Status();
+        status.setObjectId(parseObject.getObjectId());
+        status.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+        status.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
+        status.setName(parseObject.getString(STATUS.NAME.toString()));
 
-        return isSuccessful;
+        return status;
     }
 
     @Override

@@ -21,17 +21,16 @@ import java.util.List;
 
 public class ImageDAO implements BaseDAO<Image> {
     private static final String TAG = "ImageDAO";
-    DateTransform dateTransform = new DateTransform();
-    ParseFileOperation parseFileOperation = new ParseFileOperation();
-    int result = 0;
-    int defaultLimit = 50;
-    boolean isSuccessful = false;
-    ParseObject parseObject = null;
+    private DateTransform dateTransform = new DateTransform();
+    private ParseFileOperation parseFileOperation = new ParseFileOperation();
+    private int result = 0;
+    private int defaultLimit = 50;
+    private boolean isSuccessful = false;
+    private ParseObject parseObject = null;
 
     @Override
-    public int insert(Image objectEntity) {
+    public Image insert(Image objectEntity) {
         Log.d(TAG, "insert: Started...");
-        result = 0;
         ParseObject insert = new ParseObject(PARSECLASS.IMAGES.toString());
         insert.put(IMAGES.PARENT.toString(), objectEntity.getParent());
         insert.put(IMAGES.FILENAME.toString(), objectEntity.getFileName());
@@ -40,26 +39,35 @@ public class ImageDAO implements BaseDAO<Image> {
         try {
             Log.d(TAG, "insert: Saving...");
             insert.save();
-            result = 1;
             Log.d(TAG, "insert: Record saved...");
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "insert: Exception thrown: " + e.getMessage());
         }
-        return result;
+        Image image = new Image();
+        image.setObjectId(parseObject.getObjectId());
+        image.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
+        image.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
+        image.setParent(parseObject.getString(IMAGES.PARENT.toString()));
+        image.setFileName(parseObject.getString(IMAGES.FILENAME.toString()));
+        image.setDeleted(parseObject.getBoolean(IMAGES.DELETED.toString()));
+        image.setFilePath(parseObject.getParseFile(IMAGES.FILES.toString()).getUrl());
+        return image;
     }
 
     @Override
     public int insertAll(List<Image> objectList) {
         Log.d(TAG, "insertAll: Started...");
-        int result = 0;
+        List<String> ids =  new ArrayList<>();
         for(Image image : objectList) {
-            result += insert(image);
+            String id = insert(image).getObjectId();
+            if(id != null)
+                ids.add(id);
         }
 
-        Log.d(TAG, "insertAll: Result: " + result);
-        Log.d(TAG, "insertAll: Failed operations: " + String.valueOf(objectList.size() - result));
-        return result;
+        Log.d(TAG, "insertAll: Result: " + ids.size());
+        Log.d(TAG, "insertAll: Failed operations: " + String.valueOf(objectList.size() - ids.size()));
+        return ids.size();
     }
 
     @Override
@@ -118,9 +126,8 @@ public class ImageDAO implements BaseDAO<Image> {
     }
 
     @Override
-    public boolean update(Image newRecord) {
+    public Image update(Image newRecord) {
         Log.d(TAG, "update: Started...");
-        isSuccessful = false;
         ParseObject parseObject = new ParseObject(PARSECLASS.IMAGES.toString());
         parseObject.put(IMAGES.PARENT.toString(), newRecord.getParent());
         parseObject.put(IMAGES.FILENAME.toString(), newRecord.getFileName());
@@ -129,13 +136,20 @@ public class ImageDAO implements BaseDAO<Image> {
         try {
             Log.d(TAG, "update: Saving...");
             parseObject.save();
-            isSuccessful = true;
             Log.d(TAG, "update: Record saved");
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "update: Exception thrown: " + e.getMessage());
         }
-        return isSuccessful;
+        Image image = new Image();
+        image.setObjectId(parseObject.getObjectId());
+        image.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
+        image.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
+        image.setParent(parseObject.getString(IMAGES.PARENT.toString()));
+        image.setFileName(parseObject.getString(IMAGES.FILENAME.toString()));
+        image.setDeleted(parseObject.getBoolean(IMAGES.DELETED.toString()));
+        image.setFilePath(parseObject.getParseFile(IMAGES.FILES.toString()).getUrl());
+        return image;
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.Entities.Services;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.SERVICES;
+import com.example.ratio.Utilities.DateTransform;
 import com.example.ratio.Utilities.Utility;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -17,42 +18,49 @@ import java.util.List;
 
 public class ServicesDAO implements BaseDAO<Services> {
     private static final String TAG = "ServicesDAO";
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-    int result = 0;
-    int defaultLimit = 50;
-    boolean isSuccessful = false;
-    ParseObject parseObject = null;
+    private DateTransform dateTransform = new DateTransform();
+    private int result = 0;
+    private int defaultLimit = 50;
+    private boolean isSuccessful = false;
+    private ParseObject parseObject = null;
 
     @Override
-    public int insert(Services objectEntity) {
+    public Services insert(Services objectEntity) {
         Log.d(TAG, "insert: Started...");
-        result = 0;
         ParseObject parseObject = new ParseObject(PARSECLASS.SERVICES.toString());
         parseObject.put(SERVICES.NAME.toString(), objectEntity.getName());
         parseObject.put(SERVICES.OTHERS.toString(), objectEntity.isOthers());
         try {
             Log.d(TAG, "insert: Saving...");
             parseObject.save();
-            result = 1;
             Log.d(TAG, "insert: Done");
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "insert: Exception thrown: " + e.getMessage());
         }
-        return result;
+        Services services = new Services();
+        services.setObjectId(parseObject.getObjectId());
+        services.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+        services.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
+        services.setName(parseObject.getString(SERVICES.NAME.toString()));
+        services.setOthers(parseObject.getBoolean(SERVICES.OTHERS.toString()));
+        return services;
     }
 
     @Override
     public int insertAll(List<Services> objectList) {
         Log.d(TAG, "insertAll: Started...");
-        int res = 0;
+        List<String> ids = new ArrayList<>();
         for(Services services : objectList){
-            res += insert(services);
+            String id = insert(services).getObjectId();
+            if(id != null){
+                ids.add(id);
+            }
         }
 
-        Log.d(TAG, "insertAll: Result: " + String.valueOf(res));
-        Log.d(TAG, "insertAll: Failed operations: " + String.valueOf(objectList.size() - res));
-        return res;
+        Log.d(TAG, "insertAll: Result: " + String.valueOf(ids.size()));
+        Log.d(TAG, "insertAll: Failed operations: " + String.valueOf(objectList.size() - ids.size()));
+        return ids.size();
     }
 
     @Override
@@ -70,8 +78,8 @@ public class ServicesDAO implements BaseDAO<Services> {
         }
         Services services = new Services();
         services.setObjectId(parseObject.getObjectId());
-        services.setCreatedAt(dateFormat.format(parseObject.getCreatedAt()));
-        services.setUpdatedAt(dateFormat.format(parseObject.getUpdatedAt()));
+        services.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+        services.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
         services.setName(parseObject.getString(SERVICES.NAME.toString()));
         services.setOthers(parseObject.getBoolean(SERVICES.OTHERS.toString()));
         return services;
@@ -92,8 +100,8 @@ public class ServicesDAO implements BaseDAO<Services> {
             for(ParseObject parseObject : parseObjects){
                 Services service = new Services();
                 service.setObjectId(parseObject.getObjectId());
-                service.setCreatedAt(dateFormat.format(parseObject.getCreatedAt()));
-                service.setUpdatedAt(dateFormat.format(parseObject.getUpdatedAt()));
+                service.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+                service.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
                 service.setName(parseObject.getString(SERVICES.NAME.toString()));
                 service.setOthers(parseObject.getBoolean(SERVICES.OTHERS.toString()));
                 services.add(service);
@@ -107,7 +115,7 @@ public class ServicesDAO implements BaseDAO<Services> {
 
 
     @Override
-    public boolean update(Services newRecord) {
+    public Services update(Services newRecord) {
         Log.d(TAG, "update: Started...");
         isSuccessful = false;
         ParseObject parseObject = new ParseObject(PARSECLASS.SERVICES.toString());
@@ -123,7 +131,13 @@ public class ServicesDAO implements BaseDAO<Services> {
             Log.d(TAG, "update: Exception thrown: " + e.getMessage());
         }
 
-        return isSuccessful;
+        Services services = new Services();
+        services.setObjectId(parseObject.getObjectId());
+        services.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+        services.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
+        services.setName(parseObject.getString(SERVICES.NAME.toString()));
+        services.setOthers(parseObject.getBoolean(SERVICES.OTHERS.toString()));
+        return services;
     }
 
     @Override
