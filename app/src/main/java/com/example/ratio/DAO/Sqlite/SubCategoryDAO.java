@@ -7,8 +7,8 @@ import java.util.List;
 
 public class SubCategoryDAO implements BaseDAO<Subcategory> {
     @Override
-    public int insert(Subcategory objectEntity) {
-        return 0;
+    public Subcategory insert(Subcategory objectEntity) {
+        return null;
     }
 
     @Override
@@ -27,8 +27,8 @@ public class SubCategoryDAO implements BaseDAO<Subcategory> {
     }
 
     @Override
-    public boolean update(Subcategory newRecord) {
-        return false;
+    public Subcategory update(Subcategory newRecord) {
+        return null;
     }
 
     @Override

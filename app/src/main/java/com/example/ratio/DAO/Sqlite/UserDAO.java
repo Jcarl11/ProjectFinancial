@@ -7,8 +7,8 @@ import java.util.List;
 
 public class UserDAO implements BaseDAO<User> {
     @Override
-    public int insert(User objectEntity) {
-        return 0;
+    public User insert(User objectEntity) {
+        return null;
     }
 
     @Override
@@ -28,8 +28,8 @@ public class UserDAO implements BaseDAO<User> {
 
 
     @Override
-    public boolean update(User newRecord) {
-        return false;
+    public User update(User newRecord) {
+        return null;
     }
 
     @Override

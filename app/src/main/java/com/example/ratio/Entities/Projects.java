@@ -2,7 +2,11 @@ package com.example.ratio.Entities;
 
 import org.json.JSONArray;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
 
 public class Projects extends Entity {
     private String projectName;
@@ -121,5 +125,33 @@ public class Projects extends Entity {
 
     public void setTags(JSONArray tags) {
         this.tags = tags;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        String SEPARATOR = ",";
+        StringBuilder stringBuilder = new StringBuilder();
+        Field[] fields = this.getClass().getDeclaredFields();
+        List<String> values = new ArrayList<>();
+        for(int x = 0; x < fields.length; x++) {
+            Object name = null;
+            try {
+                name = fields[x].get(this);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            if(name != null){
+                values.add(String.valueOf(name));
+            }
+        }
+
+        for(int y = 0 ; y < values.size() ; y++) {
+            stringBuilder.append(values.get(y).trim());
+            if((values.size() - y) > 1) {
+                stringBuilder.append(SEPARATOR);
+            }
+        }
+        return stringBuilder.toString();
     }
 }

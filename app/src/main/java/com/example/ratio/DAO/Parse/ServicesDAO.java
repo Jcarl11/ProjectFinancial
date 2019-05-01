@@ -70,7 +70,7 @@ public class ServicesDAO implements BaseDAO<Services> {
         ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.SERVICES.toString());
         try {
             Log.d(TAG, "get: Retrieving object...");
-            parseObject = query.get(objectId);
+            parseObject = query.addAscendingOrder(SERVICES.NAME.toString()).get(objectId);
             Log.d(TAG, "get: Object retrieved");
         } catch (ParseException e) {
             e.printStackTrace();

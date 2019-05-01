@@ -19,7 +19,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="PROFILE"
+            android:text="PROJECT THUMBNAIL"
             android:textSize="12sp"
             android:layout_margin="10dp"/>
         <ImageView
@@ -135,14 +135,14 @@
             android:background="#efeded"
             android:layout_marginTop="10dp" />
 
-
-        <com.isapanah.awesomespinner.AwesomeSpinner
+        <com.jaredrummler.materialspinner.MaterialSpinner
             android:id="@+id/addnew_spinner_services"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:spinnerDirection="ltr"
-            app:spinnerHint="Services"
-            android:layout_margin="10dp"/>
+            android:hint="Services"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"/>
+
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/addnew_field_specificservice"
@@ -162,14 +162,13 @@
                 android:hint="Other services"/>
 
         </com.google.android.material.textfield.TextInputLayout>
-
-        <com.isapanah.awesomespinner.AwesomeSpinner
+        <com.jaredrummler.materialspinner.MaterialSpinner
             android:id="@+id/addnew_spinner_typeofproject"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:spinnerDirection="ltr"
-            app:spinnerHint="Select a category"
-            android:layout_margin="10dp"/>
+            android:hint="Type"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/addnew_field_specifictype"
@@ -190,14 +189,13 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-
-        <com.isapanah.awesomespinner.AwesomeSpinner
+        <com.jaredrummler.materialspinner.MaterialSpinner
             android:id="@+id/addnew_spinner_subcategory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:spinnerDirection="ltr"
-            app:spinnerHint="Subcategory"
-            android:layout_margin="10dp"
+            android:hint="Subcategory"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:visibility="gone"/>
 
         <com.google.android.material.textfield.TextInputLayout

@@ -7,8 +7,8 @@ import java.util.List;
 
 public class StatusDAO implements BaseDAO<Status> {
     @Override
-    public int insert(Status objectEntity) {
-        return 0;
+    public Status insert(Status objectEntity) {
+        return null;
     }
 
     @Override
@@ -27,8 +27,8 @@ public class StatusDAO implements BaseDAO<Status> {
     }
 
     @Override
-    public boolean update(Status newRecord) {
-        return false;
+    public Status update(Status newRecord) {
+        return null;
     }
 
     @Override

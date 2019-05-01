@@ -63,14 +63,14 @@ public class RegisterActivity extends AppCompatActivity {
     @Background void registerUser(User user){
         DAOFactory factory = DAOFactory.getDatabase(DATABASES.PARSE);
         BaseDAO<User> userDAO = factory.getUserDAO();
-        int result = userDAO.insert(user);
+        User result = userDAO.insert(user);
         registerDone(result);
     }
-    @UiThread void registerDone(int result){
+    @UiThread void registerDone(User result){
         dialog.dismiss();
         Bundle bundle = new Bundle();
-        bundle.putInt("RESULT", result);
-        if(result <= 0) {
+        bundle.putInt("RESULT", 0);
+        if(result == null) {
             setResult(RESULT_CANCELED, new Intent().putExtras(bundle));
             finish();
             return;

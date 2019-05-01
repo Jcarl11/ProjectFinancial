@@ -7,8 +7,8 @@ import java.util.List;
 
 public class ServicesDAO implements BaseDAO<Services> {
     @Override
-    public int insert(Services objectEntity) {
-        return 0;
+    public Services insert(Services objectEntity) {
+        return null;
     }
 
     @Override
@@ -28,8 +28,8 @@ public class ServicesDAO implements BaseDAO<Services> {
 
 
     @Override
-    public boolean update(Services newRecord) {
-        return false;
+    public Services update(Services newRecord) {
+        return null;
     }
 
     @Override

@@ -7,8 +7,8 @@ import java.util.List;
 
 public class RecievablesDAO implements BaseDAO<Recievables> {
     @Override
-    public int insert(Recievables objectEntity) {
-        return 0;
+    public Recievables insert(Recievables objectEntity) {
+        return null;
     }
 
     @Override
@@ -27,8 +27,8 @@ public class RecievablesDAO implements BaseDAO<Recievables> {
     }
 
     @Override
-    public boolean update(Recievables newRecord) {
-        return false;
+    public Recievables update(Recievables newRecord) {
+        return null;
     }
 
     @Override

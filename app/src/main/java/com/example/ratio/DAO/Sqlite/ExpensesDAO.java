@@ -7,8 +7,8 @@ import java.util.List;
 
 public class ExpensesDAO implements BaseDAO<Expenses> {
     @Override
-    public int insert(Expenses objectEntity) {
-        return 0;
+    public Expenses insert(Expenses objectEntity) {
+        return null;
     }
 
     @Override
@@ -27,8 +27,8 @@ public class ExpensesDAO implements BaseDAO<Expenses> {
     }
 
     @Override
-    public boolean update(Expenses newRecord) {
-        return false;
+    public Expenses update(Expenses newRecord) {
+        return null;
     }
 
     @Override

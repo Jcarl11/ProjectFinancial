@@ -68,7 +68,7 @@ public class ProjectTypeDAO implements BaseDAO<ProjectType> {
         ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.PROJECT_TYPE.toString());
         try {
             Log.d(TAG, "get: Retrieving object...");
-            parseObject = query.get(objectId);
+            parseObject = query.addAscendingOrder(PROJECT_TYPE.NAME.toString()).get(objectId);
             Log.d(TAG, "get: Object retrieved");
         } catch (ParseException e) {
             e.printStackTrace();

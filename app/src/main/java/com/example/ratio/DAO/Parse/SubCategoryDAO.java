@@ -72,7 +72,7 @@ public class SubCategoryDAO implements BaseDAO<Subcategory> {
         ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.PROJECT_TYPE_SUBCATEGORY.toString());
         try {
             Log.d(TAG, "get: Retrieving object...");
-            parseObject = query.get(objectId);
+            parseObject = query.addAscendingOrder(PROJECT_TYPE_SUBCATEGORY.NAME.toString()).get(objectId);
             Log.d(TAG, "get: Object retrieved: " + parseObject.getObjectId());
 
         } catch (ParseException e) {

@@ -7,8 +7,8 @@ import java.util.List;
 
 public class ImageDAO implements BaseDAO<Image> {
     @Override
-    public int insert(Image objectEntity) {
-        return 0;
+    public Image insert(Image objectEntity) {
+        return null;
     }
 
     @Override
@@ -27,8 +27,8 @@ public class ImageDAO implements BaseDAO<Image> {
     }
 
     @Override
-    public boolean update(Image newRecord) {
-        return false;
+    public Image update(Image newRecord) {
+        return null;
     }
 
     @Override

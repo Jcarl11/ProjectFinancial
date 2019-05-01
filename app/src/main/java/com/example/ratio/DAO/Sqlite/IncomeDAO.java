@@ -7,8 +7,8 @@ import java.util.List;
 
 public class IncomeDAO implements BaseDAO<Income> {
     @Override
-    public int insert(Income objectEntity) {
-        return 0;
+    public Income insert(Income objectEntity) {
+        return null;
     }
 
     @Override
@@ -28,8 +28,8 @@ public class IncomeDAO implements BaseDAO<Income> {
 
 
     @Override
-    public boolean update(Income newRecord) {
-        return false;
+    public Income update(Income newRecord) {
+        return null;
     }
 
     @Override

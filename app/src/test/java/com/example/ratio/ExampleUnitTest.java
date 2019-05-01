@@ -2,8 +2,10 @@ package com.example.ratio;
 
 import android.util.Log;
 
+import com.example.ratio.Entities.Projects;
 import com.example.ratio.Utilities.DateTransform;
 import com.example.ratio.Utilities.FileValidator;
+import com.example.ratio.Utilities.TagMaker;
 
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Test;
@@ -35,5 +37,14 @@ public class ExampleUnitTest {
         FileValidator fileValidator = new FileValidator();
         boolean result = fileValidator.isImage("joey.jpeg");
         assertEquals(true, result);
+    }
+
+    @Test
+    public void toStringTest(){
+        Projects projects = new Projects();
+        TagMaker tagMaker = new TagMaker();
+        projects.setProjectCode("5215ASDASD");
+        projects.setProjectOwner("JOEY CARLO");
+        tagMaker.createTags(projects.toString());
     }
 }

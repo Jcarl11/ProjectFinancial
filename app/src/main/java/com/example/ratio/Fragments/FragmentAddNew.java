@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
+import androidx.annotation.UiThread;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -17,11 +18,17 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 
+import com.example.ratio.DAO.BaseDAO;
+import com.example.ratio.DAO.DAOFactory;
+import com.example.ratio.DAO.Parse.ProjectDAO;
+import com.example.ratio.Entities.Image;
 import com.example.ratio.Entities.ProjectType;
 import com.example.ratio.Entities.Projects;
 import com.example.ratio.Entities.Subcategory;
 import com.example.ratio.Entities.Services;
+import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.PROJECT;
 import com.example.ratio.Enums.PROJECT_TYPE;
@@ -32,6 +39,7 @@ import com.example.ratio.Utilities.Utility;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.isapanah.awesomespinner.AwesomeSpinner;
+import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -41,6 +49,7 @@ import com.vincent.filepicker.activity.ImagePickActivity;
 import com.vincent.filepicker.filter.entity.ImageFile;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
@@ -59,66 +68,124 @@ public class FragmentAddNew extends Fragment {
     @ViewById TextInputLayout addnew_field_projectname;
     @ViewById TextInputLayout addnew_field_projectcode;
     @ViewById TextInputLayout addnew_field_projectowner;
-    @ViewById AwesomeSpinner addnew_spinner_typeofproject;
-    @ViewById AwesomeSpinner addnew_spinner_subcategory;
-    @ViewById AwesomeSpinner addnew_spinner_services;
-    @ViewById Button addnew_button_create;
     @ViewById TextInputLayout addnew_field_specificservice;
     @ViewById TextInputLayout addnew_field_specifictype;
     @ViewById TextInputLayout addnew_field_specificsubcategory;
-    @ViewById ImageView addnew_imageview_thumbnail;
+    @ViewById MaterialSpinner addnew_spinner_typeofproject;
+    @ViewById MaterialSpinner addnew_spinner_subcategory;
+    @ViewById MaterialSpinner addnew_spinner_services;
     @ViewById CheckBox addnew_checkbox_active;
     @ViewById CheckBox addnew_checkbox_archived;
     @ViewById CheckBox addnew_checkbox_proposal;
-    ProjectType OTHERSCHOICE_TYPESOFPROJECT = new ProjectType("Others", true);
-    Subcategory OTHERSCHOICE_SUBCATEGORY = new Subcategory("Others", true, null);
-    Services OTHERSCHOICE_SERVICES = new Services("Others", true);
+    @ViewById Button addnew_button_create;
+    @ViewById ImageView addnew_imageview_thumbnail;
+    private ProjectType OTHERSCHOICE_TYPESOFPROJECT = new ProjectType("Others", true);
+    private Subcategory OTHERSCHOICE_SUBCATEGORY = new Subcategory("Others", true, null);
+    private Services OTHERSCHOICE_SERVICES = new Services("Others", true);
+    private DAOFactory parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
+    private BaseDAO<Projects> projectsBaseDAO = null;
+    private BaseDAO<ProjectType> projectDAO = null;
+    private BaseDAO<Subcategory> subcategoryBaseDAO = null;
+    private BaseDAO<Services> servicesBaseDAO = null;
+    private BaseDAO<Image> imageBaseDAO = null;
+    private AlertDialog dialog = null;
+    private String selectedServices = null;
+    private String selectedType = null;
+    private String selectedSubcategory = null;
     public FragmentAddNew() {}
 
-    @AfterViews void afterView(){
-        addnew_checkbox_active.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
-                    addnew_checkbox_active.setError(null);
-                    addnew_checkbox_archived.setError(null);
-                    addnew_checkbox_proposal.setError(null);
-                }
-            }
-        });
-        addnew_checkbox_archived.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
-                    addnew_checkbox_active.setError(null);
-                    addnew_checkbox_archived.setError(null);
-                    addnew_checkbox_proposal.setError(null);
-                }
-            }
-        });
-        addnew_checkbox_proposal.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
-                    addnew_checkbox_active.setError(null);
-                    addnew_checkbox_archived.setError(null);
-                    addnew_checkbox_proposal.setError(null);
-                }
-            }
-        });
-        new RetrieveProjectTypesTask().execute((Void)null);
-        new RetrieveSubCategoryTask().execute((Void) null);
-        new RetrieveServicesTask().execute((Void)null);
-        addnew_spinner_typeofproject.setOnSpinnerItemClickListener(typeOfProjectListener());
-        addnew_spinner_services.setOnSpinnerItemClickListener(servicesListener());
-        addnew_spinner_subcategory.setOnSpinnerItemClickListener(subcategoryListener());
+    @AfterViews void afterView(){ //Gets called after the views are injected...
+        projectsBaseDAO = parseFactory.getProjectDAO();
+        projectDAO = parseFactory.getProjectDAO();
+        subcategoryBaseDAO = parseFactory.getSubcategoryDAO();
+        servicesBaseDAO = parseFactory.getServicesDAO();
+        dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
+        dialog.show();
+        retrieveProjectTypes();
+        retrieveSubcategory();
+        retrieveServices();
+        dialog.dismiss();
+        addnew_checkbox_active.setOnCheckedChangeListener(checkBoxListener());
+        addnew_checkbox_archived.setOnCheckedChangeListener(checkBoxListener());
+        addnew_checkbox_proposal.setOnCheckedChangeListener(checkBoxListener());
+        addnew_spinner_typeofproject.setOnItemSelectedListener(typeOfProjectListener());
+        addnew_spinner_services.setOnItemSelectedListener(servicesListener());
+        addnew_spinner_subcategory.setOnItemSelectedListener(subcategoryListener());
     }
 
+    @Background void retrieveProjectTypes(){
+        List<ProjectType> projectTypeList = projectDAO.getBulk(null);
+        projectTypeDone(projectTypeList);
+    }
+
+    @UiThread void projectTypeDone(List<ProjectType> projectTypeList){
+        Log.d(TAG, "retrievalFinished: projectTypeList size: " + projectTypeList.size());
+        if(projectTypeList.size() <= 0) {
+            Snackbar.make(getView(), "Result is empty", Snackbar.LENGTH_LONG).show();
+            return;
+        }
+
+        projectTypeList.add(OTHERSCHOICE_TYPESOFPROJECT); // Add 'Others' on the last position in array
+        addnew_spinner_typeofproject.setItems(projectTypeList);
+    }
+
+    @Background void retrieveSubcategory() {
+        List<Subcategory> subcategoryList = subcategoryBaseDAO.getBulk(null);
+        subcategoryDone(subcategoryList);
+    }
+
+    @UiThread void subcategoryDone(List<Subcategory> subcategoryList){
+        Log.d(TAG, "subcategoryDone: subcategoryList size: " + subcategoryList.size());
+        if(subcategoryList.size() <= 0) {
+            Snackbar.make(getView(), "Result is empty", Snackbar.LENGTH_LONG).show();
+            return;
+        }
+
+        subcategoryList.add(OTHERSCHOICE_SUBCATEGORY); // Add 'Others' on the last position in array
+        addnew_spinner_subcategory.setItems(subcategoryList);
+    }
+
+    @Background void retrieveServices() {
+        List<Services> servicesList = servicesBaseDAO.getBulk(null);
+        servicesDone(servicesList);
+    }
+
+    @UiThread void servicesDone(List<Services> servicesList){
+        Log.d(TAG, "servicesDone: servicesList size: " + servicesList.size());
+        if(servicesList.size() <= 0) {
+            Snackbar.make(getView(), "Result is empty", Snackbar.LENGTH_LONG).show();
+            return;
+        }
+
+        servicesList.add(OTHERSCHOICE_SERVICES); // Add 'Others' on the last position in array
+        addnew_spinner_services.setItems(servicesList);
+    }
+
+    @Background void createProjectTask(Projects projects){
+        Projects createdProject = projectsBaseDAO.insert(projects);
+        createProjectDone(createdProject);
+    }
+
+    @UiThread void createProjectDone(Projects projects){
+        dialog.dismiss();
+        Log.d(TAG, "createProjectDone: Created project: " + projects.getObjectId());
+        Log.d(TAG, "createProjectDone: Created project: " + projects.getCreatedAt());
+        Log.d(TAG, "createProjectDone: Created project: " + projects.getUpdatedAt());
+    }
     private ArrayAdapter<String> adapter(List<String> data) {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, data);
         return adapter;
     }
-
+    private CompoundButton.OnCheckedChangeListener checkBoxListener() {
+        CompoundButton.OnCheckedChangeListener listener = (buttonView, isChecked) -> {
+            if(isChecked){
+                addnew_checkbox_active.setError(null);
+                addnew_checkbox_archived.setError(null);
+                addnew_checkbox_proposal.setError(null);
+            }
+        };
+        return listener;
+    }
     private List<String> convertList(List<?> originalList) {
         List<String> result = new ArrayList<>();
         for(Object name : originalList) {
@@ -127,7 +194,7 @@ public class FragmentAddNew extends Fragment {
         return result;
     }
     @Click(R.id.addnew_imageview_thumbnail)
-    void imageChoose(View view) {
+    void imageChoose() {
         String IS_NEED_CAMERA = new String();
         Intent intent1 = new Intent(getContext(), ImagePickActivity.class);
         intent1.putExtra(IS_NEED_CAMERA, true);
@@ -155,26 +222,26 @@ public class FragmentAddNew extends Fragment {
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Click(R.id.addnew_button_create)
-    void createBtnClicked( View view ) {
+    void createBtnClicked() {
         Projects projects = new Projects();
         if( !validateField(addnew_field_projectname) 
                 | !validateField(addnew_field_projectcode) 
                 | !validateField(addnew_field_projectowner) | !validateThumbnail(addnew_imageview_thumbnail)
-            | !validateCheckbox() | !validateSpinner(addnew_spinner_services) | !validateSpinner(addnew_spinner_typeofproject)
-            | !validateSpinner(addnew_spinner_subcategory)) {
+            | !validateCheckbox() | !validateSpinner(selectedServices, addnew_spinner_services) | !validateSpinner(selectedType, addnew_spinner_typeofproject)
+            | !validateSpinner(selectedSubcategory, addnew_spinner_subcategory)) {
             return;
         }
-        if(addnew_spinner_services.getSelectedItem().equalsIgnoreCase("Others")) {
+        if(selectedServices.equalsIgnoreCase("Others")) {
             if(!validateField(addnew_field_specificservice)) {
                 return;
             }
         }
-        if(addnew_spinner_typeofproject.getSelectedItem().equalsIgnoreCase("Others")) {
+        if(selectedType.equalsIgnoreCase("Others")) {
             if(!validateField(addnew_field_specifictype) | !validateField(addnew_field_specificsubcategory)) {
                 return;
             }
         }
-        if(addnew_spinner_subcategory.getSelectedItem().equalsIgnoreCase("Others")) {
+        if(selectedSubcategory.equalsIgnoreCase("Others")) {
             if(!validateField(addnew_field_specificsubcategory)) {
                 return;
             }
@@ -182,54 +249,52 @@ public class FragmentAddNew extends Fragment {
         projects.setProjectCode(addnew_field_projectcode.getEditText().getText().toString());
         projects.setProjectName(addnew_field_projectname.getEditText().getText().toString().toUpperCase());
         projects.setProjectOwner(addnew_field_projectowner.getEditText().getText().toString().toUpperCase());
-        Snackbar.make(getView(), "OK", Snackbar.LENGTH_SHORT).show();
-        //new CreateProjectTask(projects).execute((Void)null);
+
+        dialog.show();
+        createProjectTask(projects);
     }
 
-    private AwesomeSpinner.onSpinnerItemClickListener<String> servicesListener() {
-        AwesomeSpinner.onSpinnerItemClickListener<String> listener = new AwesomeSpinner.onSpinnerItemClickListener<String>() {
-            @Override
-            public void onItemSelected(int position, String itemAtPosition) {
-                if(itemAtPosition.equalsIgnoreCase("Others")) {
-                    addnew_field_specificservice.setVisibility(View.VISIBLE);
-                } else {
-                    addnew_field_specificservice.setVisibility(View.GONE);
-                }
+    private MaterialSpinner.OnItemSelectedListener servicesListener() {
+        MaterialSpinner.OnItemSelectedListener listener = (view, position, id, item) -> {
+            Services selected = (Services) item;
+            selectedServices = selected.toString();
+            if(selected.toString().equalsIgnoreCase("others")){
+                addnew_field_specificservice.setVisibility(View.VISIBLE);
+            } else {
+                addnew_field_specificservice.setVisibility(View.GONE);
             }
         };
         return listener;
     }
-    private AwesomeSpinner.onSpinnerItemClickListener<String> typeOfProjectListener() {
-        AwesomeSpinner.onSpinnerItemClickListener<String> listener = new AwesomeSpinner.onSpinnerItemClickListener<String>() {
-            @Override
-            public void onItemSelected(int position, String itemAtPosition) {
-                if(itemAtPosition.equalsIgnoreCase("Others")) {
-                    addnew_field_specifictype.setVisibility(View.VISIBLE);
-                    addnew_field_specificsubcategory.setVisibility(View.VISIBLE);
-                } else {
-                    addnew_field_specifictype.setVisibility(View.GONE);
-                    addnew_field_specificsubcategory.setVisibility(View.GONE);
-                }
+    private MaterialSpinner.OnItemSelectedListener typeOfProjectListener() {
+        MaterialSpinner.OnItemSelectedListener listener = (view, position, id, item) -> {
+            ProjectType selected = (ProjectType) item;
+            selectedType = selected.toString();
+            if(selected.toString().equalsIgnoreCase("others")){
+                addnew_field_specifictype.setVisibility(View.VISIBLE);
+                addnew_field_specificsubcategory.setVisibility(View.VISIBLE);
+            } else {
+                addnew_field_specifictype.setVisibility(View.GONE);
+                addnew_field_specificsubcategory.setVisibility(View.GONE);
             }
         };
+
         return listener;
     }
-    private AwesomeSpinner.onSpinnerItemClickListener<String> subcategoryListener() {
-        AwesomeSpinner.onSpinnerItemClickListener<String> listener = new AwesomeSpinner.onSpinnerItemClickListener<String>() {
-            @Override
-            public void onItemSelected(int position, String itemAtPosition) {
-                if(itemAtPosition.equalsIgnoreCase("Others")) {
-                    addnew_field_specificsubcategory.setVisibility(View.VISIBLE);
-                } else {
-                    addnew_field_specificsubcategory.setVisibility(View.GONE);
-                }
+    private MaterialSpinner.OnItemSelectedListener subcategoryListener() {
+        MaterialSpinner.OnItemSelectedListener listener = (view, position, id, item) -> {
+            Subcategory selected = (Subcategory) item;
+            selectedSubcategory = selected.toString();
+            if(selected.toString().equalsIgnoreCase("others")){
+                addnew_field_specificsubcategory.setVisibility(View.VISIBLE);
+            } else {
+                addnew_field_specificsubcategory.setVisibility(View.GONE);
             }
         };
         return listener;
     }
     private boolean validateField(TextInputLayout input) {
         String inputString = input.getEditText().getText().toString().trim();
-
         if (inputString.isEmpty()) {
             input.setError("Field can't be empty");
             return false;
@@ -264,218 +329,13 @@ public class FragmentAddNew extends Fragment {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    private boolean validateSpinner(AwesomeSpinner servicesSpinner) {
-        if(servicesSpinner.getSelectedItemPosition() == -1) {
-            servicesSpinner.setBackground(getResources().getDrawable(R.drawable.bg_error));
+    private boolean validateSpinner(String selectedItem, MaterialSpinner spinner) {
+        if(selectedItem == null) {
+            spinner.setBackground(getResources().getDrawable(R.drawable.bg_error));
             return false;
         } else {
-            addnew_spinner_services.setBackground(null);
+            spinner.setBackground(null);
             return true;
         }
     }
-
-    private class RetrieveServicesTask extends AsyncTask<Void, Void, ArrayList<Services>> {
-        AlertDialog dialog;
-        ArrayList<Services> servicesEntities = new ArrayList<>();
-        public RetrieveServicesTask() {
-            dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
-        }
-
-        @Override
-        protected ArrayList<Services> doInBackground(Void... voids) {
-            Log.d(TAG, "doInBackground: Operation Started");
-            ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.SERVICES.toString());
-            try {
-                Log.d(TAG, "doInBackground: Retrieving Services");
-                List<ParseObject> result = query.find();
-                Log.d(TAG, "doInBackground: result size: " + String.valueOf(result.size()));
-                for(ParseObject parseObject : result) {
-                    Services servicesEntity = new Services();
-                    servicesEntity.setObjectId(parseObject.getObjectId());
-                    servicesEntity.setName(parseObject.getString(SERVICES.NAME.toString()));
-                    servicesEntity.setOthers(false);
-                    servicesEntities.add(servicesEntity);
-                }
-
-            } catch (ParseException e) {
-                e.printStackTrace();
-                Log.d(TAG, "doInBackground: Exception thrown: " + e.getMessage());
-            }
-
-            return servicesEntities;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            dialog.show();
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<Services> servicesEntities) {
-            Log.d(TAG, "onPostExecute: Operation done");
-            Log.d(TAG, "onPostExecute: result size: " + String.valueOf(servicesEntities.size()));
-            dialog.dismiss();
-            if(servicesEntities.size() > 0) {
-                servicesEntities.add(servicesEntities.size(), OTHERSCHOICE_SERVICES);
-                addnew_spinner_services.setAdapter(adapter(convertList(servicesEntities)));
-            } else {
-                Log.d(TAG, "onPostExecute: result empty");
-            }
-        }
-    }
-    private class RetrieveProjectTypesTask extends AsyncTask<Void, Void, ArrayList<ProjectType>> {
-
-        AlertDialog dialog;
-        ArrayList<ProjectType> projectTypeEntities = new ArrayList<>();
-
-        public RetrieveProjectTypesTask() {
-            Log.d(TAG, "RetrieveProjectTypesTask: Started");
-            this.dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
-        }
-
-        @Override
-        protected ArrayList<ProjectType> doInBackground(Void... voids) {
-            Log.d(TAG, "doInBackground: Retrieving types");
-            ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.PROJECT_TYPE.toString());
-            try {
-                Log.d(TAG, "doInBackground: Retrieving ProjectType...");
-                List<ParseObject> result = query.addAscendingOrder(PROJECT_TYPE.NAME.toString()).find();
-                Log.d(TAG, "doInBackground: result size: " + String.valueOf(result.size()));
-                for(ParseObject parseObject : result) {
-                    ProjectType projectType = new ProjectType();
-                    projectType.setObjectId(parseObject.getObjectId());
-                    projectType.setName(parseObject.getString(PROJECT_TYPE.NAME.toString()));
-                    projectType.setOthers(false);
-                    projectTypeEntities.add(projectType);
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
-                Log.d(TAG, "doInBackground: Exception thrown: " + e.getMessage());
-            }
-            return projectTypeEntities;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            Log.d(TAG, "onPreExecute: load");
-            dialog.show();
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<ProjectType> projectTypeEntities) {
-            Log.d(TAG, "onPostExecute: Operation done");
-            Log.d(TAG, "onPostExecute: result size: " + String.valueOf(projectTypeEntities.size()));
-            dialog.dismiss();
-            if(projectTypeEntities.size() > 0) {
-                projectTypeEntities.add(OTHERSCHOICE_TYPESOFPROJECT); // Add 'Others' on the last position in array
-                addnew_spinner_typeofproject.setAdapter(adapter(convertList(projectTypeEntities)));
-            }else {
-                Log.d(TAG, "onPostExecute: Result is empty");
-                Snackbar.make(getView(), "Result is empty", Snackbar.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    private class RetrieveSubCategoryTask extends AsyncTask<Void, Void, ArrayList<Subcategory>>{
-
-        AlertDialog dialog;
-        ArrayList<Subcategory> projectSubcategoryEntities = new ArrayList<>();
-        public RetrieveSubCategoryTask() {
-            dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
-            Log.d(TAG, "RetrieveSubCategoryTask: Started");
-        }
-
-        @Override
-        protected ArrayList<Subcategory> doInBackground(Void... voids) {
-            Log.d(TAG, "doInBackground: Opertion started");
-            ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.PROJECT_TYPE_SUBCATEGORY.toString());
-            try {
-                Log.d(TAG, "doInBackground: Retrieving Subcategory...");
-                List<ParseObject> result = query.addAscendingOrder(PROJECT_TYPE_SUBCATEGORY.NAME.toString()).find();
-                Log.d(TAG, "doInBackground: result size: " + String.valueOf(result.size()));
-                for(ParseObject parseObject : result) {
-                    Subcategory subcategory = new Subcategory();
-                    subcategory.setObjectId(parseObject.getObjectId());
-                    subcategory.setName(parseObject.getString(PROJECT_TYPE_SUBCATEGORY.NAME.toString()));
-                    subcategory.setOthers(false);
-                    subcategory.setParent(parseObject.getString(PROJECT_TYPE_SUBCATEGORY.PARENT.toString()));
-                    projectSubcategoryEntities.add(subcategory);
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
-                Log.d(TAG, "doInBackground: Exception throw " + e.getMessage());
-            }
-            return projectSubcategoryEntities;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            dialog.show();
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<Subcategory> projectSubcategoryEntities) {
-            dialog.dismiss();
-            Log.d(TAG, "onPostExecute: Operation done");
-            Log.d(TAG, "onPostExecute: Result size: " + String.valueOf(projectSubcategoryEntities.size()));
-            if(projectSubcategoryEntities.size() > 0) {
-                projectSubcategoryEntities.add(OTHERSCHOICE_SUBCATEGORY); // Add 'Others' on the last position in array
-                addnew_spinner_subcategory.setAdapter(adapter(convertList(projectSubcategoryEntities)));
-            } else {
-                Log.d(TAG, "onPostExecute: Result is empty");
-                Snackbar.make(getView(), "Result is empty", Snackbar.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    private class CreateProjectTask extends AsyncTask<Void, Void, Boolean> {
-
-        AlertDialog dialog;
-        Projects projects;
-        boolean successful = false;
-        public CreateProjectTask(Projects projectEntity) {
-            this.projects = projectEntity;
-            dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... voids) {
-            Log.d(TAG, "doInBackground: Upload started");
-            ParseObject project = new ParseObject(PARSECLASS.PROJECT.toString());
-            project.put(PROJECT.PROJECT_CODE.toString(), projects.getProjectCode());
-            project.put(PROJECT.PROJECT_TITLE.toString(), projects.getProjectName());
-            project.put(PROJECT.PROJECT_OWNER.toString(), projects.getProjectOwner());
-            project.put(PROJECT.SERVICES.toString(), projects.getProjectServices());
-            project.put(PROJECT.TYPE.toString(), projects.getProjectType());
-            project.put(PROJECT.SUBCATEGORY.toString(), projects.getProjectSubCategory());
-            try {
-                project.save();
-                successful = true;
-                Log.d(TAG, "doInBackground: project saved");
-            } catch (ParseException e) {
-                e.printStackTrace();
-                Log.d(TAG, "doInBackground: Exception thrown: " + e.getMessage());
-            }
-            return successful;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            dialog.show();
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            dialog.dismiss();
-            Log.d(TAG, "onPostExecute: Operation done");
-            Log.d(TAG, "onPostExecute: result: " + String.valueOf(aBoolean));
-            if(aBoolean) {
-                Snackbar.make(getView(), "Record created successfully", Snackbar.LENGTH_LONG).show();
-            } else {
-                Log.d(TAG, "onPostExecute: Operation failed");
-                Snackbar.make(getView(), "Operation failed", Snackbar.LENGTH_LONG).show();
-            }
-        }
-    }
-
 }

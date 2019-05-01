@@ -70,7 +70,7 @@ public class StatusDAO implements BaseDAO<Status> {
         ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.STATUS.toString());
         try {
             Log.d(TAG, "get: Retriving object...");
-            parseObject = query.get(objectId);
+            parseObject = query.addAscendingOrder(STATUS.NAME.toString()).get(objectId);
             Log.d(TAG, "get: Object retrieved");
         } catch (ParseException e) {
             e.printStackTrace();

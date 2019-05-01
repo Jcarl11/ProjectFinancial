@@ -7,8 +7,8 @@ import java.util.List;
 
 public class ProjectDAO implements BaseDAO<Projects> {
     @Override
-    public int insert(Projects objectEntity) {
-        return 0;
+    public Projects insert(Projects objectEntity) {
+        return null;
     }
 
     @Override
@@ -28,8 +28,8 @@ public class ProjectDAO implements BaseDAO<Projects> {
 
 
     @Override
-    public boolean update(Projects newRecord) {
-        return false;
+    public Projects update(Projects newRecord) {
+        return null;
     }
 
     @Override
