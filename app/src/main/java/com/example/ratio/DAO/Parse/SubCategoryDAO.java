@@ -104,8 +104,8 @@ public class SubCategoryDAO implements BaseDAO<Subcategory> {
             for(ParseObject subcategory : parseObjects){
                 Subcategory categories = new Subcategory();
                 categories.setObjectId(subcategory.getObjectId());
-                categories.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
-                categories.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
+                categories.setCreatedAt(dateTransform.toISO8601String(subcategory.getCreatedAt()));
+                categories.setUpdatedAt(dateTransform.toISO8601String(subcategory.getUpdatedAt()));
                 categories.setName(subcategory.getString(PROJECT_TYPE_SUBCATEGORY.NAME.toString()));
                 categories.setParent(subcategory.getString(PROJECT_TYPE_SUBCATEGORY.PARENT.toString()));
                 categories.setOthers(subcategory.getBoolean(PROJECT_TYPE_SUBCATEGORY.OTHERS.toString()));

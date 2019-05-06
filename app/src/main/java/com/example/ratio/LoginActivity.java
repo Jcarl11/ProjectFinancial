@@ -1,12 +1,23 @@
 package com.example.ratio;
 import androidx.appcompat.app.AppCompatActivity;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.DAO.UserOperations;
 import com.example.ratio.Dialogs.BaseDialog;
@@ -16,31 +27,31 @@ import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Utilities.Utility;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
-
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Background;
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.UiThread;
-import org.androidannotations.annotations.ViewById;
 import org.jetbrains.annotations.Nullable;
 
-@EActivity(R.layout.activity_login)
+import java.util.concurrent.Callable;
+
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
-    @ViewById TextView login_forgotpassword;
-    @ViewById Button login_button;
-    @ViewById TextView login_createaccount;
-    @ViewById TextInputLayout login_username;
-    @ViewById TextInputLayout login_password;
+    @BindView(R.id.login_forgotpassword) TextView login_forgotpassword;
+    @BindView(R.id.login_button) Button login_button;
+    @BindView(R.id.login_createaccount) TextView login_createaccount;
+    @BindView(R.id.login_username) TextInputLayout login_username;
+    @BindView(R.id.login_password) TextInputLayout login_password;
     BaseDialog basicDialog;
     AlertDialog alertDialog;
-    @AfterViews
-    void afterView(){
+    DAOFactory parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
+    UserOperations<User> userOperations;
+
+    @Override
+    protected void onCreate(@androidx.annotation.Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+        ButterKnife.bind(this);
         basicDialog = new BasicDialog(this);
     }
 
-    @Click(R.id.login_button)
+    @OnClick(R.id.login_button)
     void loginClicked(View view) {
         if(!validateField(login_username) | !validateField(login_password)) {
             return;
@@ -49,37 +60,50 @@ public class LoginActivity extends AppCompatActivity {
         User user = new User();
         user.setUsername(login_username.getEditText().getText().toString().trim());
         user.setPassword(login_password.getEditText().getText().toString().trim());
-        alertDialog.show();
-        loginUser(user);
+        userOperations = (UserOperations<User>) parseFactory.getUserDAO();
+        Observable.fromCallable(() -> {
+            User currentUser = userOperations.loginUser(user);
+            return currentUser != null ? currentUser : null;
+        })
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<User>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        alertDialog.show();
+                    }
 
-    }
-    @Background void loginUser(User user){
-        boolean isSuccessful = false;
-        DAOFactory factoryParse = DAOFactory.getDatabase(DATABASES.PARSE);
-        UserOperations<User> userDao = (UserOperations<User>) factoryParse.getUserDAO();
-        loginFinished(userDao.loginUser(user));
-    }
+                    @Override
+                    public void onNext(User user) {
+                        if(user == null){
+                            return;
+                        }
+                        Log.d(TAG, "onNext: User: " + user.getUsername());
+                        alertDialog.dismiss();
+                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        finish();
+                    }
 
-    @UiThread void loginFinished(User user){
-        alertDialog.dismiss();
-        if(user == null){
-            basicDialog.setTitle("Result");
-            basicDialog.setMessage("Login failed");
-            basicDialog.showDialog();
-            return;
-        }
-        MainActivity_.intent(this).start();
-        finish();
-    }
+                    @Override
+                    public void onError(Throwable e) {
+                        basicDialog.setTitle("Result");
+                        basicDialog.setMessage(e.getMessage());
+                        basicDialog.showDialog();
+                    }
 
-    @Click(R.id.login_forgotpassword)
+                    @Override
+                    public void onComplete() {
+                    }
+                });
+    }
+    @OnClick(R.id.login_forgotpassword)
     void forgotPassword(View view) {
         Snackbar.make(view, "forgot", Snackbar.LENGTH_LONG).show();
     }
 
-    @Click(R.id.login_createaccount)
+    @OnClick(R.id.login_createaccount)
     void createAccount(View view) {
-        RegisterActivity_.intent(this).startForResult(1);
+        startActivityForResult(new Intent(this, RegisterActivity.class), 1);
     }
 
     @Override

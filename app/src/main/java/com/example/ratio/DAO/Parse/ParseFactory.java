@@ -47,7 +47,7 @@ public class ParseFactory extends DAOFactory {
 
     @Override
     public BaseDAO getProjectTypeDAO() {
-        return new ProjectDAO();
+        return new ProjectTypeDAO();
     }
 
     @Override

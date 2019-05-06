@@ -19,10 +19,15 @@ import androidx.annotation.Nullable;
 
 public class UserDAO implements BaseDAO<User>, UserOperations<User> {
     private static final String TAG = "UserDAO";
-    private DateTransform dateTransform = new DateTransform();
+    private DateTransform dateTransform;
     private ParseUser parseUser = null;
     private int result = 0;
     private int defaultLimit = 50;
+
+    public UserDAO() {
+        dateTransform = new DateTransform();
+    }
+
     @Override
     public User insert(User objectEntity) {
         Log.d(TAG, "insert: inserting user " + objectEntity.getObjectId());
@@ -189,8 +194,8 @@ public class UserDAO implements BaseDAO<User>, UserOperations<User> {
         if(user != null){
             userEntity = new User();
             userEntity.setObjectId(user.getObjectId());
-            userEntity.setCreatedAt(dateTransform.toISO8601String(parseUser.getCreatedAt()));
-            userEntity.setUpdatedAt(dateTransform.toISO8601String(parseUser.getUpdatedAt()));
+            userEntity.setCreatedAt(dateTransform.toISO8601String(user.getCreatedAt()));
+            userEntity.setUpdatedAt(dateTransform.toISO8601String(user.getUpdatedAt()));
             userEntity.setUsername(user.getUsername());
             userEntity.setEmail(user.getEmail());
         }

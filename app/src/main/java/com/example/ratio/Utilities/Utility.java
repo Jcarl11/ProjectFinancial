@@ -23,6 +23,9 @@ public class Utility {
         return dialog;
     }
     public boolean checkIfInteger(String input){
+        if(input == null){
+            return false;
+        }
         boolean isInteger = false;
         try{
             Integer.parseInt(input);

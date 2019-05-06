@@ -1,6 +1,10 @@
 package com.example.ratio;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -14,30 +18,28 @@ import com.example.ratio.Entities.User;
 import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Utilities.Utility;
 import com.google.android.material.textfield.TextInputLayout;
-
-import org.androidannotations.annotations.Background;
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.UiThread;
-import org.androidannotations.annotations.ViewById;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@EActivity(R.layout.activity_register)
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "RegisterActivity";
-    @ViewById TextInputLayout register_email;
-    @ViewById TextInputLayout register_username;
-    @ViewById TextInputLayout register_password;
-    @ViewById TextInputLayout register_repassword;
-    @ViewById Button register_submit;
+    @BindView(R.id.register_email) TextInputLayout register_email;
+    @BindView(R.id.register_username) TextInputLayout register_username;
+    @BindView(R.id.register_password) TextInputLayout register_password;
+    @BindView(R.id.register_repassword) TextInputLayout register_repassword;
+    @BindView(R.id.register_submit) Button register_submit;
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
     AlertDialog dialog;
 
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_register);
+        ButterKnife.bind(this);
+    }
 
-    @Click(R.id.register_submit)
+    @OnClick(R.id.register_submit)
     void submitClicked(View view){
         if(!validateField(register_email) | !validateField(register_username)
                 | !validateField(register_password) | !validateField(register_repassword)) {
@@ -60,13 +62,13 @@ public class RegisterActivity extends AppCompatActivity {
         registerUser(user);
 
     }
-    @Background void registerUser(User user){
+    void registerUser(User user){
         DAOFactory factory = DAOFactory.getDatabase(DATABASES.PARSE);
         BaseDAO<User> userDAO = factory.getUserDAO();
         User result = userDAO.insert(user);
         registerDone(result);
     }
-    @UiThread void registerDone(User result){
+    void registerDone(User result){
         dialog.dismiss();
         Bundle bundle = new Bundle();
         bundle.putInt("RESULT", 0);

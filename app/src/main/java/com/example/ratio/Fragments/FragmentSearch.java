@@ -2,9 +2,14 @@ package com.example.ratio.Fragments;
 
 
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -22,11 +27,6 @@ import com.example.ratio.R;
 import com.google.android.material.textfield.TextInputLayout;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
-
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.ViewById;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,18 +34,21 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-@EFragment(R.layout.fragment_search)
 public class FragmentSearch extends Fragment {
     private static final String TAG = "FragmentSearch";
     public FragmentSearch() {}
 
-    @ViewById TextInputLayout search_field_search;
-    @ViewById RecyclerView search_recyclerview;
+    @BindView(R.id.search_field_search) TextInputLayout search_field_search;
+    @BindView(R.id.search_recyclerview) RecyclerView search_recyclerview;
     ItemAdapter itemAdapter = new ItemAdapter();
     List<Expenses> expensesList = new ArrayList<>();
     List<Income> incomeList = new ArrayList<>();
 
-    @AfterViews void aferView(){
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_search, container, false);
+        ButterKnife.bind(this, view);
         search_field_search.getEditText().setOnEditorActionListener(listener());
         search_recyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
         search_recyclerview.setHasFixedSize(true);
@@ -56,7 +59,9 @@ public class FragmentSearch extends Fragment {
         incomeList.add(new Income("1DE2CF", "MY EXPENSES", "1234.75", false, "14:35:12 2019-08-22"));
         incomeList.add(new Income("1DE2CF", "MY EXPENSES", "1234.75", false, "14:35:12 2019-08-22"));
         incomeList.add(new Income("1DE2CF", "MY EXPENSES", "1234.75", false, "14:35:12 2019-08-22"));
+        return view;
     }
+
 
     private TextView.OnEditorActionListener listener() {
         TextView.OnEditorActionListener listener = new TextView.OnEditorActionListener() {

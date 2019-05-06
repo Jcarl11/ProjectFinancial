@@ -15,6 +15,7 @@ import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.PROJECT;
 import com.example.ratio.Utilities.DateTransform;
+import com.example.ratio.Utilities.TagMaker;
 import com.example.ratio.Utilities.Utility;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -26,25 +27,26 @@ import java.util.List;
 
 public class ProjectDAO implements BaseDAO<Projects>, SpecificOperations<Projects> {
     private static final String TAG = "ProjectDAO";
-    private DAOFactory parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
+    DAOFactory parseFactory;
     private BaseDAO<Status> statusBaseDAO;
     private BaseDAO<ProjectType> projectTypeBaseDAO;
     private BaseDAO<Services> servicesBaseDAO;
     private BaseDAO<Subcategory> subcategoryBaseDAO;
     private BaseDAO<Image> imageBaseDAO;
-    private DateTransform dateTransform;
+
+    private DateTransform dateTransform = new DateTransform();;
     private int result = 0;
     private int defaultLimit = 50;
     private boolean isSuccessful = false;
     private ParseObject parseObject = null;
 
     public ProjectDAO() {
+        parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
         statusBaseDAO = parseFactory.getStatusDAO();
         projectTypeBaseDAO = parseFactory.getProjectTypeDAO();
         servicesBaseDAO = parseFactory.getServicesDAO();
         subcategoryBaseDAO = parseFactory.getSubcategoryDAO();
         imageBaseDAO = parseFactory.getImageDAO();
-        dateTransform = new DateTransform();
     }
 
     @Override

@@ -13,11 +13,11 @@
         android:roundIcon="@drawable/ratiologo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".RegisterActivity_"
+        <activity android:name=".RegisterActivity"
             android:theme="@style/LoginRegister"
             android:windowSoftInputMode="stateHidden"></activity>
         <activity
-            android:name=".LoginActivity_"
+            android:name=".LoginActivity"
             android:theme="@style/LoginRegister"
             android:windowSoftInputMode="stateHidden"/>
         <activity
@@ -29,7 +29,7 @@
                 android:value="com.example.ratio.MainActivity" />
         </activity>
         <activity
-            android:name=".MainActivity_"
+            android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden">

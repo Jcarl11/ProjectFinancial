@@ -1,10 +1,13 @@
 package com.example.ratio;
 
+
 import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.DAO.UserOperations;
+import com.example.ratio.Dialogs.BaseDialog;
+import com.example.ratio.Dialogs.BasicDialog;
 import com.example.ratio.Entities.User;
 import com.example.ratio.Enums.DATABASES;
-import com.example.ratio.Fragments.FragmentAddNew_;
+import com.example.ratio.Fragments.FragmentAddNew;
 import com.example.ratio.Fragments.FragmentPortfolio;
 import com.example.ratio.Fragments.FragmentSearch;
 import com.example.ratio.Utilities.Utility;
@@ -13,7 +16,6 @@ import com.parse.Parse;
 import com.parse.ParseUser;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -21,82 +23,119 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
-
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Background;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.OptionsMenuItem;
-import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
-@EActivity(R.layout.activity_main)
-@OptionsMenu(R.menu.menu_main)
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    SectionsPagerAdapter mSectionsPagerAdapter;
-    @ViewById ViewPager container;
-    @ViewById Toolbar toolbar;
-    @ViewById TabLayout tabs;
-    @OptionsMenuItem MenuItem action_settings;
-    @OptionsMenuItem MenuItem action_clearlocal;
-    @OptionsMenuItem MenuItem action_logout;
-    DAOFactory parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
-    DAOFactory sqliteFactory = DAOFactory.getDatabase(DATABASES.SQLITE);
-    AlertDialog alertDialog;
-    @AfterViews
-    void afterView(){
+
+    @BindView(R.id.container) ViewPager container;
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.tabs) TabLayout tabs;
+    private SectionsPagerAdapter mSectionsPagerAdapter;
+    private AlertDialog alertDialog;
+    private DAOFactory parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
+    private UserOperations<User> userOperations;
+    private BaseDialog baseDialog;
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+        Log.d(TAG, "onCreate: Started...");
         setSupportActionBar(toolbar);
+        Log.d(TAG, "onCreate: Toolbar initialized");
         initializeParse();
         if(ParseUser.getCurrentUser() == null){
-            LoginActivity_.intent(this).start();
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
         }
+        Log.d(TAG, "onCreate: User already logged in");
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        mSectionsPagerAdapter.addFragment(new FragmentAddNew_(), "Add new");
+        mSectionsPagerAdapter.addFragment(new FragmentAddNew(), "Add new");
         mSectionsPagerAdapter.addFragment(new FragmentPortfolio(), "Portfolio");
         mSectionsPagerAdapter.addFragment(new FragmentSearch(), "Search");
         container.setAdapter(mSectionsPagerAdapter);
         container.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
         tabs.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(container));
+        userOperations = (UserOperations<User>) parseFactory.getUserDAO();
+        baseDialog = new BasicDialog(this);
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
-    @OptionsItem(R.id.action_settings)
-    void settingsClicked(){
-        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-    }
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        if(item.getItemId() == R.id.action_settings) {
+            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+            return true;
+        } else if(item.getItemId() == R.id.action_clearlocal){
+            Log.d(TAG, "clearLocalStorage: Clicked");
+            return true;
+        } else if(item.getItemId() == R.id.action_logout){
+            alertDialog = Utility.getInstance().showLoading(this, "Logging out", false);
+            alertDialog.show();
+            Observable.fromCallable(new Callable<String>() {
+                @Override
+                public String call() throws Exception {
+                    userOperations.logoutUser();
+                    return "Done";
+                }
+            })
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<String>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+                            alertDialog.show();
+                        }
 
-    @OptionsItem(R.id.action_clearlocal)
-    void clearLocalStorage(){
-        Log.d(TAG, "clearLocalStorage: Clicked");
-    }
+                        @Override
+                        public void onNext(String result) {
+                            Log.d(TAG, "onNext: ");
+                        }
 
-    @OptionsItem(R.id.action_logout)
-    void logoutClicked(){
-        alertDialog = Utility.getInstance().showLoading(this, "Logging out", false);
-        alertDialog.show();
-        logoutTask();
+                        @Override
+                        public void onError(Throwable e) {
+                            baseDialog.setTitle("Result");
+                            baseDialog.setMessage(e.getMessage());
+                            baseDialog.setCancellable(true);
+                            baseDialog.showDialog();
+                        }
 
-    }
-    @Background void logoutTask(){
-        UserOperations<User> userUserOperations = (UserOperations<User>) parseFactory.getUserDAO();
-        userUserOperations.logoutUser();
-        logoutDone();
-    }
+                        @Override
+                        public void onComplete() {
+                            alertDialog.dismiss();
+                            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                            finish();
+                        }
+                    });
 
-    @UiThread void logoutDone(){
-        alertDialog.dismiss();
-        LoginActivity_.intent(this).start();
-        finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
