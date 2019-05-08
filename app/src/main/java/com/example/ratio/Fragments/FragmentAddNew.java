@@ -3,6 +3,7 @@ package com.example.ratio.Fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -15,13 +16,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 import android.os.Bundle;
@@ -31,35 +30,34 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 
+import com.esafirm.imagepicker.features.ImagePicker;
+import com.esafirm.imagepicker.features.ReturnMode;
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
-import com.example.ratio.Entities.Entity;
+import com.example.ratio.Dialogs.BaseDialog;
+import com.example.ratio.Dialogs.BasicDialog;
+import com.example.ratio.Dialogs.CheckBoxDialog;
 import com.example.ratio.Entities.Image;
 import com.example.ratio.Entities.ProjectType;
 import com.example.ratio.Entities.Projects;
+import com.example.ratio.Entities.Status;
 import com.example.ratio.Entities.Subcategory;
 import com.example.ratio.Entities.Services;
 import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.R;
+import com.example.ratio.Utilities.ImageCompressor;
 import com.example.ratio.Utilities.TagMaker;
 import com.example.ratio.Utilities.Utility;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.squareup.picasso.Picasso;
-import com.vincent.filepicker.Constant;
-import com.vincent.filepicker.activity.ImagePickActivity;
-import com.vincent.filepicker.filter.entity.ImageFile;
-
-import org.reactivestreams.Subscription;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -78,14 +76,12 @@ public class FragmentAddNew extends Fragment {
     @BindView(R.id.addnew_spinner_typeofproject) MaterialSpinner addnew_spinner_typeofproject;
     @BindView(R.id.addnew_spinner_subcategory) MaterialSpinner addnew_spinner_subcategory;
     @BindView(R.id.addnew_spinner_services) MaterialSpinner addnew_spinner_services;
-    @BindView(R.id.addnew_checkbox_active) CheckBox addnew_checkbox_active;
-    @BindView(R.id.addnew_checkbox_archived) CheckBox addnew_checkbox_archived;
-    @BindView(R.id.addnew_checkbox_proposal) CheckBox addnew_checkbox_proposal;
     @BindView(R.id.addnew_button_create) Button addnew_button_create;
+    @BindView(R.id.addnew_button_projectstatus) Button addnew_button_projectstatus;
     @BindView(R.id.addnew_imageview_thumbnail) ImageView addnew_imageview_thumbnail;
-    private ProjectType OTHERSCHOICE_TYPESOFPROJECT = new ProjectType("Others", true);
-    private Subcategory OTHERSCHOICE_SUBCATEGORY = new Subcategory("Others", true, null);
-    private Services OTHERSCHOICE_SERVICES = new Services("Others", true);
+    private final ProjectType OTHERSCHOICE_TYPESOFPROJECT = new ProjectType("Others", true);
+    private final Subcategory OTHERSCHOICE_SUBCATEGORY = new Subcategory("Others", true, null);
+    private final Services OTHERSCHOICE_SERVICES = new Services("Others", true);
     private TagMaker tagMaker = new TagMaker();
     private DAOFactory parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
     private BaseDAO<Projects> projectsBaseDAO = null;
@@ -93,12 +89,16 @@ public class FragmentAddNew extends Fragment {
     private BaseDAO<Subcategory> subcategoryBaseDAO = null;
     private BaseDAO<Services> servicesBaseDAO = null;
     private BaseDAO<Image> imageBaseDAO = null;
+    private BaseDAO<Status> statusBaseDAO = null;
     private AlertDialog dialog = null;
     private String selectedServices = null;
     private String selectedType = null;
     private String selectedSubcategory = null;
     private String thumbnailPath = null;
     private String thumbnailName = null;
+    private CheckBoxDialog multipleChoiceDialog;
+    private BaseDialog basicDialog = null;
+    private List<Status> statusList = null;
     public FragmentAddNew() {}
 
     @Nullable
@@ -111,30 +111,16 @@ public class FragmentAddNew extends Fragment {
         projectTypeDAO = parseFactory.getProjectTypeDAO();
         subcategoryBaseDAO = parseFactory.getSubcategoryDAO();
         servicesBaseDAO = parseFactory.getServicesDAO();
+        statusBaseDAO = parseFactory.getStatusDAO();
+        imageBaseDAO = parseFactory.getImageDAO();
         dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
-        /*dialog.show();
-        retrieveServices();
-        retrieveProjectTypes();
-        retrieveSubcategory();
-        dialog.dismiss();*/
-        /*Log.d(TAG, "onCreateView: RetrieveServices");
-        new RetrieveServices().execute((Void)null);
-        Log.d(TAG, "onCreateView: RetrieveTypes");
-        new RetrieveTypes().execute((Void)null);
-        Log.d(TAG, "onCreateView: RetrieveSubcategory");
-        new RetrieveSubcategory().execute((Void)null);
-        Log.d(TAG, "onCreateView: Retrieval done");
-        Log.d(TAG, "onCreateView: Retrieved spinner values");*/
-        /*List<Services> servicesList = servicesBaseDAO.getBulk(null);
-        List<ProjectType> projectTypeList = projectTypeDAO.getBulk(null);
-        List<Subcategory> subcategoryList = subcategoryBaseDAO.getBulk(null);*/
+        multipleChoiceDialog = new CheckBoxDialog(getContext());
 
-        Observable myObs = Observable.defer(new Callable<ObservableSource<?>>() {
-            @Override
-            public ObservableSource<?> call() throws Exception {
-                return Observable.just(servicesBaseDAO.getBulk(null), projectTypeDAO.getBulk(null), subcategoryBaseDAO.getBulk(null));
-            }
-        });
+        Observable myObs = Observable.defer((Callable<ObservableSource<?>>) () ->
+                Observable.just(servicesBaseDAO.getBulk(null),
+                projectTypeDAO.getBulk(null),
+                subcategoryBaseDAO.getBulk(null),
+                statusBaseDAO.getBulk(null)));
         myObs.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer() {
@@ -146,13 +132,28 @@ public class FragmentAddNew extends Fragment {
 
                     @Override
                     public void onNext(Object o) {
-                        List<?> tmp = Arrays.asList(o);
-                        if(tmp.get(0) instanceof Services){
-                            Log.d(TAG, "onNext: Services");
-                        } else if(tmp.get(0) instanceof ProjectType){
-                            Log.d(TAG, "onNext: ProjectType");
-                        } else if(tmp.get(0) instanceof Subcategory){
-                            Log.d(TAG, "onNext: Subcategory");
+                        if(o instanceof Collection){
+                            Object temp = ((Collection) o).iterator().next();
+                            if(temp instanceof Services){
+                                Log.d(TAG, "onNext: Services");
+                                List<Services> myServices = new ArrayList<>((Collection<? extends Services>) o);
+                                myServices.add(OTHERSCHOICE_SERVICES);
+                                addnew_spinner_services.setItems(myServices);
+                            } else if(temp instanceof ProjectType){
+                                Log.d(TAG, "onNext: ProjectType");
+                                List<ProjectType> myProjectType = new ArrayList<>((Collection<? extends ProjectType>) o);
+                                myProjectType.add(OTHERSCHOICE_TYPESOFPROJECT);
+                                addnew_spinner_typeofproject.setItems(myProjectType);
+                            } else if(temp instanceof Subcategory){
+                                Log.d(TAG, "onNext: Subcategory");
+                                List<Subcategory> mySubCategory = new ArrayList<>((Collection<? extends Subcategory>) o);
+                                mySubCategory.add(OTHERSCHOICE_SUBCATEGORY);
+                                addnew_spinner_subcategory.setItems(mySubCategory);
+                            } else if(temp instanceof Status){
+                                Log.d(TAG, "onNext: Status");
+                                List<Status> myStatus = new ArrayList<>((Collection<? extends Status>) o);
+                                statusList = myStatus;
+                            }
                         }
                     }
 
@@ -167,72 +168,47 @@ public class FragmentAddNew extends Fragment {
                         Log.d(TAG, "onComplete: ");
                     }
                 });
-        addnew_checkbox_active.setOnCheckedChangeListener(checkBoxListener());
-        addnew_checkbox_archived.setOnCheckedChangeListener(checkBoxListener());
-        addnew_checkbox_proposal.setOnCheckedChangeListener(checkBoxListener());
         addnew_spinner_typeofproject.setOnItemSelectedListener(typeOfProjectListener());
         addnew_spinner_services.setOnItemSelectedListener(servicesListener());
         addnew_spinner_subcategory.setOnItemSelectedListener(subcategoryListener());
         Log.d(TAG, "onCreateView: Listener initialization done");
         return view;
     }
-
-    void createProjectTask(Projects projects){
-        Projects createdProject = projectsBaseDAO.insert(projects);
-        Image image = imageBaseDAO.insert(new Image(createdProject.getObjectId(), thumbnailName, thumbnailPath, false));
-    }
-
-    private ArrayAdapter<String> adapter(List<String> data) {
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, data);
-        return adapter;
-    }
-    private CompoundButton.OnCheckedChangeListener checkBoxListener() {
-        CompoundButton.OnCheckedChangeListener listener = (buttonView, isChecked) -> {
-            if(isChecked){
-                addnew_checkbox_active.setError(null);
-                addnew_checkbox_archived.setError(null);
-                addnew_checkbox_proposal.setError(null);
-            }
-        };
-        return listener;
-    }
     @OnClick(R.id.addnew_imageview_thumbnail)
-    void imageChoose() {
-        String IS_NEED_CAMERA = new String();
-        Intent intent1 = new Intent(getContext(), ImagePickActivity.class);
-        intent1.putExtra(IS_NEED_CAMERA, true);
-        intent1.putExtra(Constant.MAX_NUMBER, 1);
-        startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);
+    void imageChoose(View view) {
+        ImagePicker.create(this)
+                .returnMode(ReturnMode.ALL)
+                .toolbarImageTitle("Tap to select")
+                .toolbarArrowColor(getResources().getColor(R.color.colorPrimary))
+                .includeVideo(false)
+                .single()
+                .limit(1)
+                .start();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case Constant.REQUEST_CODE_PICK_IMAGE:
-                if (resultCode == Activity.RESULT_OK) {
-                    addnew_imageview_thumbnail.setBackground(null);
-                    ArrayList<ImageFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_IMAGE);
-                    for (ImageFile file : list) {
-                        thumbnailPath = file.getPath();
-                        thumbnailName = file.getName();
-                        Picasso.get().load(new File(thumbnailPath)).into(addnew_imageview_thumbnail);
-                    }
-                } else {
-                    Snackbar.make(getView(), "Error", Snackbar.LENGTH_LONG).show();
-                }
-                break;
+        Log.d(TAG, "onActivityResult: Here");
+        if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
+            Log.d(TAG, "onActivityResult: Goes in");
+            com.esafirm.imagepicker.model.Image image = ImagePicker.getFirstImageOrNull(data);
+            thumbnailName = image.getName();
+            Log.d(TAG, "onActivityResult: getPath(): " + image.getPath());
+            Log.d(TAG, "onActivityResult: Image name: " + image.getName());
+            thumbnailPath = image.getPath();
+            addnew_imageview_thumbnail.setImageDrawable(null);
+            Picasso.get().load(new File(thumbnailPath)).into(addnew_imageview_thumbnail);
         }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @OnClick(R.id.addnew_button_create)
-    void createBtnClicked() {
+    void createBtnClicked(View view) {
         Projects projects = new Projects();
         if( !validateField(addnew_field_projectname) 
                 | !validateField(addnew_field_projectcode) 
                 | !validateField(addnew_field_projectowner) | !validateThumbnail(addnew_imageview_thumbnail)
-            | !validateCheckbox() | !validateSpinner(selectedServices, addnew_spinner_services) | !validateSpinner(selectedType, addnew_spinner_typeofproject)
+            | !validateSpinner(selectedServices, addnew_spinner_services) | !validateSpinner(selectedType, addnew_spinner_typeofproject)
             | !validateSpinner(selectedSubcategory, addnew_spinner_subcategory)) {
             return;
         }
@@ -263,14 +239,78 @@ public class FragmentAddNew extends Fragment {
         projects.setProjectSubCategory(subcategory);
         projects.setDeleted(false);
         projects.setTags(tagMaker.createTags(projects.toString()));
-        dialog.show();
-        createProjectTask(projects);
-        dialog.dismiss();
+        Observable deferObs = Observable.defer(new Callable<ObservableSource<?>>() {
+            @Override
+            public ObservableSource<?> call() throws Exception {
+                return Observable.just(projectsBaseDAO.insert(projects))
+                        .map(new Function<Projects, Image>() {
+                            @Override
+                            public Image apply(Projects projects) throws Exception {
+                                Log.d(TAG, "apply: Project ObjectID: " + projects.getObjectId() );
+                                return imageBaseDAO.insert(new Image(projects.getObjectId(), thumbnailName, thumbnailPath, false));
+                            }
+                        })
+                        .flatMap(new Function<Image, ObservableSource<Integer>>() {
+                            @Override
+                            public ObservableSource<Integer> apply(Image image) throws Exception {
+                                Log.d(TAG, "apply: Image Parent: " + image.getParent());
+                                List<Status> projectStatuses = new ArrayList<>();
+                                for(String statuses : multipleChoiceDialog.getSelectedValues()){
+                                    projectStatuses.add(new Status(statuses, image.getParent()));
+                                }
+                                return Observable.just(statusBaseDAO.insertAll(projectStatuses));
+                            }
+                        });
+            }
+        });
+        deferObs.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.d(TAG, "onSubscribe: Subscribed...");
+                        dialog.show();
+                    }
+
+                    @Override
+                    public void onNext(Object o) {
+                        Log.d(TAG, "onNext: ");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError: Error: " + e.getMessage());
+                        basicDialog.setTitle("Result");
+                        basicDialog.setMessage("Error: " + e.getMessage());
+                        basicDialog.setCancellable(true);
+                        basicDialog.showDialog();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d(TAG, "onComplete: Completed");
+                        dialog.dismiss();
+                    }
+                });
+
     }
 
+    @OnClick(R.id.addnew_button_projectstatus)
+    void projectStatusClicked(View view){
+        String[] arrayString = new String[statusList.size()];
+        for(int x = 0; x < statusList.size(); x++){
+            arrayString[x] = statusList.get(x).getName();
+        }
+        multipleChoiceDialog.setCancellable(true);
+        multipleChoiceDialog.setSourceList(arrayString);
+        multipleChoiceDialog.setPositiveText("Confirm");
+        multipleChoiceDialog.setTitle("Status");
+        multipleChoiceDialog.showDialog();
+    }
     private MaterialSpinner.OnItemSelectedListener servicesListener() {
         MaterialSpinner.OnItemSelectedListener listener = (view, position, id, item) -> {
             Services selected = (Services) item;
+            Log.d(TAG, "servicesListener: " + selected.getObjectId());
             selectedServices = selected.toString();
             if(selected.toString().equalsIgnoreCase("others")){
                 addnew_field_specificservice.setVisibility(View.VISIBLE);
@@ -283,8 +323,11 @@ public class FragmentAddNew extends Fragment {
     private MaterialSpinner.OnItemSelectedListener typeOfProjectListener() {
         MaterialSpinner.OnItemSelectedListener listener = (view, position, id, item) -> {
             ProjectType selected = (ProjectType) item;
+            Log.d(TAG, "typeOfProjectListener: " + selected.getObjectId());
             selectedType = selected.toString();
+            addnew_spinner_subcategory.setVisibility(View.VISIBLE);
             if(selected.toString().equalsIgnoreCase("others")){
+                addnew_spinner_subcategory.setVisibility(View.GONE);
                 addnew_field_specifictype.setVisibility(View.VISIBLE);
                 addnew_field_specificsubcategory.setVisibility(View.VISIBLE);
             } else {
@@ -298,6 +341,7 @@ public class FragmentAddNew extends Fragment {
     private MaterialSpinner.OnItemSelectedListener subcategoryListener() {
         MaterialSpinner.OnItemSelectedListener listener = (view, position, id, item) -> {
             Subcategory selected = (Subcategory) item;
+            Log.d(TAG, "subcategoryListener: " + selected.getObjectId());
             selectedSubcategory = selected.toString();
             if(selected.toString().equalsIgnoreCase("others")){
                 addnew_field_specificsubcategory.setVisibility(View.VISIBLE);
@@ -328,19 +372,6 @@ public class FragmentAddNew extends Fragment {
             return true;
         }
     }
-    private boolean validateCheckbox() {
-        if(!addnew_checkbox_active.isChecked() && !addnew_checkbox_archived.isChecked() && !addnew_checkbox_proposal.isChecked()) {
-            addnew_checkbox_active.setError("Choose at least 1");
-            addnew_checkbox_archived.setError("Choose at least 1");
-            addnew_checkbox_proposal.setError("Choose at least 1");
-            return false;
-        } else {
-            addnew_checkbox_active.setError(null);
-            addnew_checkbox_archived.setError(null);
-            addnew_checkbox_proposal.setError(null);
-            return true;
-        }
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     private boolean validateSpinner(String selectedItem, MaterialSpinner spinner) {
@@ -352,75 +383,7 @@ public class FragmentAddNew extends Fragment {
             return true;
         }
     }
-
-    private class RetrieveServices extends AsyncTask<Void, Void, List<Services>>{
-
-        @Override
-        protected List<Services> doInBackground(Void... voids) {
-            List<Services> servicesList = servicesBaseDAO.getBulk(null);
-            return servicesList;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            dialog.show();
-        }
-
-        @Override
-        protected void onPostExecute(List<Services> services) {
-            dialog.dismiss();
-            if(services.size() <= 0)
-                return;
-            services.add(OTHERSCHOICE_SERVICES);
-            addnew_spinner_services.setItems(services);
-        }
+    public Context getMyContext(){
+        return getContext();
     }
-
-    private class RetrieveTypes extends AsyncTask<Void, Void, List<ProjectType>>{
-
-        @Override
-        protected List<ProjectType> doInBackground(Void... voids) {
-            List<ProjectType> projectTypeList = projectTypeDAO.getBulk(null);
-            return projectTypeList;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            dialog.show();
-        }
-
-        @Override
-        protected void onPostExecute(List<ProjectType> projectTypeList) {
-            dialog.dismiss();
-            if(projectTypeList.size() <= 0)
-                return;
-            projectTypeList.add(OTHERSCHOICE_TYPESOFPROJECT);
-            addnew_spinner_typeofproject.setItems(projectTypeList);
-        }
-    }
-
-    private class RetrieveSubcategory extends AsyncTask<Void, Void, List<Subcategory>>{
-
-        @Override
-        protected List<Subcategory> doInBackground(Void... voids) {
-            List<Subcategory> subcategoryList = subcategoryBaseDAO.getBulk(null);
-            return subcategoryList;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            dialog.show();
-        }
-
-        @Override
-        protected void onPostExecute(List<Subcategory> subcategoryList) {
-            dialog.dismiss();
-            if(subcategoryList.size() <= 0)
-                return;
-            subcategoryList.add(OTHERSCHOICE_SUBCATEGORY);
-            addnew_spinner_subcategory.setItems(subcategoryList);
-        }
-    }
-
-
 }

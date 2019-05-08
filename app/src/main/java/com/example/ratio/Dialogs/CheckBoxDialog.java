@@ -1,34 +1,40 @@
 package com.example.ratio.Dialogs;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.Log;
+import android.widget.ArrayAdapter;
+
 import com.dpizarro.autolabel.library.AutoLabelUI;
+import com.example.ratio.Entities.Status;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class CheckBoxDialog extends BaseDialog {
-
+    private static final String TAG = "CheckBoxDialog";
     private AutoLabelUI autoLabelUI = null;
     private ArrayList<String> selectedValues = new ArrayList<>();
-
+    private boolean[] selectedPositions = null;
     public CheckBoxDialog(Context context) {
         super(context);
     }
 
     @Override
     public void showDialog() {
+        if(selectedPositions == null){
+            selectedPositions = new boolean[sourceList.length];
+        }
         dialogBuilder.setTitle(title);
         dialogBuilder.setCancelable(cancellable);
         dialogBuilder.setPositiveButton(positiveText, positiveButton());
         dialogBuilder.setNegativeButton(negativeText, negativeButton());
-        dialogBuilder.setMultiChoiceItems(sourceList, null, new DialogInterface.OnMultiChoiceClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                if(isChecked) {
-                    selectedValues.add(sourceList[which]);
-                } else if(selectedValues.contains(sourceList[which])) {
-                    selectedValues.remove(which);
-                }
+        dialogBuilder.setMultiChoiceItems(sourceList, selectedPositions, (dialog, which, isChecked) -> {
+            if(isChecked) {
+                selectedValues.add(sourceList[which]);
+                selectedPositions[which] = true;
+            } else if(selectedValues.contains(sourceList[which])) {
+                selectedValues.remove(which);
             }
         });
         dialogBuilder.show();
@@ -39,12 +45,6 @@ public class CheckBoxDialog extends BaseDialog {
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if(autoLabelUI != null) {
-                    autoLabelUI.clear();
-                    for(String value : selectedValues) {
-                        autoLabelUI.addLabel(value);
-                    }
-                }
             }
         };
         return listener;
@@ -65,4 +65,7 @@ public class CheckBoxDialog extends BaseDialog {
         this.autoLabelUI = autoLabelUI;
     }
 
+    public ArrayList<String> getSelectedValues() {
+        return selectedValues;
+    }
 }

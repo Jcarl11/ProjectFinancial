@@ -2,12 +2,16 @@ package com.example.ratio;
 
 import android.util.Log;
 
+import com.example.ratio.Entities.ProjectType;
 import com.example.ratio.Entities.Projects;
+import com.example.ratio.Entities.Services;
+import com.example.ratio.Entities.Subcategory;
 import com.example.ratio.Utilities.DateTransform;
 import com.example.ratio.Utilities.FileValidator;
 import com.example.ratio.Utilities.TagMaker;
 
 import org.apache.commons.io.FilenameUtils;
+import org.json.JSONArray;
 import org.junit.Test;
 
 import java.util.Date;
@@ -42,9 +46,18 @@ public class ExampleUnitTest {
     @Test
     public void toStringTest(){
         Projects projects = new Projects();
-        TagMaker tagMaker = new TagMaker();
-        projects.setProjectCode("5215ASDASD");
+        Services services = new Services("SERVICES1", false);
+        ProjectType projectType = new ProjectType("PROJECT TYPE", false);
+        Subcategory subcategory = new Subcategory("SUBCATEGORY1", false, "DFSFD2");
+        projects.setProjectCode("DAS415F");
+        projects.setProjectName("RPOJECT NAME 1");
         projects.setProjectOwner("JOEY CARLO");
-        tagMaker.createTags(projects.toString());
+        projects.setProjectServices(services);
+        projects.setProjectType(projectType);
+        projects.setProjectSubCategory(subcategory);
+        projects.setDeleted(false);
+
+        TagMaker tagMaker = new TagMaker();
+        projects.setTags(tagMaker.createTags(projects.toString()));
     }
 }

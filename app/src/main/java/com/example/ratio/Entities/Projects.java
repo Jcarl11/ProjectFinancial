@@ -18,7 +18,7 @@ public class Projects extends Entity {
     private List<Income> projectIncome;
     private List<Recievables> projectRecievables;
     private Services projectServices;
-    private Status projectStatus;
+    private List<Status> projectStatus;
     private Image thumbnail;
     private boolean deleted;
     private JSONArray tags;
@@ -95,11 +95,11 @@ public class Projects extends Entity {
         this.projectServices = projectServices;
     }
 
-    public Status getProjectStatus() {
+    public List<Status> getProjectStatus() {
         return projectStatus;
     }
 
-    public void setProjectStatus(Status projectStatus) {
+    public void setProjectStatus(List<Status> projectStatus) {
         this.projectStatus = projectStatus;
     }
 
@@ -137,12 +137,14 @@ public class Projects extends Entity {
         for(int x = 0; x < fields.length; x++) {
             Object name = null;
             try {
+
                 name = fields[x].get(this);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
             if(name != null){
-                values.add(String.valueOf(name));
+                if((name instanceof JSONArray) == false )
+                    values.add(String.valueOf(name.toString()));
             }
         }
 

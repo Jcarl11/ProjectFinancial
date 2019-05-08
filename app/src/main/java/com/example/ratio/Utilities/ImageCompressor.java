@@ -19,9 +19,11 @@ public class ImageCompressor {
 
     public File compressToFile(File original) {
         Log.d(TAG, "compressToFile: compressing...");
+        Log.d(TAG, "compressToFile: Original Size: " + String.valueOf(original.length() / 1024) + "kb");
         File compressedImage = null;
         try {
             compressedImage = new Compressor(context).compressToFile(original);
+            Log.d(TAG, "compressToFile: Compressed size: " + String.valueOf(compressedImage.length() / 1024) + "kb");
         } catch (IOException e) {
             e.printStackTrace();
             Log.d(TAG, "compressToFile: Exception thrown: " + e.getMessage());
@@ -35,9 +37,11 @@ public class ImageCompressor {
 
     public Bitmap compressToBitmap(File original) {
         Log.d(TAG, "compressToBitmap: Started...");
+        Log.d(TAG, "compressToBitmap: Orginal Size: "  + String.valueOf(original.length() / 1024) + "kb");
         Bitmap bitmap = null;
         try {
             bitmap = new Compressor(context).compressToBitmap(original);
+            Log.d(TAG, "compressToBitmap: Compressed size: " + String.valueOf(bitmap.getByteCount() / 1024) + "kb" );
         } catch (IOException e) {
             e.printStackTrace();
             Log.d(TAG, "compressToBitmap: Exception thrown: " + e.getMessage());

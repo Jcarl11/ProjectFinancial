@@ -10,6 +10,7 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -50,7 +51,10 @@ dependencies {
     implementation 'com.github.parse-community.Parse-SDK-Android:fcm:1.19.0'
     implementation 'com.github.d-max:spots-dialog:1.1@aar'
     implementation 'com.github.davidpizarro:autolabelui:1.0.1'
-    implementation 'com.vincent.filepicker:MultiTypeFilePicker:1.0.8'
+    implementation 'com.github.esafirm.android-image-picker:imagepicker:2.0.0'
+    // for experimental rx picker
+    implementation 'com.github.esafirm.android-image-picker:rximagepicker:2.0.0'
+    // If you have a problem with Glide, please use the same Glide version or simply open an issue
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.github.sadra:AwesomeSpinner:1.5.1'
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'

@@ -30,6 +30,7 @@ public class StatusDAO implements BaseDAO<Status> {
         result = 0;
         ParseObject parseObject = new ParseObject(PARSECLASS.STATUS.toString());
         parseObject.put(STATUS.NAME.toString(), objectEntity.getName());
+        parseObject.put(STATUS.PARENT.toString(), objectEntity.getParent());
         try {
             Log.d(TAG, "insert: Saving...");
             parseObject.save();
@@ -44,6 +45,7 @@ public class StatusDAO implements BaseDAO<Status> {
         status.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
         status.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
         status.setName(parseObject.getString(STATUS.NAME.toString()));
+        status.setParent(parseObject.getString(STATUS.PARENT.toString()));
 
         return status;
     }
@@ -82,6 +84,7 @@ public class StatusDAO implements BaseDAO<Status> {
         status.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
         status.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
         status.setName(parseObject.getString(STATUS.NAME.toString()));
+        status.setParent(parseObject.getString(STATUS.PARENT.toString()));
 
         return status;
     }
@@ -104,6 +107,7 @@ public class StatusDAO implements BaseDAO<Status> {
                 status.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
                 status.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
                 status.setName(parseObject.getString(STATUS.NAME.toString()));
+                status.setParent(parseObject.getString(STATUS.PARENT.toString()));
                 statuses.add(status);
             }
         } catch (ParseException e) {
@@ -131,6 +135,7 @@ public class StatusDAO implements BaseDAO<Status> {
         status.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
         status.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
         status.setName(parseObject.getString(STATUS.NAME.toString()));
+        status.setParent(parseObject.getString(STATUS.PARENT.toString()));
 
         return status;
     }

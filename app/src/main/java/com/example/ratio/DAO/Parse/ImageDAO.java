@@ -1,12 +1,15 @@
 package com.example.ratio.DAO.Parse;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.Entities.Image;
 import com.example.ratio.Enums.IMAGES;
 import com.example.ratio.Enums.PARSECLASS;
+import com.example.ratio.Fragments.FragmentAddNew;
 import com.example.ratio.Utilities.DateTransform;
+import com.example.ratio.Utilities.ImageCompressor;
 import com.example.ratio.Utilities.ParseFileOperation;
 import com.example.ratio.Utilities.Utility;
 import com.parse.ParseException;
@@ -23,10 +26,11 @@ public class ImageDAO implements BaseDAO<Image> {
     private static final String TAG = "ImageDAO";
     private DateTransform dateTransform = new DateTransform();
     private ParseFileOperation parseFileOperation = new ParseFileOperation();
-    private int result = 0;
     private int defaultLimit = 50;
-    private boolean isSuccessful = false;
     private ParseObject parseObject = null;
+    private Context context = null;
+
+
 
     @Override
     public Image insert(Image objectEntity) {
@@ -45,13 +49,13 @@ public class ImageDAO implements BaseDAO<Image> {
             Log.d(TAG, "insert: Exception thrown: " + e.getMessage());
         }
         Image image = new Image();
-        image.setObjectId(parseObject.getObjectId());
-        image.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
-        image.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
-        image.setParent(parseObject.getString(IMAGES.PARENT.toString()));
-        image.setFileName(parseObject.getString(IMAGES.FILENAME.toString()));
-        image.setDeleted(parseObject.getBoolean(IMAGES.DELETED.toString()));
-        image.setFilePath(parseObject.getParseFile(IMAGES.FILES.toString()).getUrl());
+        image.setObjectId(insert.getObjectId());
+        image.setCreatedAt(dateTransform.toDateString(insert.getCreatedAt()));
+        image.setUpdatedAt(dateTransform.toDateString(insert.getUpdatedAt()));
+        image.setParent(insert.getString(IMAGES.PARENT.toString()));
+        image.setFileName(insert.getString(IMAGES.FILENAME.toString()));
+        image.setDeleted(insert.getBoolean(IMAGES.DELETED.toString()));
+        image.setFilePath(insert.getParseFile(IMAGES.FILES.toString()).getUrl());
         return image;
     }
 

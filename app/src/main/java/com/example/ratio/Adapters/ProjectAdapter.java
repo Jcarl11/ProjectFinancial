@@ -58,7 +58,6 @@ public class ProjectAdapter extends AbstractItem<ProjectAdapter, ProjectAdapter.
         @Override
         public void bindView(ProjectAdapter item, List<Object> payloads) {
             portfolio_row_code.setText(item.projects.getProjectCode());
-            portfolio_row_status.setText(item.projects.getProjectStatus().getName());
             portfolio_row_projectname.setText(item.projects.getProjectName());
             Picasso.get().load(item.projects.getThumbnail().getFilePath()).into(portfolio_row_image);
         }

@@ -55,7 +55,6 @@ public class FragmentPortfolio extends Fragment {
         for( int x = 0; x < rowCount ; x++ ) {
             Projects rows = new Projects();
             rows.setProjectCode(String.format("CT2019%s", String.valueOf(x)));
-            rows.setProjectStatus(new Status("ACTIVE"));
             rows.setProjectName(String.format("Project number %s", String.valueOf(x)));
             rows.setThumbnail(new Image(null,"RANDOM IMAGE", String.format("https://picsum.photos/500/300/?image=2%s", String.valueOf(x)), false));
             data.add(new ProjectAdapter(rows));

@@ -58,8 +58,7 @@ public class ProjectDAO implements BaseDAO<Projects>, SpecificOperations<Project
         parseObject.put(PROJECT.PROJECT_OWNER.toString(), objectEntity.getProjectOwner());
         parseObject.put(PROJECT.TYPE.toString(), objectEntity.getProjectType().getObjectId());
         parseObject.put(PROJECT.SERVICES.toString(), objectEntity.getProjectServices().getObjectId());
-        parseObject.put(PROJECT.SUBCATEGORY.toString(), objectEntity.getProjectServices().getObjectId());
-        parseObject.put(PROJECT.STATUS.toString(), objectEntity.getProjectStatus().getObjectId());
+        parseObject.put(PROJECT.SUBCATEGORY.toString(), objectEntity.getProjectSubCategory().getObjectId());
         parseObject.put(PROJECT.DELETED.toString(), objectEntity.isDeleted());
         parseObject.put(PROJECT.Tags.toString(), objectEntity.getTags());
 
@@ -78,7 +77,6 @@ public class ProjectDAO implements BaseDAO<Projects>, SpecificOperations<Project
         projects.setProjectName(parseObject.getString(PROJECT.PROJECT_TITLE.toString()));
         projects.setProjectCode(parseObject.getString(PROJECT.PROJECT_CODE.toString()));
         projects.setProjectOwner(parseObject.getString(PROJECT.PROJECT_OWNER.toString()));
-        projects.setProjectStatus(statusBaseDAO.get(parseObject.getString(PROJECT.STATUS.toString())));
         projects.setProjectType(projectTypeBaseDAO.get(parseObject.getString(PROJECT.TYPE.toString())));
         projects.setProjectServices(servicesBaseDAO.get(parseObject.getString(PROJECT.SERVICES.toString())));
         projects.setProjectSubCategory(subcategoryBaseDAO.get(parseObject.getString(PROJECT.SUBCATEGORY.toString())));
@@ -124,7 +122,6 @@ public class ProjectDAO implements BaseDAO<Projects>, SpecificOperations<Project
         projects.setProjectName(parseObject.getString(PROJECT.PROJECT_TITLE.toString()));
         projects.setProjectCode(parseObject.getString(PROJECT.PROJECT_CODE.toString()));
         projects.setProjectOwner(parseObject.getString(PROJECT.PROJECT_OWNER.toString()));
-        projects.setProjectStatus(statusBaseDAO.get(parseObject.getString(PROJECT.STATUS.toString())));
         projects.setProjectType(projectTypeBaseDAO.get(parseObject.getString(PROJECT.TYPE.toString())));
         projects.setProjectServices(servicesBaseDAO.get(parseObject.getString(PROJECT.SERVICES.toString())));
         projects.setProjectSubCategory(subcategoryBaseDAO.get(parseObject.getString(PROJECT.SUBCATEGORY.toString())));
@@ -153,7 +150,6 @@ public class ProjectDAO implements BaseDAO<Projects>, SpecificOperations<Project
                 projects.setProjectName(parseObject.getString(PROJECT.PROJECT_TITLE.toString()));
                 projects.setProjectCode(parseObject.getString(PROJECT.PROJECT_CODE.toString()));
                 projects.setProjectOwner(parseObject.getString(PROJECT.PROJECT_OWNER.toString()));
-                projects.setProjectStatus(statusBaseDAO.get(parseObject.getString(PROJECT.STATUS.toString())));
                 projects.setProjectType(projectTypeBaseDAO.get(parseObject.getString(PROJECT.TYPE.toString())));
                 projects.setProjectServices(servicesBaseDAO.get(parseObject.getString(PROJECT.SERVICES.toString())));
                 projects.setProjectSubCategory(subcategoryBaseDAO.get(parseObject.getString(PROJECT.SUBCATEGORY.toString())));
@@ -177,7 +173,6 @@ public class ProjectDAO implements BaseDAO<Projects>, SpecificOperations<Project
         parseObject.put(PROJECT.PROJECT_CODE.toString(), newRecord.getProjectCode());
         parseObject.put(PROJECT.PROJECT_OWNER.toString(), newRecord.getProjectOwner());
         parseObject.put(PROJECT.PROJECT_TITLE.toString(), newRecord.getProjectName());
-        parseObject.put(PROJECT.STATUS.toString(), newRecord.getProjectStatus().getObjectId());
         parseObject.put(PROJECT.SERVICES.toString(), newRecord.getProjectServices().getObjectId());
         parseObject.put(PROJECT.TYPE.toString(), newRecord.getProjectType().getObjectId());
         parseObject.put(PROJECT.SUBCATEGORY.toString(), newRecord.getProjectSubCategory().getObjectId());
@@ -198,7 +193,6 @@ public class ProjectDAO implements BaseDAO<Projects>, SpecificOperations<Project
         projects.setProjectName(parseObject.getString(PROJECT.PROJECT_TITLE.toString()));
         projects.setProjectCode(parseObject.getString(PROJECT.PROJECT_CODE.toString()));
         projects.setProjectOwner(parseObject.getString(PROJECT.PROJECT_OWNER.toString()));
-        projects.setProjectStatus(statusBaseDAO.get(parseObject.getString(PROJECT.STATUS.toString())));
         projects.setProjectType(projectTypeBaseDAO.get(parseObject.getString(PROJECT.TYPE.toString())));
         projects.setProjectServices(servicesBaseDAO.get(parseObject.getString(PROJECT.SERVICES.toString())));
         projects.setProjectSubCategory(subcategoryBaseDAO.get(parseObject.getString(PROJECT.SUBCATEGORY.toString())));
@@ -261,7 +255,6 @@ public class ProjectDAO implements BaseDAO<Projects>, SpecificOperations<Project
                 projects.setProjectName(parseObject.getString(PROJECT.PROJECT_TITLE.toString()));
                 projects.setProjectCode(parseObject.getString(PROJECT.PROJECT_CODE.toString()));
                 projects.setProjectOwner(parseObject.getString(PROJECT.PROJECT_OWNER.toString()));
-                projects.setProjectStatus(statusBaseDAO.get(parseObject.getString(PROJECT.STATUS.toString())));
                 projects.setProjectType(projectTypeBaseDAO.get(parseObject.getString(PROJECT.TYPE.toString())));
                 projects.setProjectServices(servicesBaseDAO.get(parseObject.getString(PROJECT.SERVICES.toString())));
                 projects.setProjectSubCategory(subcategoryBaseDAO.get(parseObject.getString(PROJECT.SUBCATEGORY.toString())));

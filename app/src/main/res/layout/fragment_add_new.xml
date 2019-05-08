@@ -97,36 +97,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginLeft="10dp">
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="STATUS"
                 android:textSize="12sp"
                 android:layout_margin="10dp"/>
-            <CheckBox
-                android:id="@+id/addnew_checkbox_active"
+            <Button
+                android:id="@+id/addnew_button_projectstatus"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Active"
-                android:layout_marginLeft="20dp"
-                android:textSize="20sp" />
-            <CheckBox
-                android:id="@+id/addnew_checkbox_archived"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="20dp"
-                android:text="Archived"
-                android:textSize="20sp" />
-            <CheckBox
-                android:id="@+id/addnew_checkbox_proposal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Proposal"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="20dp"
-                android:textSize="20sp" />
+                android:layout_height="40dp"
+                android:background="@drawable/button_bg"
+                android:textColor="@android:color/white"
+                android:text="Project status"/>
 
         </LinearLayout>
         <View
