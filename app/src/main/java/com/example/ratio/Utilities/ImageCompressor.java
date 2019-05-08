@@ -12,9 +12,13 @@ import id.zelory.compressor.Compressor;
 public class ImageCompressor {
     private static final String TAG = "ImageCompressor";
     private Context context;
-
-    public ImageCompressor(Context context) {
-        this.context = context;
+    private static ImageCompressor instance = null;
+    private ImageCompressor(){}
+    public static ImageCompressor getInstance(){
+        if(instance == null) {
+            instance = new ImageCompressor();
+        }
+        return instance;
     }
 
     public File compressToFile(File original) {
@@ -51,5 +55,9 @@ public class ImageCompressor {
 
     public Bitmap compressToBitmap(String imagePath) {
         return compressToBitmap(new File(imagePath));
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
     }
 }

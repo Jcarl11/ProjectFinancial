@@ -28,9 +28,6 @@ public class ImageDAO implements BaseDAO<Image> {
     private ParseFileOperation parseFileOperation = new ParseFileOperation();
     private int defaultLimit = 50;
     private ParseObject parseObject = null;
-    private Context context = null;
-
-
 
     @Override
     public Image insert(Image objectEntity) {
@@ -38,7 +35,8 @@ public class ImageDAO implements BaseDAO<Image> {
         ParseObject insert = new ParseObject(PARSECLASS.IMAGES.toString());
         insert.put(IMAGES.PARENT.toString(), objectEntity.getParent());
         insert.put(IMAGES.FILENAME.toString(), objectEntity.getFileName());
-        insert.put(IMAGES.FILES.toString(), parseFileOperation.fromFile(new File(objectEntity.getFilePath())));
+        File compressedImage = ImageCompressor.getInstance().compressToFile(new File(objectEntity.getFilePath()));
+        insert.put(IMAGES.FILES.toString(), parseFileOperation.fromFile(compressedImage));
         insert.put(IMAGES.DELETED.toString(), false);
         try {
             Log.d(TAG, "insert: Saving...");

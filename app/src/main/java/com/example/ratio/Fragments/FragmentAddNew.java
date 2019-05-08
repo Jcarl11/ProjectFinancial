@@ -115,7 +115,6 @@ public class FragmentAddNew extends Fragment {
         imageBaseDAO = parseFactory.getImageDAO();
         dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
         multipleChoiceDialog = new CheckBoxDialog(getContext());
-
         Observable myObs = Observable.defer((Callable<ObservableSource<?>>) () ->
                 Observable.just(servicesBaseDAO.getBulk(null),
                 projectTypeDAO.getBulk(null),
@@ -239,6 +238,7 @@ public class FragmentAddNew extends Fragment {
         projects.setProjectSubCategory(subcategory);
         projects.setDeleted(false);
         projects.setTags(tagMaker.createTags(projects.toString()));
+        ImageCompressor.getInstance().setContext(getContext());
         Observable deferObs = Observable.defer(new Callable<ObservableSource<?>>() {
             @Override
             public ObservableSource<?> call() throws Exception {
@@ -258,6 +258,7 @@ public class FragmentAddNew extends Fragment {
                                 for(String statuses : multipleChoiceDialog.getSelectedValues()){
                                     projectStatuses.add(new Status(statuses, image.getParent()));
                                 }
+
                                 return Observable.just(statusBaseDAO.insertAll(projectStatuses));
                             }
                         });
@@ -382,8 +383,5 @@ public class FragmentAddNew extends Fragment {
             spinner.setBackground(null);
             return true;
         }
-    }
-    public Context getMyContext(){
-        return getContext();
     }
 }
