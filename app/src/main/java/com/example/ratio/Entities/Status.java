@@ -1,5 +1,7 @@
 package com.example.ratio.Entities;
 
+import androidx.annotation.NonNull;
+
 public class Status extends Entity {
     private String name;
     private String parent;
@@ -26,5 +28,11 @@ public class Status extends Entity {
 
     public void setParent(String parent) {
         this.parent = parent;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return getName();
     }
 }

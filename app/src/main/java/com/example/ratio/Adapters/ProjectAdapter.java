@@ -1,73 +1,77 @@
 package com.example.ratio.Adapters;
 
+
+import android.content.Context;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.ratio.Entities.Image;
 import com.example.ratio.Entities.Projects;
+import com.example.ratio.Entities.Status;
 import com.example.ratio.R;
-import com.mikepenz.fastadapter.FastAdapter;
-import com.mikepenz.fastadapter.items.AbstractItem;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Random;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
-public class ProjectAdapter extends AbstractItem<ProjectAdapter, ProjectAdapter.ViewHolder> {
+public class ProjectAdapter extends  RecyclerView.Adapter<ProjectAdapter.ProjectViewHolder> {
+    private static final String TAG = "ProjectAdapter";
+    private Context context;
+    private List<Projects> projectsList;
 
-    private Projects projects;
-
-    public ProjectAdapter(Projects projects) {
-        this.projects = projects;
-    }
-
-
-    @Override
-    public int getType() {
-        return R.id.portfolio_recyclerview;
-    }
-
-    @Override
-    public int getLayoutRes() {
-        return R.layout.portfolio_rowlayout;
+    public ProjectAdapter(Context context, List<Projects> projectsList) {
+        this.context = context;
+        this.projectsList = projectsList;
     }
 
     @NonNull
     @Override
-    public ViewHolder getViewHolder(View v) {
-        return new ViewHolder(v);
+    public ProjectViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater layoutInflater = LayoutInflater.from(context);
+        View view = layoutInflater.inflate(R.layout.portfolio_rowlayout, parent, false);
+        return new ProjectViewHolder(view);
     }
 
-    public class ViewHolder extends FastAdapter.ViewHolder<ProjectAdapter> {
+    @Override
+    public void onBindViewHolder(@NonNull ProjectViewHolder holder, int position) {
+        Projects projects = projectsList.get(position);
+        holder.portfolio_row_code.setText(projects.getProjectCode());
+        StringBuilder statusBuilder = new StringBuilder();
+        for(Status status : projects.getProjectStatus()){
+            statusBuilder.append(status.getName());
+            statusBuilder.append(",");
+        }
+        holder.portfolio_row_status.setText(statusBuilder.toString());
+        holder.portfolio_row_projectname.setText(projects.getProjectName());
+        Picasso.get().load(projects.getThumbnail().getFilePath()).into(holder.portfolio_row_image);
+    }
 
+    @Override
+    public int getItemCount() {
+        return projectsList.size();
+    }
+
+    public class ProjectViewHolder extends RecyclerView.ViewHolder {
         TextView portfolio_row_code;
-        ImageView portfolio_row_image;
         TextView portfolio_row_status;
         TextView portfolio_row_projectname;
+        ImageView portfolio_row_image;
 
-
-        public ViewHolder(View itemView) {
+        public ProjectViewHolder(@NonNull View itemView) {
             super(itemView);
             portfolio_row_code = (TextView) itemView.findViewById(R.id.portfolio_row_code);
-            portfolio_row_image = (ImageView) itemView.findViewById(R.id.portfolio_row_image);
             portfolio_row_status = (TextView) itemView.findViewById(R.id.portfolio_row_status);
             portfolio_row_projectname = (TextView) itemView.findViewById(R.id.portfolio_row_projectname);
-        }
-
-        @Override
-        public void bindView(ProjectAdapter item, List<Object> payloads) {
-            portfolio_row_code.setText(item.projects.getProjectCode());
-            portfolio_row_projectname.setText(item.projects.getProjectName());
-            Picasso.get().load(item.projects.getThumbnail().getFilePath()).into(portfolio_row_image);
-        }
-
-        @Override
-        public void unbindView(ProjectAdapter item) {
-            portfolio_row_code.setText(null);
-            portfolio_row_status.setText(null);
-            portfolio_row_projectname.setText(null);
-            portfolio_row_image.setImageDrawable(null);
+            portfolio_row_image = (ImageView) itemView.findViewById(R.id.portfolio_row_image);
         }
     }
 }

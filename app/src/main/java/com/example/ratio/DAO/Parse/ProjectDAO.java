@@ -15,39 +15,24 @@ import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.PROJECT;
 import com.example.ratio.Utilities.DateTransform;
-import com.example.ratio.Utilities.TagMaker;
 import com.example.ratio.Utilities.Utility;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProjectDAO implements BaseDAO<Projects>, SpecificOperations<Projects> {
     private static final String TAG = "ProjectDAO";
-    DAOFactory parseFactory;
-    private BaseDAO<Status> statusBaseDAO;
-    private BaseDAO<ProjectType> projectTypeBaseDAO;
-    private BaseDAO<Services> servicesBaseDAO;
-    private BaseDAO<Subcategory> subcategoryBaseDAO;
-    private BaseDAO<Image> imageBaseDAO;
+    private ProjectTypeDAO projectTypeBaseDAO = new ProjectTypeDAO();
+    private ServicesDAO servicesBaseDAO = new ServicesDAO();
+    private SubCategoryDAO subcategoryBaseDAO = new SubCategoryDAO();
 
-    private DateTransform dateTransform = new DateTransform();;
-    private int result = 0;
+    private DateTransform dateTransform = new DateTransform();
     private int defaultLimit = 50;
-    private boolean isSuccessful = false;
     private ParseObject parseObject = null;
 
-    public ProjectDAO() {
-        parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
-        statusBaseDAO = parseFactory.getStatusDAO();
-        projectTypeBaseDAO = parseFactory.getProjectTypeDAO();
-        servicesBaseDAO = parseFactory.getServicesDAO();
-        subcategoryBaseDAO = parseFactory.getSubcategoryDAO();
-        imageBaseDAO = parseFactory.getImageDAO();
-    }
 
     @Override
     public Projects insert(Projects objectEntity) {
@@ -109,6 +94,9 @@ public class ProjectDAO implements BaseDAO<Projects>, SpecificOperations<Project
         try {
             Log.d(TAG, "get: Retrieving object...");
             parseObject = query.get(objectId);
+            if(parseObject == null) {
+                return new Projects();
+            }
             Log.d(TAG, "get: Retrieval finished");
         } catch (ParseException e) {
             e.printStackTrace();
@@ -136,17 +124,22 @@ public class ProjectDAO implements BaseDAO<Projects>, SpecificOperations<Project
         defaultLimit = Utility.getInstance().checkIfInteger(sqlCommand) == true ? Integer.valueOf(sqlCommand) : 50;
         Log.d(TAG, "getBulk: Limit set to " + defaultLimit);
         List<Projects> projectsList = new ArrayList<>();
-        ParseQuery<ParseObject> getbulk = ParseQuery.getQuery(PARSECLASS.PROJECT.toString());
-        getbulk.setLimit(defaultLimit);
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.PROJECT.toString());
+        query.setLimit(defaultLimit);
         try {
-            Log.d(TAG, "getBulk: Retrieving types...");
-            List<ParseObject> parseObjects = getbulk.find();
+            Log.d(TAG, "getBulk: Retrieving projects...");
+            List<ParseObject> command = query.find();
             Log.d(TAG, "getBulk: Retrieval finished");
-            for(ParseObject parseObject : parseObjects){
+            Log.d(TAG, "getBulk: Size: " + command.size());
+            /*if(command.size() <= 0 || command == null){
+                projectsList.add(new Projects());
+                return projectsList;
+            }*/
+            for(ParseObject parseObject : command){
                 Projects projects = new Projects();
                 projects.setObjectId(parseObject.getObjectId());
                 projects.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
-                projects.setCreatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
+                projects.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
                 projects.setProjectName(parseObject.getString(PROJECT.PROJECT_TITLE.toString()));
                 projects.setProjectCode(parseObject.getString(PROJECT.PROJECT_CODE.toString()));
                 projects.setProjectOwner(parseObject.getString(PROJECT.PROJECT_OWNER.toString()));
@@ -155,7 +148,6 @@ public class ProjectDAO implements BaseDAO<Projects>, SpecificOperations<Project
                 projects.setProjectSubCategory(subcategoryBaseDAO.get(parseObject.getString(PROJECT.SUBCATEGORY.toString())));
                 projects.setDeleted(parseObject.getBoolean(PROJECT.DELETED.toString()));
                 projects.setTags(parseObject.getJSONArray(PROJECT.Tags.toString()));
-
                 projectsList.add(projects);
             }
         } catch (ParseException e) {
@@ -238,10 +230,10 @@ public class ProjectDAO implements BaseDAO<Projects>, SpecificOperations<Project
     public List<Projects> getObject(ParseQuery<ParseObject> customQuery) {
         Log.d(TAG, "getObject: Started...");
         List<Projects> projectsList = new ArrayList<>();
-        if(customQuery.getClassName() == null) {
+        /*if(customQuery.getClassName() == null) {
             Log.d(TAG, "getObject: Class not specified.");
             customQuery = ParseQuery.getQuery(PARSECLASS.PROJECT.toString());
-        }
+        }*/
 
         try {
             Log.d(TAG, "getObject: Retriving objects...");

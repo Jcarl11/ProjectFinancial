@@ -1,6 +1,7 @@
 package com.example.ratio.Fragments;
 
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,19 +11,34 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.ratio.Adapters.ProjectAdapter;
+import com.example.ratio.DAO.BaseDAO;
+import com.example.ratio.DAO.DAOFactory;
+import com.example.ratio.Dialogs.BaseDialog;
+import com.example.ratio.Dialogs.BasicDialog;
 import com.example.ratio.Entities.Image;
 import com.example.ratio.Entities.Projects;
 import com.example.ratio.Entities.Status;
+import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.R;
-import com.mikepenz.fastadapter.FastAdapter;
-import com.mikepenz.fastadapter.adapters.ItemAdapter;
+import com.example.ratio.Utilities.Utility;
+
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
 
 
 /**
@@ -32,8 +48,12 @@ public class FragmentPortfolio extends Fragment {
 
     private static final String TAG = "FragmentPortfolio";
     @BindView(R.id.portfolio_recyclerview) RecyclerView portfolio_recyclerview;
-    ItemAdapter itemAdapter = new ItemAdapter();
-    FastAdapter fastAdapter;
+    private DAOFactory parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
+    private BaseDAO<Projects> projectsBaseDAO = null;
+    private BaseDAO<Status> statusBaseDAO = null;
+    private BaseDAO<Image> imageBaseDAO = null;
+    private AlertDialog dialog;
+    private BaseDialog basicDialog = null;
     public FragmentPortfolio() {}
 
     @Nullable
@@ -41,25 +61,96 @@ public class FragmentPortfolio extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_portfolio, container, false);
         ButterKnife.bind(this, view);
+        projectsBaseDAO = parseFactory.getProjectDAO();
+        statusBaseDAO = parseFactory.getStatusDAO();
+        imageBaseDAO = parseFactory.getImageDAO();
+        dialog = Utility.getInstance().showLoading(getContext(), "Please wait", true);
+        basicDialog = new BasicDialog(getContext());
         portfolio_recyclerview.setHasFixedSize(true);
         portfolio_recyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
-        fastAdapter = FastAdapter.with(itemAdapter);
-        portfolio_recyclerview.setAdapter(fastAdapter);
-        itemAdapter.add(generateDummyData(8));
+        if(portfolio_recyclerview.getAdapter() == null) {
+            Log.d(TAG, "onCreateView: Loaded...");
+            getProjects();
+        }
         return view;
     }
 
 
-    public ArrayList<ProjectAdapter> generateDummyData(int rowCount) {
-        ArrayList<ProjectAdapter> data = new ArrayList<>();
-        for( int x = 0; x < rowCount ; x++ ) {
-            Projects rows = new Projects();
-            rows.setProjectCode(String.format("CT2019%s", String.valueOf(x)));
-            rows.setProjectName(String.format("Project number %s", String.valueOf(x)));
-            rows.setThumbnail(new Image(null,"RANDOM IMAGE", String.format("https://picsum.photos/500/300/?image=2%s", String.valueOf(x)), false));
-            data.add(new ProjectAdapter(rows));
-        }
-        return data;
+    public void getProjects() {
+
+        Observable<List<Projects>> proj = Observable.defer(new Callable<ObservableSource<? extends List<Projects>>>() {
+            @Override
+            public ObservableSource<? extends List<Projects>> call() throws Exception {
+                return getProjectsObservable()
+                        .map(new Function<List<Projects>, List<Projects>>() {
+                            @Override
+                            public List<Projects> apply(List<Projects> projects) throws Exception {
+                                List<Projects> projectsList = new ArrayList<>();
+                                for (Projects individuals : projects) {
+                                    List<Status> statusList = statusBaseDAO.getBulk(individuals.getObjectId());
+                                    individuals.setProjectStatus(statusList);
+                                    projectsList.add(individuals);
+                                }
+                                return projectsList;
+                            }
+                        })
+                        .flatMap(new Function<List<Projects>, ObservableSource<? extends List<Projects>>>() {
+                            @Override
+                            public ObservableSource<? extends List<Projects>> apply(List<Projects> projects) throws Exception {
+                                List<Projects> projectsList = new ArrayList<>();
+                                for (Projects individuals : projects) {
+                                    List<Image> thumbnail = imageBaseDAO.getBulk(individuals.getObjectId());
+                                    individuals.setThumbnail(thumbnail.get(0));
+                                    projectsList.add(individuals);
+                                }
+                                return Observable.just(projectsList);
+                            }
+                        });
+            }
+        });
+
+                proj.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<Projects>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        dialog.show();
+                        Log.d(TAG, "onSubscribe: Projects subscribed...");
+                    }
+
+                    @Override
+                    public void onNext(List<Projects> projects) {
+                        Log.d(TAG, "onNext: Size: "  + projects.size());
+                        ProjectAdapter adapter = new ProjectAdapter(getContext(), projects);
+                        portfolio_recyclerview.setAdapter(adapter);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dialog.dismiss();
+                        Log.d(TAG, "onError: Projects error: " + e.getMessage());
+                        basicDialog.setTitle("Result");
+                        basicDialog.setMessage("Error: " + e.getMessage());
+                        basicDialog.setCancellable(true);
+                        basicDialog.showDialog();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        dialog.dismiss();
+                        Log.d(TAG, "onComplete: Completed...");
+                    }
+                });
+    }
+
+    private Observable<List<Projects>> getProjectsObservable() {
+        Observable<List<Projects>> projectObservable = Observable.defer(new Callable<ObservableSource<? extends List<Projects>>>() {
+            @Override
+            public ObservableSource<? extends List<Projects>> call() throws Exception {
+                return Observable.just(projectsBaseDAO.getBulk(null));
+            }
+        });
+        return projectObservable;
     }
 
 

@@ -25,6 +25,7 @@ public class TagMaker {
                 }
             }
         }
+        System.out.println(arrayForm.toString());
         return new JSONArray(arrayForm);
     }
 

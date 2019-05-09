@@ -68,20 +68,21 @@ public class ServicesDAO implements BaseDAO<Services> {
         Log.d(TAG, "get: Started...");
         parseObject = null;
         ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.SERVICES.toString());
+        Services services = new Services();
         try {
             Log.d(TAG, "get: Retrieving object...");
-            parseObject = query.addAscendingOrder(SERVICES.NAME.toString()).get(objectId);
+            parseObject = query.get(objectId);
             Log.d(TAG, "get: Object retrieved");
+            services.setObjectId(parseObject.getObjectId());
+            services.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+            services.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
+            services.setName(parseObject.getString(SERVICES.NAME.toString()));
+            services.setOthers(parseObject.getBoolean(SERVICES.OTHERS.toString()));
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "get: Exception thrown: " + e.getMessage());
         }
-        Services services = new Services();
-        services.setObjectId(parseObject.getObjectId());
-        services.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
-        services.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
-        services.setName(parseObject.getString(SERVICES.NAME.toString()));
-        services.setOthers(parseObject.getBoolean(SERVICES.OTHERS.toString()));
+
         return services;
     }
 
@@ -97,6 +98,9 @@ public class ServicesDAO implements BaseDAO<Services> {
             Log.d(TAG, "getBulk: Retrieving services...");
             List<ParseObject> parseObjects = getbulk.find();
             Log.d(TAG, "getBulk: Retrieval finished");
+            if(parseObjects.size() < 1 || parseObjects == null){
+                return null;
+            }
             for(ParseObject parseObject : parseObjects){
                 Services service = new Services();
                 service.setObjectId(parseObject.getObjectId());

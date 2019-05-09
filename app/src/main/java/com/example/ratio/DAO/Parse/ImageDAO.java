@@ -32,6 +32,7 @@ public class ImageDAO implements BaseDAO<Image> {
     @Override
     public Image insert(Image objectEntity) {
         Log.d(TAG, "insert: Started...");
+        Image image = new Image();
         ParseObject insert = new ParseObject(PARSECLASS.IMAGES.toString());
         insert.put(IMAGES.PARENT.toString(), objectEntity.getParent());
         insert.put(IMAGES.FILENAME.toString(), objectEntity.getFileName());
@@ -42,18 +43,17 @@ public class ImageDAO implements BaseDAO<Image> {
             Log.d(TAG, "insert: Saving...");
             insert.save();
             Log.d(TAG, "insert: Record saved...");
+            image.setObjectId(insert.getObjectId());
+            image.setCreatedAt(dateTransform.toDateString(insert.getCreatedAt()));
+            image.setUpdatedAt(dateTransform.toDateString(insert.getUpdatedAt()));
+            image.setParent(insert.getString(IMAGES.PARENT.toString()));
+            image.setFileName(insert.getString(IMAGES.FILENAME.toString()));
+            image.setDeleted(insert.getBoolean(IMAGES.DELETED.toString()));
+            image.setFilePath(insert.getParseFile(IMAGES.FILES.toString()).getUrl());
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "insert: Exception thrown: " + e.getMessage());
         }
-        Image image = new Image();
-        image.setObjectId(insert.getObjectId());
-        image.setCreatedAt(dateTransform.toDateString(insert.getCreatedAt()));
-        image.setUpdatedAt(dateTransform.toDateString(insert.getUpdatedAt()));
-        image.setParent(insert.getString(IMAGES.PARENT.toString()));
-        image.setFileName(insert.getString(IMAGES.FILENAME.toString()));
-        image.setDeleted(insert.getBoolean(IMAGES.DELETED.toString()));
-        image.setFilePath(insert.getParseFile(IMAGES.FILES.toString()).getUrl());
         return image;
     }
 
@@ -100,11 +100,11 @@ public class ImageDAO implements BaseDAO<Image> {
     @Override
     public List<Image> getBulk(String sqlCommand) {
         Log.d(TAG, "getBulk: Started...");
-        defaultLimit = Utility.getInstance().checkIfInteger(sqlCommand) == true ? Integer.valueOf(sqlCommand) : 50;
-        Log.d(TAG, "getBulk: Limit: " + defaultLimit);
+        //defaultLimit = Utility.getInstance().checkIfInteger(sqlCommand) == true ? Integer.valueOf(sqlCommand) : 50;
+        //Log.d(TAG, "getBulk: Limit: " + defaultLimit);
         List<Image> imageList = new ArrayList<>();
         ParseQuery<ParseObject> getbulk = ParseQuery.getQuery(PARSECLASS.IMAGES.toString());
-        getbulk.setLimit(defaultLimit);
+        getbulk.whereEqualTo(IMAGES.PARENT.toString(), sqlCommand);
         try {
             Log.d(TAG, "getBulk: Retrieving objects...");
             List<ParseObject> parseObjects = getbulk.find();

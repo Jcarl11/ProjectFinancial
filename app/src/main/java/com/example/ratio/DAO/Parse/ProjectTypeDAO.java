@@ -66,20 +66,25 @@ public class ProjectTypeDAO implements BaseDAO<ProjectType> {
         Log.d(TAG, "get: Started...");
         parseObject = null;
         ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.PROJECT_TYPE.toString());
+        ProjectType projectType = new ProjectType();
         try {
             Log.d(TAG, "get: Retrieving object...");
-            parseObject = query.addAscendingOrder(PROJECT_TYPE.NAME.toString()).get(objectId);
+            parseObject = query.get(objectId);
+            if(parseObject == null) {
+                return new ProjectType();
+            }
             Log.d(TAG, "get: Object retrieved");
+            projectType.setObjectId(parseObject.getObjectId());
+            projectType.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+            projectType.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
+            projectType.setName(parseObject.getString(PROJECT_TYPE.NAME.toString()));
+            projectType.setOthers(parseObject.getBoolean(PROJECT_TYPE.OTHERS.toString()));
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "get: Exception thrown: " + e.getMessage());
         }
-        ProjectType projectType = new ProjectType();
-        projectType.setObjectId(parseObject.getObjectId());
-        projectType.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
-        projectType.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
-        projectType.setName(parseObject.getString(PROJECT_TYPE.NAME.toString()));
-        projectType.setOthers(parseObject.getBoolean(PROJECT_TYPE.OTHERS.toString()));
+
+
         return projectType;
     }
 
@@ -95,6 +100,11 @@ public class ProjectTypeDAO implements BaseDAO<ProjectType> {
             Log.d(TAG, "getBulk: Retrieving types...");
             List<ParseObject> parseObjects = getbulk.find();
             Log.d(TAG, "getBulk: Retrieval finished");
+            if(parseObjects.size() <= 0 || parseObjects == null) {
+                List<ProjectType> list = new ArrayList<>();
+                list.add(new ProjectType());
+                return list;
+            }
             for(ParseObject parseObject : parseObjects){
                 ProjectType projectType = new ProjectType();
                 projectType.setObjectId(parseObject.getObjectId());

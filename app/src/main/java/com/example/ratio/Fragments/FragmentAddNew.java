@@ -15,11 +15,17 @@ import androidx.fragment.app.Fragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.Completable;
+import io.reactivex.CompletableObserver;
+import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
@@ -36,6 +42,7 @@ import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.features.ReturnMode;
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
+import com.example.ratio.DAO.GetDistinct;
 import com.example.ratio.Dialogs.BaseDialog;
 import com.example.ratio.Dialogs.BasicDialog;
 import com.example.ratio.Dialogs.CheckBoxDialog;
@@ -59,6 +66,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 /**
@@ -89,6 +97,7 @@ public class FragmentAddNew extends Fragment {
     private BaseDAO<Subcategory> subcategoryBaseDAO = null;
     private BaseDAO<Services> servicesBaseDAO = null;
     private BaseDAO<Image> imageBaseDAO = null;
+    private GetDistinct<Status> statusGetDistinct = null;
     private BaseDAO<Status> statusBaseDAO = null;
     private AlertDialog dialog = null;
     private String selectedServices = null;
@@ -111,15 +120,17 @@ public class FragmentAddNew extends Fragment {
         projectTypeDAO = parseFactory.getProjectTypeDAO();
         subcategoryBaseDAO = parseFactory.getSubcategoryDAO();
         servicesBaseDAO = parseFactory.getServicesDAO();
+        statusGetDistinct = (GetDistinct<Status>) parseFactory.getStatusDAO();
         statusBaseDAO = parseFactory.getStatusDAO();
         imageBaseDAO = parseFactory.getImageDAO();
         dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
         multipleChoiceDialog = new CheckBoxDialog(getContext());
-        Observable myObs = Observable.defer((Callable<ObservableSource<?>>) () ->
+
+        /*Observable myObs = Observable.defer((Callable<ObservableSource<?>>) () ->
                 Observable.just(servicesBaseDAO.getBulk(null),
                 projectTypeDAO.getBulk(null),
                 subcategoryBaseDAO.getBulk(null),
-                statusBaseDAO.getBulk(null)));
+                statusGetDistinct.getDistinct()));
         myObs.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer() {
@@ -158,7 +169,8 @@ public class FragmentAddNew extends Fragment {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "onError: ");
+                        dialog.dismiss();
+                        Log.d(TAG, "onError: First: " + e.getMessage());
                     }
 
                     @Override
@@ -166,7 +178,7 @@ public class FragmentAddNew extends Fragment {
                         dialog.dismiss();
                         Log.d(TAG, "onComplete: ");
                     }
-                });
+                });*/
         addnew_spinner_typeofproject.setOnItemSelectedListener(typeOfProjectListener());
         addnew_spinner_services.setOnItemSelectedListener(servicesListener());
         addnew_spinner_subcategory.setOnItemSelectedListener(subcategoryListener());

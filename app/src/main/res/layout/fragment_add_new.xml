@@ -37,7 +37,7 @@
             android:id="@+id/addnew_field_projectcode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:textColorHint="#a9acb2"
             android:layout_margin="10dp">
 
@@ -55,7 +55,7 @@
             android:id="@+id/addnew_field_projectname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:textColorHint="#a9acb2"
             android:layout_margin="10dp">
 
@@ -73,7 +73,7 @@
             android:id="@+id/addnew_field_projectowner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:textColorHint="#a9acb2"
             android:layout_margin="10dp">
 
@@ -124,7 +124,9 @@
             android:id="@+id/addnew_spinner_services"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:ms_hint_color="@android:color/black"
             android:hint="Services"
+            app:ms_hint="Services"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"/>
 
@@ -151,7 +153,10 @@
             android:id="@+id/addnew_spinner_typeofproject"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:ms_hint_color="@android:color/black"
             android:hint="Type"
+            app:ms_hint="Type"
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"/>
 
@@ -178,7 +183,11 @@
             android:id="@+id/addnew_spinner_subcategory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_spinner"
+            app:ms_hint_color="@android:color/black"
             android:hint="Subcategory"
+            app:ms_hint="Subcategory"
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:visibility="gone"/>

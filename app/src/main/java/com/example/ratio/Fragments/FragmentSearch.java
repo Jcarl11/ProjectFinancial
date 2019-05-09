@@ -25,8 +25,6 @@ import com.example.ratio.Entities.ProjectType;
 import com.example.ratio.Entities.Projects;
 import com.example.ratio.R;
 import com.google.android.material.textfield.TextInputLayout;
-import com.mikepenz.fastadapter.FastAdapter;
-import com.mikepenz.fastadapter.adapters.ItemAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +38,6 @@ public class FragmentSearch extends Fragment {
 
     @BindView(R.id.search_field_search) TextInputLayout search_field_search;
     @BindView(R.id.search_recyclerview) RecyclerView search_recyclerview;
-    ItemAdapter itemAdapter = new ItemAdapter();
     List<Expenses> expensesList = new ArrayList<>();
     List<Income> incomeList = new ArrayList<>();
 
@@ -79,10 +76,6 @@ public class FragmentSearch extends Fragment {
                         projects.setProjectType(new ProjectType("Sample ProjectType", false));
                         projects.setProjectExpenses(expensesList);
                         projects.setProjectIncome(incomeList);
-                        FastAdapter fastAdapter = FastAdapter.with(itemAdapter);
-                        search_recyclerview.setAdapter(fastAdapter);
-                        values.add(new ProjectAdapter(projects));
-                        itemAdapter.add(values);
                     } else {
                         search_field_search.setError("This field cannot be empty");
                     }

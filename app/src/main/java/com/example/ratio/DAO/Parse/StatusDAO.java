@@ -3,25 +3,32 @@ package com.example.ratio.DAO.Parse;
 import android.util.Log;
 
 import com.example.ratio.DAO.BaseDAO;
+import com.example.ratio.DAO.GetDistinct;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.STATUS;
 import com.example.ratio.Utilities.DateTransform;
 import com.example.ratio.Utilities.Utility;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-public class StatusDAO implements BaseDAO<Status> {
+public class StatusDAO implements BaseDAO<Status>, GetDistinct<Status> {
     private static final String TAG = "StatusDAO";
     private DateTransform dateTransform = new DateTransform();
     private int result = 0;
     private int defaultLimit = 50;
-    private boolean isSuccessful = false;
     private ParseObject parseObject = null;
 
     @Override
@@ -74,6 +81,9 @@ public class StatusDAO implements BaseDAO<Status> {
             Log.d(TAG, "get: Retriving object...");
             parseObject = query.addAscendingOrder(STATUS.NAME.toString()).get(objectId);
             Log.d(TAG, "get: Object retrieved");
+            if(parseObject == null) {
+                return new Status();
+            }
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "get: Exception thrown: " + e.getMessage());
@@ -92,16 +102,14 @@ public class StatusDAO implements BaseDAO<Status> {
     @Override
     public List<Status> getBulk(String sqlCommand) {
         Log.d(TAG, "getBulk: Started...");
-        defaultLimit = Utility.getInstance().checkIfInteger(sqlCommand) == true ? Integer.valueOf(sqlCommand) : 50;
-        Log.d(TAG, "getBulk: Limit set to " + String.valueOf(defaultLimit));
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.STATUS.toString());
+        query.whereEqualTo(STATUS.PARENT.toString(), sqlCommand);
         List<Status> statuses = new ArrayList<>();
-        ParseQuery<ParseObject> getbulk = ParseQuery.getQuery(PARSECLASS.STATUS.toString());
-        getbulk.setLimit(defaultLimit);
         try {
-            Log.d(TAG, "getBulk: Retrieving subcategories...");
-            List<ParseObject> parseObjects = getbulk.find();
-            Log.d(TAG, "getBulk: Retrieval finished");
-            for(ParseObject parseObject : parseObjects){
+            Log.d(TAG, "getBulk: Retrieving status...");
+            List<ParseObject> parseObjects = query.find();
+            Log.d(TAG, "getBulk: Retrieved: " + parseObjects.size());
+            for(ParseObject parseObject : parseObjects) {
                 Status status = new Status();
                 status.setObjectId(parseObject.getObjectId());
                 status.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
@@ -110,6 +118,7 @@ public class StatusDAO implements BaseDAO<Status> {
                 status.setParent(parseObject.getString(STATUS.PARENT.toString()));
                 statuses.add(status);
             }
+
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "getBulk: Exception thrown: " + e.getMessage());
@@ -173,5 +182,30 @@ public class StatusDAO implements BaseDAO<Status> {
         Log.d(TAG, "deleteAll: Result: " + String.valueOf(res));
         Log.d(TAG, "deleteAll: Failed operations: " + String.valueOf(objectList.size() - res));
         return res;
+    }
+
+    @Override
+    public List<Status> getDistinct() {
+        Log.d(TAG, "getDistinct: Started...");
+        List<Status> statuses = new ArrayList<>();
+        try {
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("Params", "null");
+            ArrayList<String> obj = ParseCloud.callFunction("statusDistinct", params);
+            Log.d(TAG, "getBulk: " + String.valueOf(obj));
+            if(obj == null || obj.size() <= 0){
+                statuses.add(new Status());
+                return statuses;
+            }
+            for(String statusValues : obj){
+                Status status = new Status();
+                status.setName(statusValues);
+                statuses.add(status);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+            Log.d(TAG, "getBulk: Exception thrown: " + e.getMessage());
+        }
+        return statuses;
     }
 }

@@ -3,13 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingTop="5dp">
 
     <ImageView
         android:id="@+id/portfolio_row_image"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:scaleType="fitXY"
+        android:scaleType="matrix"
         android:src="@drawable/ratiologo" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -45,7 +46,7 @@
             android:shadowDy="0"
             android:shadowRadius="5"
             android:text="ACTIVE"
-            android:textColor="@color/md_green_400"
+            android:textColor="@android:color/holo_green_dark"
             android:textSize="15sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/portfolio_row_code" />
@@ -67,8 +68,5 @@
             app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
 
 </FrameLayout>
