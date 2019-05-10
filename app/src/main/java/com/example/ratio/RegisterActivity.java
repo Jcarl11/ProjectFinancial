@@ -16,7 +16,7 @@ import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.Entities.User;
 import com.example.ratio.Enums.DATABASES;
-import com.example.ratio.Utilities.Utility;
+import com.example.ratio.HelperClasses.Utility;
 import com.google.android.material.textfield.TextInputLayout;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

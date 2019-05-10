@@ -1,7 +1,5 @@
 package com.example.ratio;
 
-import android.util.Log;
-
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.Entities.ProjectType;
@@ -10,16 +8,13 @@ import com.example.ratio.Entities.Services;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Entities.Subcategory;
 import com.example.ratio.Enums.DATABASES;
-import com.example.ratio.Utilities.DateTransform;
-import com.example.ratio.Utilities.FileValidator;
-import com.example.ratio.Utilities.TagMaker;
+import com.example.ratio.HelperClasses.FileValidator;
+import com.example.ratio.HelperClasses.TagMaker;
 
 import org.apache.commons.io.FilenameUtils;
-import org.json.JSONArray;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -87,8 +82,17 @@ public class ExampleUnitTest {
     public void services_getBulkTest(){
         DAOFactory parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
         BaseDAO<Services> servicesBaseDAO = parseFactory.getServicesDAO();
-        Services result = servicesBaseDAO.get("2Lm0CIa2mb");
+        Services result = new Services();
+        result = servicesBaseDAO.get("2Lm0CIa2mb");
         System.out.println(result.getName());
         //assertEquals(18, result.size());
+    }
+
+    @Test
+    public void image_GeneratorTest() {
+        ImageAPI imageAPI = new ImageAPI();
+        System.out.println(imageAPI.generateImage());
+        System.out.println(imageAPI.generateImage(1000, 700));
+
     }
 }

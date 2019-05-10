@@ -3,19 +3,12 @@ package com.example.ratio.DAO.Parse;
 import android.util.Log;
 
 import com.example.ratio.DAO.BaseDAO;
-import com.example.ratio.DAO.DAOFactory;
-import com.example.ratio.DAO.SpecificOperations;
-import com.example.ratio.Entities.Image;
-import com.example.ratio.Entities.ProjectType;
+import com.example.ratio.DAO.CustomOperations;
 import com.example.ratio.Entities.Projects;
-import com.example.ratio.Entities.Services;
-import com.example.ratio.Entities.Status;
-import com.example.ratio.Entities.Subcategory;
-import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.PROJECT;
-import com.example.ratio.Utilities.DateTransform;
-import com.example.ratio.Utilities.Utility;
+import com.example.ratio.HelperClasses.DateTransform;
+import com.example.ratio.HelperClasses.Utility;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -23,7 +16,7 @@ import com.parse.ParseQuery;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProjectDAO implements BaseDAO<Projects>, SpecificOperations<Projects> {
+public class ProjectDAO implements BaseDAO<Projects>, CustomOperations<Projects> {
     private static final String TAG = "ProjectDAO";
     private ProjectTypeDAO projectTypeBaseDAO = new ProjectTypeDAO();
     private ServicesDAO servicesBaseDAO = new ServicesDAO();
@@ -259,6 +252,38 @@ public class ProjectDAO implements BaseDAO<Projects>, SpecificOperations<Project
             Log.d(TAG, "getObject: Exception thrown: " + e.getMessage());
         }
 
+        return projectsList;
+    }
+
+    @Override
+    public List<Projects> getProjectFromCode(String projectCode) {
+        Log.d(TAG, "getProjectFromCode: Started...");
+        List<Projects> projectsList = new ArrayList<>();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.PROJECT.toString());
+        query.whereEqualTo(PROJECT.PROJECT_CODE.toString(), projectCode);
+        try {
+            Log.d(TAG, "getProjectFromCode: Retrieving project...");
+            List<ParseObject> parseObject = query.find();
+            Log.d(TAG, "getProjectFromCode: Project retrieved: " + parseObject.size());
+            for(ParseObject individuals : parseObject) {
+                Projects projects = new Projects();
+                projects.setObjectId(individuals.getObjectId());
+                projects.setCreatedAt(dateTransform.toISO8601String(individuals.getCreatedAt()));
+                projects.setCreatedAt(dateTransform.toISO8601String(individuals.getUpdatedAt()));
+                projects.setProjectName(individuals.getString(PROJECT.PROJECT_TITLE.toString()));
+                projects.setProjectCode(individuals.getString(PROJECT.PROJECT_CODE.toString()));
+                projects.setProjectOwner(individuals.getString(PROJECT.PROJECT_OWNER.toString()));
+                projects.setProjectType(projectTypeBaseDAO.get(individuals.getString(PROJECT.TYPE.toString())));
+                projects.setProjectServices(servicesBaseDAO.get(individuals.getString(PROJECT.SERVICES.toString())));
+                projects.setProjectSubCategory(subcategoryBaseDAO.get(individuals.getString(PROJECT.SUBCATEGORY.toString())));
+                projects.setDeleted(individuals.getBoolean(PROJECT.DELETED.toString()));
+                projects.setTags(individuals.getJSONArray(PROJECT.Tags.toString()));
+                projectsList.add(projects);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+            Log.d(TAG, "getProjectFromCode: Exception thrown: " + e.getMessage());
+        }
         return projectsList;
     }
 }

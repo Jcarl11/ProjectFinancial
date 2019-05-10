@@ -5,13 +5,12 @@ import android.util.Log;
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.UserOperations;
 import com.example.ratio.Entities.User;
-import com.example.ratio.Utilities.DateTransform;
-import com.example.ratio.Utilities.Utility;
+import com.example.ratio.HelperClasses.DateTransform;
+import com.example.ratio.HelperClasses.Utility;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 

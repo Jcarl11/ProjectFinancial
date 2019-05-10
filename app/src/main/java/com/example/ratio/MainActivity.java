@@ -10,10 +10,9 @@ import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Fragments.FragmentAddNew;
 import com.example.ratio.Fragments.FragmentPortfolio;
 import com.example.ratio.Fragments.FragmentSearch;
-import com.example.ratio.Utilities.Utility;
+import com.example.ratio.HelperClasses.Utility;
 import com.google.android.material.tabs.TabLayout;
 import com.parse.Parse;
-import com.parse.ParseCloud;
 import com.parse.ParseUser;
 
 import androidx.annotation.Nullable;

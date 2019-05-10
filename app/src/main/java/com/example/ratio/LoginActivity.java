@@ -17,19 +17,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.DAO.UserOperations;
 import com.example.ratio.Dialogs.BaseDialog;
 import com.example.ratio.Dialogs.BasicDialog;
 import com.example.ratio.Entities.User;
 import com.example.ratio.Enums.DATABASES;
-import com.example.ratio.Utilities.Utility;
+import com.example.ratio.HelperClasses.Utility;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.concurrent.Callable;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";

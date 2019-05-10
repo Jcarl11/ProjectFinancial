@@ -6,13 +6,12 @@ import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.Entities.Subcategory;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.PROJECT_TYPE_SUBCATEGORY;
-import com.example.ratio.Utilities.DateTransform;
-import com.example.ratio.Utilities.Utility;
+import com.example.ratio.HelperClasses.DateTransform;
+import com.example.ratio.HelperClasses.Utility;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 

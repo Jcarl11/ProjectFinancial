@@ -34,7 +34,8 @@ import com.example.ratio.Entities.Projects;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.R;
-import com.example.ratio.Utilities.Utility;
+import com.example.ratio.HelperClasses.Utility;
+import com.example.ratio.RxJava.ProjectsObservable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,7 @@ public class FragmentPortfolio extends Fragment {
     private BaseDAO<Image> imageBaseDAO = null;
     private AlertDialog dialog;
     private BaseDialog basicDialog = null;
+    private ProjectsObservable projectsObservable = new ProjectsObservable();
     public FragmentPortfolio() {}
 
     @Nullable
@@ -78,38 +80,8 @@ public class FragmentPortfolio extends Fragment {
 
     public void getProjects() {
 
-        Observable<List<Projects>> proj = Observable.defer(new Callable<ObservableSource<? extends List<Projects>>>() {
-            @Override
-            public ObservableSource<? extends List<Projects>> call() throws Exception {
-                return getProjectsObservable()
-                        .map(new Function<List<Projects>, List<Projects>>() {
-                            @Override
-                            public List<Projects> apply(List<Projects> projects) throws Exception {
-                                List<Projects> projectsList = new ArrayList<>();
-                                for (Projects individuals : projects) {
-                                    List<Status> statusList = statusBaseDAO.getBulk(individuals.getObjectId());
-                                    individuals.setProjectStatus(statusList);
-                                    projectsList.add(individuals);
-                                }
-                                return projectsList;
-                            }
-                        })
-                        .flatMap(new Function<List<Projects>, ObservableSource<? extends List<Projects>>>() {
-                            @Override
-                            public ObservableSource<? extends List<Projects>> apply(List<Projects> projects) throws Exception {
-                                List<Projects> projectsList = new ArrayList<>();
-                                for (Projects individuals : projects) {
-                                    List<Image> thumbnail = imageBaseDAO.getBulk(individuals.getObjectId());
-                                    individuals.setThumbnail(thumbnail.get(0));
-                                    projectsList.add(individuals);
-                                }
-                                return Observable.just(projectsList);
-                            }
-                        });
-            }
-        });
-
-                proj.subscribeOn(Schedulers.io())
+        projectsObservable.getProjectCompleteObservable()
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<Projects>>() {
                     @Override
@@ -142,16 +114,4 @@ public class FragmentPortfolio extends Fragment {
                     }
                 });
     }
-
-    private Observable<List<Projects>> getProjectsObservable() {
-        Observable<List<Projects>> projectObservable = Observable.defer(new Callable<ObservableSource<? extends List<Projects>>>() {
-            @Override
-            public ObservableSource<? extends List<Projects>> call() throws Exception {
-                return Observable.just(projectsBaseDAO.getBulk(null));
-            }
-        });
-        return projectObservable;
-    }
-
-
 }

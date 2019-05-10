@@ -1,4 +1,4 @@
-package com.example.ratio.Utilities;
+package com.example.ratio.HelperClasses;
 
 import android.util.Log;
 

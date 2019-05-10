@@ -1,11 +1,8 @@
-package com.example.ratio.Utilities;
-
-import com.example.ratio.Entities.Entity;
+package com.example.ratio.HelperClasses;
 
 import org.json.JSONArray;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class TagMaker {

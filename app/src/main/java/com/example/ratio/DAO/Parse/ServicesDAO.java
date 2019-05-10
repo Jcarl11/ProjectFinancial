@@ -6,13 +6,12 @@ import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.Entities.Services;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.SERVICES;
-import com.example.ratio.Utilities.DateTransform;
-import com.example.ratio.Utilities.Utility;
+import com.example.ratio.HelperClasses.DateTransform;
+import com.example.ratio.HelperClasses.Utility;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,14 +64,14 @@ public class ServicesDAO implements BaseDAO<Services> {
 
     @Override
     public Services get(String objectId) {
-        Log.d(TAG, "get: Started...");
+        //Log.d(TAG, "get: Started...");
         parseObject = null;
         ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.SERVICES.toString());
         Services services = new Services();
         try {
-            Log.d(TAG, "get: Retrieving object...");
+            //Log.d(TAG, "get: Retrieving object...");
             parseObject = query.get(objectId);
-            Log.d(TAG, "get: Object retrieved");
+            //Log.d(TAG, "get: Object retrieved");
             services.setObjectId(parseObject.getObjectId());
             services.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
             services.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
@@ -80,7 +79,7 @@ public class ServicesDAO implements BaseDAO<Services> {
             services.setOthers(parseObject.getBoolean(SERVICES.OTHERS.toString()));
         } catch (ParseException e) {
             e.printStackTrace();
-            Log.d(TAG, "get: Exception thrown: " + e.getMessage());
+            //Log.d(TAG, "get: Exception thrown: " + e.getMessage());
         }
 
         return services;

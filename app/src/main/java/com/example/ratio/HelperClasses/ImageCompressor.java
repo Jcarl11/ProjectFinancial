@@ -1,12 +1,10 @@
-package com.example.ratio.Utilities;
+package com.example.ratio.HelperClasses;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
-
 import java.io.File;
 import java.io.IOException;
-
 import id.zelory.compressor.Compressor;
 
 public class ImageCompressor {

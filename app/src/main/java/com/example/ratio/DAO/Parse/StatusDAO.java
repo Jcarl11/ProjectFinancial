@@ -7,19 +7,12 @@ import com.example.ratio.DAO.GetDistinct;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.STATUS;
-import com.example.ratio.Utilities.DateTransform;
-import com.example.ratio.Utilities.Utility;
-import com.parse.FunctionCallback;
+import com.example.ratio.HelperClasses.DateTransform;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

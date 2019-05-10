@@ -1,11 +1,8 @@
 package com.example.ratio.Fragments;
 
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -15,17 +12,11 @@ import androidx.fragment.app.Fragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.reactivex.Completable;
-import io.reactivex.CompletableObserver;
-import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
@@ -34,7 +25,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 
@@ -44,7 +34,6 @@ import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.DAO.GetDistinct;
 import com.example.ratio.Dialogs.BaseDialog;
-import com.example.ratio.Dialogs.BasicDialog;
 import com.example.ratio.Dialogs.CheckBoxDialog;
 import com.example.ratio.Entities.Image;
 import com.example.ratio.Entities.ProjectType;
@@ -54,19 +43,20 @@ import com.example.ratio.Entities.Subcategory;
 import com.example.ratio.Entities.Services;
 import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.R;
-import com.example.ratio.Utilities.ImageCompressor;
-import com.example.ratio.Utilities.TagMaker;
-import com.example.ratio.Utilities.Utility;
-import com.google.android.material.snackbar.Snackbar;
+import com.example.ratio.HelperClasses.ImageCompressor;
+import com.example.ratio.HelperClasses.TagMaker;
+import com.example.ratio.HelperClasses.Utility;
+import com.example.ratio.RxJava.ProjectsObservable;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.squareup.picasso.Picasso;
+
+import org.reactivestreams.Subscription;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 
 /**
@@ -108,6 +98,7 @@ public class FragmentAddNew extends Fragment {
     private CheckBoxDialog multipleChoiceDialog;
     private BaseDialog basicDialog = null;
     private List<Status> statusList = null;
+    private ProjectsObservable projectsObservable = new ProjectsObservable();
     public FragmentAddNew() {}
 
     @Nullable
@@ -126,7 +117,7 @@ public class FragmentAddNew extends Fragment {
         dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
         multipleChoiceDialog = new CheckBoxDialog(getContext());
 
-        /*Observable myObs = Observable.defer((Callable<ObservableSource<?>>) () ->
+        Observable myObs = Observable.defer((Callable<ObservableSource<?>>) () ->
                 Observable.just(servicesBaseDAO.getBulk(null),
                 projectTypeDAO.getBulk(null),
                 subcategoryBaseDAO.getBulk(null),
@@ -178,13 +169,14 @@ public class FragmentAddNew extends Fragment {
                         dialog.dismiss();
                         Log.d(TAG, "onComplete: ");
                     }
-                });*/
+                });
         addnew_spinner_typeofproject.setOnItemSelectedListener(typeOfProjectListener());
         addnew_spinner_services.setOnItemSelectedListener(servicesListener());
         addnew_spinner_subcategory.setOnItemSelectedListener(subcategoryListener());
         Log.d(TAG, "onCreateView: Listener initialization done");
         return view;
     }
+
     @OnClick(R.id.addnew_imageview_thumbnail)
     void imageChoose(View view) {
         ImagePicker.create(this)
@@ -251,34 +243,14 @@ public class FragmentAddNew extends Fragment {
         projects.setDeleted(false);
         projects.setTags(tagMaker.createTags(projects.toString()));
         ImageCompressor.getInstance().setContext(getContext());
-        Observable deferObs = Observable.defer(new Callable<ObservableSource<?>>() {
-            @Override
-            public ObservableSource<?> call() throws Exception {
-                return Observable.just(projectsBaseDAO.insert(projects))
-                        .map(new Function<Projects, Image>() {
-                            @Override
-                            public Image apply(Projects projects) throws Exception {
-                                Log.d(TAG, "apply: Project ObjectID: " + projects.getObjectId() );
-                                return imageBaseDAO.insert(new Image(projects.getObjectId(), thumbnailName, thumbnailPath, false));
-                            }
-                        })
-                        .flatMap(new Function<Image, ObservableSource<Integer>>() {
-                            @Override
-                            public ObservableSource<Integer> apply(Image image) throws Exception {
-                                Log.d(TAG, "apply: Image Parent: " + image.getParent());
-                                List<Status> projectStatuses = new ArrayList<>();
-                                for(String statuses : multipleChoiceDialog.getSelectedValues()){
-                                    projectStatuses.add(new Status(statuses, image.getParent()));
-                                }
-
-                                return Observable.just(statusBaseDAO.insertAll(projectStatuses));
-                            }
-                        });
-            }
-        });
-        deferObs.subscribeOn(Schedulers.io())
+        Image thumbnail = new Image();
+        thumbnail.setFilePath(thumbnailPath);
+        thumbnail.setFileName(thumbnailName);
+        thumbnail.setDeleted(false);
+        projectsObservable.uploadProjectConnectable(projects, thumbnail, multipleChoiceDialog.getSelectedValues())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer() {
+                .subscribe(new Observer<Projects>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         Log.d(TAG, "onSubscribe: Subscribed...");
@@ -286,12 +258,13 @@ public class FragmentAddNew extends Fragment {
                     }
 
                     @Override
-                    public void onNext(Object o) {
-                        Log.d(TAG, "onNext: ");
+                    public void onNext(Projects projects) {
+                        Log.d(TAG, "onNext: Project: " + projects.getObjectId());
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        dialog.dismiss();
                         Log.d(TAG, "onError: Error: " + e.getMessage());
                         basicDialog.setTitle("Result");
                         basicDialog.setMessage("Error: " + e.getMessage());
@@ -305,7 +278,6 @@ public class FragmentAddNew extends Fragment {
                         dialog.dismiss();
                     }
                 });
-
     }
 
     @OnClick(R.id.addnew_button_projectstatus)

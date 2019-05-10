@@ -12,18 +12,31 @@
         android:id="@+id/search_field_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:errorEnabled="true"
-        android:layout_marginTop="10dp">
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Search"
+            android:inputType="textCapCharacters"
+            android:hint="SEARCH"
             android:imeOptions="actionDone"
             android:singleLine="true"
             android:textColor="@android:color/black" />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/search_button_advanced"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ADVANCED SEARCH"
+        android:textColor="@android:color/white"
+        android:layout_marginRight="5dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:layout_gravity="right"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/search_recyclerview"

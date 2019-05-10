@@ -1,29 +1,23 @@
-package com.example.ratio.Utilities;
+package com.example.ratio.HelperClasses;
 
 import android.util.Log;
 
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class FileValidator {
     private static final String TAG = "FileValidator";
-
+    private static final List<String> ACCEPTABLE_IMAGE = new ArrayList<>(Arrays.asList("jpg","gif", "jpeg", "png"));
+    private static final List<String> ACCEPTABLE_FILE = new ArrayList<>(Arrays.asList("pdf"));
 
     public boolean isImage(String path) {
         String extension = FilenameUtils.getExtension(path);
-        //Log.d(TAG, "isFile: Image extension: " + extension);
-        if(extension.equalsIgnoreCase("png")) {
-            return true;
-        } else if(extension.equalsIgnoreCase("jpg")) {
-            return true;
-        } else if(extension.equalsIgnoreCase("gif")) {
-            return true;
-        } else if(extension.equalsIgnoreCase("jpeg")) {
-            return true;
-        }
-        //Log.d(TAG, "isFile: Image format not valid");
-        return false;
+
+        return ACCEPTABLE_IMAGE.contains(extension.toLowerCase()) == true ? true : false;
     }
 
     public boolean isImage(File source) {
@@ -35,12 +29,8 @@ public class FileValidator {
     public boolean isFile(String path) {
         String extension = FilenameUtils.getExtension(path);
         Log.d(TAG, "isFile: File extension: " + extension);
-        if(extension.equalsIgnoreCase("pdf")) {
-            return true;
-        } //add more extensions if necessary
 
-        Log.d(TAG, "isFile: File format not valid");
-        return false;
+        return ACCEPTABLE_FILE.contains(extension.toLowerCase()) == true ? true : false;
     }
 
     public boolean isFile(File source) {

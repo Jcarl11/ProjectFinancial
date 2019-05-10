@@ -1,17 +1,11 @@
-package com.example.ratio.Utilities;
+package com.example.ratio.HelperClasses;
 
-import android.graphics.Bitmap;
 import android.util.Log;
-
 import com.parse.ParseFile;
-
-import org.apache.commons.io.FilenameUtils;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Path;
 
 public class ParseFileOperation {
     private static final String TAG = "ParseFileOperation";
@@ -25,7 +19,7 @@ public class ParseFileOperation {
 
         byte[] bytesArray = new byte[(int) source.length()];
 
-        FileInputStream fileInputStream = null;
+        FileInputStream fileInputStream;
         try {
             fileInputStream = new FileInputStream(source);
             fileInputStream.read(bytesArray);
