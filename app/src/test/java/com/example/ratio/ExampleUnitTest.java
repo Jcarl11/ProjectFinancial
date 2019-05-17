@@ -9,6 +9,7 @@ import com.example.ratio.Entities.Status;
 import com.example.ratio.Entities.Subcategory;
 import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.HelperClasses.FileValidator;
+import com.example.ratio.HelperClasses.RandomImgAPI;
 import com.example.ratio.HelperClasses.TagMaker;
 
 import org.apache.commons.io.FilenameUtils;
@@ -90,9 +91,9 @@ public class ExampleUnitTest {
 
     @Test
     public void image_GeneratorTest() {
-        ImageAPI imageAPI = new ImageAPI();
-        System.out.println(imageAPI.generateImage());
-        System.out.println(imageAPI.generateImage(1000, 700));
+        RandomImgAPI randomImgAPI = new RandomImgAPI();
+        System.out.println(randomImgAPI.generateImage());
+        System.out.println(randomImgAPI.generateImage(1000, 700));
 
     }
 }

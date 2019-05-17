@@ -2,13 +2,14 @@ package com.example.ratio.Entities;
 
 import org.json.JSONArray;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 
-public class Projects extends Entity {
+public class Projects extends Entity implements Serializable {
     private String projectName;
     private String projectCode;
     private String projectOwner;

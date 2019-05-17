@@ -1,9 +1,9 @@
-package com.example.ratio;
+package com.example.ratio.HelperClasses;
 
 import java.util.Random;
 
-public class ImageAPI {
-    private static final String TAG = "ImageAPI";
+public class RandomImgAPI {
+    private static final String TAG = "RandomImgAPI";
     private String BASE_URL = "https://picsum.photos/id/%s/%s/%s";
     private int defaultWidth = 300;
     private int defaultHeight = 175;

@@ -2,6 +2,7 @@ package com.example.ratio.Fragments;
 
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -26,6 +28,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.ratio.Adapters.ProjectAdapter;
+import com.example.ratio.AdvancedSearch;
 import com.example.ratio.Dialogs.BaseDialog;
 import com.example.ratio.Dialogs.BasicDialog;
 import com.example.ratio.Entities.Expenses;
@@ -127,6 +130,44 @@ public class FragmentSearch extends Fragment {
         return listener;
     }
 
-    
+    @OnClick(R.id.search_button_advanced)
+    public void advancedClicked(View view) {
+        Log.d(TAG, "advancedClicked: Advanced clicked...");
+        Intent intent = new Intent(getContext(), AdvancedSearch.class);
+        startActivityForResult(intent, 1);
+    }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode != 1) { return; }
+        if (data == null) { return; }
+        if (resultCode != getActivity().RESULT_OK) { return; }
+
+        List<Projects> projectsList = (List<Projects>) data.getSerializableExtra(AdvancedSearch.RESULT);
+        Log.d(TAG, "onActivityResult: Result size: " + projectsList.size());
+
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -11,8 +11,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class ImageResize {
-    private static final String TAG = "ImageResize";
+public class ImageUtils {
+    private static final String TAG = "ImageUtils";
     private int targetWidth = 300;
 
     public File  resize(File original, int destinationWidth) {
@@ -43,5 +43,9 @@ public class ImageResize {
 
     public File resize(String path, int destinationWidth) {
         return resize(new File(path), destinationWidth);
+    }
+
+    public boolean deleteFile(File file_to_Delete) {
+        return file_to_Delete.delete();
     }
 }

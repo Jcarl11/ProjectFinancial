@@ -8,7 +8,7 @@ import com.example.ratio.Enums.IMAGES;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.HelperClasses.DateTransform;
 import com.example.ratio.HelperClasses.ImageCompressor;
-import com.example.ratio.HelperClasses.ImageResize;
+import com.example.ratio.HelperClasses.ImageUtils;
 import com.example.ratio.HelperClasses.ParseFileOperation;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -22,8 +22,9 @@ public class ImageDAO implements BaseDAO<Image> {
     private static final String TAG = "ImageDAO";
     private DateTransform dateTransform = new DateTransform();
     private ParseFileOperation parseFileOperation = new ParseFileOperation();
-    private ImageResize imageResize = new ImageResize();
+    private ImageUtils imageUtils = new ImageUtils();
     private ParseObject parseObject = null;
+    private File downscaledImage = null;
 
     @Override
     public Image insert(Image objectEntity) {
@@ -33,7 +34,7 @@ public class ImageDAO implements BaseDAO<Image> {
         insert.put(IMAGES.PARENT.toString(), objectEntity.getParent());
         insert.put(IMAGES.FILENAME.toString(), objectEntity.getFileName());
         File compressedImage = ImageCompressor.getInstance().compressToFile(new File(objectEntity.getFilePath()));
-        File downscaledImage = imageResize.resize(compressedImage, 500);
+        downscaledImage = imageUtils.resize(compressedImage, 500);
         insert.put(IMAGES.FILES.toString(), parseFileOperation.fromFile(downscaledImage));
         insert.put(IMAGES.DELETED.toString(), false);
         try {
@@ -47,6 +48,7 @@ public class ImageDAO implements BaseDAO<Image> {
             image.setFileName(insert.getString(IMAGES.FILENAME.toString()));
             image.setDeleted(insert.getBoolean(IMAGES.DELETED.toString()));
             image.setFilePath(insert.getParseFile(IMAGES.FILES.toString()).getUrl());
+            imageUtils.deleteFile(downscaledImage);
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "insert: Exception thrown: " + e.getMessage());

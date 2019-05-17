@@ -9,17 +9,15 @@ import com.example.ratio.Entities.Image;
 import com.example.ratio.Entities.Projects;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Enums.DATABASES;
-import com.example.ratio.ImageAPI;
+import com.example.ratio.HelperClasses.RandomImgAPI;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.functions.Function;
-import io.reactivex.observables.ConnectableObservable;
 
 public class ProjectsObservable {
     private static final String TAG = "ProjectsObservable";
@@ -28,7 +26,7 @@ public class ProjectsObservable {
     private CustomOperations<Projects> projectsCustomOperations = (CustomOperations<Projects>) parseFactory.getProjectDAO();
     private BaseDAO<Status> statusBaseDAO = parseFactory.getStatusDAO();
     private BaseDAO<Image> imageBaseDAO = parseFactory.getImageDAO();
-    private ImageAPI imageAPI = new ImageAPI();
+    private RandomImgAPI randomImgAPI = new RandomImgAPI();
 
     public Observable<List<Projects>> getProjectCompleteObservable() {
 
@@ -49,7 +47,7 @@ public class ProjectsObservable {
                         List<Image> thumbnail = imageBaseDAO.getBulk(individuals.getObjectId());
                         if(thumbnail.size() <= 0 || thumbnail == null) {
                             Image image = new Image();
-                            image.setFilePath(imageAPI.generateImage());
+                            image.setFilePath(randomImgAPI.generateImage());
                             thumbnail.add(image);
                         }
                         individuals.setThumbnail(thumbnail.get(0));
@@ -78,7 +76,7 @@ public class ProjectsObservable {
                         List<Image> thumbnail = imageBaseDAO.getBulk(individuals.getObjectId());
                         if(thumbnail.size() <= 0 || thumbnail == null) {
                             Image image = new Image();
-                            image.setFilePath(imageAPI.generateImage());
+                            image.setFilePath(randomImgAPI.generateImage());
                             thumbnail.add(image);
                         }
                         individuals.setThumbnail(thumbnail.get(0));
