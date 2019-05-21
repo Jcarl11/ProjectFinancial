@@ -2,9 +2,11 @@ package com.example.ratio;
 
 
 import com.example.ratio.DAO.DAOFactory;
+import com.example.ratio.DAO.NukeOperations;
 import com.example.ratio.DAO.UserOperations;
 import com.example.ratio.Dialogs.BaseDialog;
 import com.example.ratio.Dialogs.BasicDialog;
+import com.example.ratio.Entities.Status;
 import com.example.ratio.Entities.User;
 import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Fragments.FragmentAddNew;
@@ -38,6 +40,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +55,9 @@ public class MainActivity extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private AlertDialog alertDialog;
     private DAOFactory parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
+    private DAOFactory sqliteFactory = DAOFactory.getDatabase(DATABASES.SQLITE);
     private UserOperations<User> userOperations;
+    private NukeOperations<Status> statusNukeOperations;
     private BaseDialog baseDialog;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
         container.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
         tabs.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(container));
         userOperations = (UserOperations<User>) parseFactory.getUserDAO();
+        statusNukeOperations = (NukeOperations<Status>) sqliteFactory.getStatusDAO();
         baseDialog = new BasicDialog(this);
     }
     @Override
@@ -93,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else if(item.getItemId() == R.id.action_clearlocal){
             Log.d(TAG, "clearLocalStorage: Clicked");
+            int result = statusNukeOperations.deleteRows();
+            Toast.makeText(this, String.format("%d rows deleted", result), Toast.LENGTH_SHORT).show();
             return true;
         } else if(item.getItemId() == R.id.action_logout){
             alertDialog = Utility.getInstance().showLoading(this, "Logging out", false);

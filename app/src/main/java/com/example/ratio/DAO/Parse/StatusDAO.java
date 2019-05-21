@@ -96,7 +96,7 @@ public class StatusDAO implements BaseDAO<Status>, GetDistinct<Status> {
     public List<Status> getBulk(String sqlCommand) {
         Log.d(TAG, "getBulk: Started...");
         ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.STATUS.toString());
-        query.whereEqualTo(STATUS.PARENT.toString(), sqlCommand);
+        query.whereNotEqualTo(STATUS.PARENT.toString(), "DEFAULTS");
         List<Status> statuses = new ArrayList<>();
         try {
             Log.d(TAG, "getBulk: Retrieving status...");
@@ -181,18 +181,19 @@ public class StatusDAO implements BaseDAO<Status>, GetDistinct<Status> {
     public List<Status> getDistinct() {
         Log.d(TAG, "getDistinct: Started...");
         List<Status> statuses = new ArrayList<>();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.STATUS.toString());
         try {
-            HashMap<String, Object> params = new HashMap<>();
-            params.put("Params", "null");
-            ArrayList<String> obj = ParseCloud.callFunction("statusDistinct", params);
-            Log.d(TAG, "getBulk: " + String.valueOf(obj));
-            if(obj == null || obj.size() <= 0){
-                statuses.add(new Status());
-                return statuses;
-            }
-            for(String statusValues : obj){
+            query.whereEqualTo(STATUS.PARENT.toString(), "DEFAULTS");
+            Log.d(TAG, "getDistinct: Getting statuses...");
+            List<ParseObject> parseObjects = query.find();
+            Log.d(TAG, "getDistinct: Statuses retrieved: " + parseObjects.size());
+            for(ParseObject parseObject : parseObjects){
                 Status status = new Status();
-                status.setName(statusValues);
+                status.setObjectId(parseObject.getObjectId());
+                status.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+                status.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
+                status.setName(parseObject.getString(STATUS.NAME.toString()));
+                status.setParent(parseObject.getString(STATUS.PARENT.toString()));
                 statuses.add(status);
             }
         } catch (ParseException e) {

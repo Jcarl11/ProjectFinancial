@@ -1,9 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AdvancedSearch">
+    tools:context=".AdvancedSearch"
+    android:orientation="vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.jaredrummler.materialspinner.MaterialSpinner
+        android:id="@+id/advanced_spinner_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:ms_hint="Status"
+        android:hint="Status"
+        android:layout_margin="5dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/advanced_field_tags"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        android:layout_margin="5dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="KEYWORDS OR TAGS"
+            android:singleLine="true"
+            android:inputType="textCapCharacters"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/advanceed_button_search"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="SEARCH"
+        android:background="@drawable/button_bg"
+        android:textColor="@android:color/white"
+        android:layout_margin="5dp"
+        android:layout_gravity="right"/>
+
+</LinearLayout>

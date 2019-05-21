@@ -96,4 +96,12 @@ public class ExampleUnitTest {
         System.out.println(randomImgAPI.generateImage(1000, 700));
 
     }
+
+    @Test
+    public void sqlite_status_getBulkTest() {
+        DAOFactory sqliteFactory = DAOFactory.getDatabase(DATABASES.SQLITE);
+        BaseDAO<Status> statusBaseDAO = sqliteFactory.getStatusDAO();
+        List<Status> statusList = statusBaseDAO.getBulk(null);
+        assertEquals(3, statusList.size());
+    }
 }

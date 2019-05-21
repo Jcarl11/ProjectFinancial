@@ -47,6 +47,7 @@ import com.example.ratio.HelperClasses.ImageCompressor;
 import com.example.ratio.HelperClasses.TagMaker;
 import com.example.ratio.HelperClasses.Utility;
 import com.example.ratio.RxJava.ProjectsObservable;
+import com.example.ratio.RxJava.StatusObservable;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.squareup.picasso.Picasso;
@@ -82,6 +83,7 @@ public class FragmentAddNew extends Fragment {
     private final Services OTHERSCHOICE_SERVICES = new Services("Others", true);
     private TagMaker tagMaker = new TagMaker();
     private DAOFactory parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
+    private DAOFactory sqliteFactory = DAOFactory.getDatabase(DATABASES.SQLITE);
     private BaseDAO<Projects> projectsBaseDAO = null;
     private BaseDAO<ProjectType> projectTypeDAO = null;
     private BaseDAO<Subcategory> subcategoryBaseDAO = null;
@@ -97,8 +99,8 @@ public class FragmentAddNew extends Fragment {
     private String thumbnailName = null;
     private CheckBoxDialog multipleChoiceDialog;
     private BaseDialog basicDialog = null;
-    private List<Status> statusList = null;
     private ProjectsObservable projectsObservable = new ProjectsObservable();
+    private StatusObservable statusObservable = new StatusObservable();
     public FragmentAddNew() {}
 
     @Nullable
@@ -116,12 +118,43 @@ public class FragmentAddNew extends Fragment {
         imageBaseDAO = parseFactory.getImageDAO();
         dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
         multipleChoiceDialog = new CheckBoxDialog(getContext());
+        statusBaseDAO = sqliteFactory.getStatusDAO();
+        if(statusBaseDAO.getBulk(null).size() <= 0) {
+            Log.d(TAG, "onCreateView: Empty");
+            statusObservable.statusObservable().subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<List<Status>>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+                            Log.d(TAG, "onSubscribe: Status onSubscribe...");
+                            dialog.setMessage("Fetching status");
+                            dialog.show();
+                        }
 
+                        @Override
+                        public void onNext(List<Status> statuses) {
+                            Log.d(TAG, "onNext: statuses: " + statuses.size());
+                            statusBaseDAO = sqliteFactory.getStatusDAO();
+                            statusBaseDAO.insertAll(statuses);
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            dialog.dismiss();
+                            Log.d(TAG, "onError: First: " + e.getMessage());
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            dialog.dismiss();
+                            Log.d(TAG, "onComplete: status fetch finished");
+                        }
+                    });
+        }
         Observable myObs = Observable.defer((Callable<ObservableSource<?>>) () ->
                 Observable.just(servicesBaseDAO.getBulk(null),
                 projectTypeDAO.getBulk(null),
-                subcategoryBaseDAO.getBulk(null),
-                statusGetDistinct.getDistinct()));
+                subcategoryBaseDAO.getBulk(null)));
         myObs.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer() {
@@ -150,18 +183,13 @@ public class FragmentAddNew extends Fragment {
                                 List<Subcategory> mySubCategory = new ArrayList<>((Collection<? extends Subcategory>) o);
                                 mySubCategory.add(OTHERSCHOICE_SUBCATEGORY);
                                 addnew_spinner_subcategory.setItems(mySubCategory);
-                            } else if(temp instanceof Status){
-                                Log.d(TAG, "onNext: Status");
-                                List<Status> myStatus = new ArrayList<>((Collection<? extends Status>) o);
-                                statusList = myStatus;
                             }
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        dialog.dismiss();
-                        Log.d(TAG, "onError: First: " + e.getMessage());
+
                     }
 
                     @Override
@@ -282,9 +310,11 @@ public class FragmentAddNew extends Fragment {
 
     @OnClick(R.id.addnew_button_projectstatus)
     void projectStatusClicked(View view){
-        String[] arrayString = new String[statusList.size()];
-        for(int x = 0; x < statusList.size(); x++){
-            arrayString[x] = statusList.get(x).getName();
+        statusGetDistinct = (GetDistinct<Status>) sqliteFactory.getStatusDAO();
+        List<Status> statuses = statusGetDistinct.getDistinct();
+        String[] arrayString = new String[statuses.size()];
+        for(int x = 0; x < statuses.size(); x++){
+            arrayString[x] = statuses.get(x).getName();
         }
         multipleChoiceDialog.setCancellable(true);
         multipleChoiceDialog.setSourceList(arrayString);
