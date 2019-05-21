@@ -86,22 +86,75 @@ public class StatusDAO implements BaseDAO<Status>, NukeOperations<Status>, GetDi
     }
     @Override
     public List<Status> getBulk(String sqlCommand) {
-        return null;
+        Log.d(TAG, "getBulk: Started...");
+        sqLiteDatabase = dbHelper.getWritableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery(String.format("SELECT * FROM %s", PARSECLASS.STATUS.toString()), null);
+        List<Status> statusList = new ArrayList<>();
+        int result = cursor.getCount();
+        if ( result <= 0 ) {
+            return statusList;
+        }
+
+        while(cursor.moveToNext()) {
+            Status status = new Status();
+            status.setObjectId(cursor.getString(cursor.getColumnIndex(DEFAULTS.objectId.toString())));
+            status.setCreatedAt(cursor.getString(cursor.getColumnIndex(DEFAULTS.createdAt.toString())));
+            status.setUpdatedAt(cursor.getString(cursor.getColumnIndex(DEFAULTS.updatedAt.toString())));
+            status.setName(cursor.getString(cursor.getColumnIndex(STATUS.NAME.toString())));
+            status.setParent(cursor.getString(cursor.getColumnIndex(STATUS.PARENT.toString())));
+            statusList.add(status);
+        }
+
+        sqLiteDatabase.close();
+        cursor.close();
+
+        return statusList;
     }
 
     @Override
     public Status update(Status newRecord) {
-        return null;
+        Log.d(TAG, "update: Started...");
+        sqLiteDatabase = dbHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DEFAULTS.updatedAt.toString(), newRecord.getUpdatedAt());
+        contentValues.put(STATUS.NAME.toString(), newRecord.getName());
+        contentValues.put(STATUS.PARENT.toString(), newRecord.getParent());
+        int result = sqLiteDatabase.update(PARSECLASS.STATUS.toString(),
+                contentValues, String.format("%s = ?", DEFAULTS.objectId.toString()), new String[]{newRecord.getObjectId()});
+        Status status = new Status();
+        if(result == 1) {
+            status.setObjectId(newRecord.getObjectId());
+            status.setCreatedAt(newRecord.getCreatedAt());
+            status.setUpdatedAt(newRecord.getUpdatedAt());
+            status.setName(newRecord.getName());
+            status.setParent(newRecord.getParent());
+            return status;
+        }
+        sqLiteDatabase.close();
+        return status;
     }
 
     @Override
     public int delete(Status object) {
-        return 0;
+        Log.d(TAG, "delete: Started...");
+        int result = sqLiteDatabase.delete(PARSECLASS.STATUS.toString(),
+                String.format("%s = ?", DEFAULTS.objectId.toString()),
+                new String[]{object.getObjectId()});
+        sqLiteDatabase.close();
+        Log.d(TAG, "delete: Result: " + result);
+        return result;
     }
 
     @Override
     public int deleteAll(List<Status> objectList) {
-        return 0;
+        Log.d(TAG, "deleteAll: Started...");
+        int result = 0;
+        for (Status status : objectList) {
+            result += delete(status);
+        }
+        Log.d(TAG, "deleteAll: Result size: " + result);
+        Log.d(TAG, "deleteAll: Failed operations: " + String.valueOf(objectList.size() - result));
+        return result;
     }
 
     @Override
@@ -109,6 +162,7 @@ public class StatusDAO implements BaseDAO<Status>, NukeOperations<Status>, GetDi
         Log.d(TAG, "deleteRows: Started...");
         sqLiteDatabase = dbHelper.getWritableDatabase();
         int deletedRows = sqLiteDatabase.delete(PARSECLASS.STATUS.toString(), "1", null);
+
         sqLiteDatabase.close();
         return deletedRows;
     }
