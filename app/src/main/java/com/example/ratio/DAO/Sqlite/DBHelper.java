@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.ratio.Enums.DEFAULTS;
 import com.example.ratio.Enums.PARSECLASS;
+import com.example.ratio.Enums.SERVICES;
 import com.example.ratio.Enums.STATUS;
 
 import androidx.annotation.Nullable;
@@ -18,9 +19,8 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String createdAt = DEFAULTS.createdAt.toString();
     private static final String updatedAt = DEFAULTS.updatedAt.toString();
 
-
     public DBHelper(@Nullable Context context) {
-        super(context, DB_NAME, null, 1);
+        super(context, DB_NAME, null, 2);
     }
 
     @Override
@@ -32,12 +32,29 @@ public class DBHelper extends SQLiteOpenHelper {
                 "%s varchar(255), " +
                 "%s character(10))", PARSECLASS.STATUS.toString(),
                 objectId, createdAt, updatedAt, STATUS.NAME.toString(), STATUS.PARENT.toString());
+
+        String createServices = String.format("CREATE TABLE IF NOT EXISTS %s" +
+                "(%s character(10) PRIMARY KEY," +
+                "%s datetime, " +
+                "%s datetime, " +
+                "%s varchar(255), " +
+                "%s integer)", PARSECLASS.SERVICES.toString(), objectId, createdAt, updatedAt,
+                SERVICES.NAME.toString(), SERVICES.OTHERS.toString());
+
         db.execSQL(createStatus);
+        db.execSQL(createServices);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(String.format("DROP TABLE IF EXISTS %s", PARSECLASS.STATUS.toString()));
-        onCreate(db);
+        if(oldVersion < 2) {
+            db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s" +
+                            "(%s character(10) PRIMARY KEY," +
+                            "%s datetime, " +
+                            "%s datetime, " +
+                            "%s varchar(255), " +
+                            "%s integer)", PARSECLASS.SERVICES.toString(), objectId, createdAt, updatedAt,
+                    SERVICES.NAME.toString(), SERVICES.OTHERS.toString()));
+        }
     }
 }

@@ -121,17 +121,8 @@ public class StatusDAO implements BaseDAO<Status>, NukeOperations<Status>, GetDi
         contentValues.put(STATUS.PARENT.toString(), newRecord.getParent());
         int result = sqLiteDatabase.update(PARSECLASS.STATUS.toString(),
                 contentValues, String.format("%s = ?", DEFAULTS.objectId.toString()), new String[]{newRecord.getObjectId()});
-        Status status = new Status();
-        if(result == 1) {
-            status.setObjectId(newRecord.getObjectId());
-            status.setCreatedAt(newRecord.getCreatedAt());
-            status.setUpdatedAt(newRecord.getUpdatedAt());
-            status.setName(newRecord.getName());
-            status.setParent(newRecord.getParent());
-            return status;
-        }
         sqLiteDatabase.close();
-        return status;
+        return result <= 0 ? null : newRecord;
     }
 
     @Override

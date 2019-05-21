@@ -47,6 +47,7 @@ import com.example.ratio.HelperClasses.ImageCompressor;
 import com.example.ratio.HelperClasses.TagMaker;
 import com.example.ratio.HelperClasses.Utility;
 import com.example.ratio.RxJava.ProjectsObservable;
+import com.example.ratio.RxJava.ServicesObservable;
 import com.example.ratio.RxJava.StatusObservable;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
@@ -101,6 +102,7 @@ public class FragmentAddNew extends Fragment {
     private BaseDialog basicDialog = null;
     private ProjectsObservable projectsObservable = new ProjectsObservable();
     private StatusObservable statusObservable = new StatusObservable();
+    private ServicesObservable servicesObservable = new ServicesObservable();
     public FragmentAddNew() {}
 
     @Nullable
@@ -119,8 +121,9 @@ public class FragmentAddNew extends Fragment {
         dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
         multipleChoiceDialog = new CheckBoxDialog(getContext());
         statusBaseDAO = sqliteFactory.getStatusDAO();
+        servicesBaseDAO = sqliteFactory.getServicesDAO();
         if(statusBaseDAO.getBulk(null).size() <= 0) {
-            Log.d(TAG, "onCreateView: Empty");
+            Log.d(TAG, "onCreateView: Status Empty");
             statusObservable.statusObservable().subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Observer<List<Status>>() {
@@ -151,9 +154,43 @@ public class FragmentAddNew extends Fragment {
                         }
                     });
         }
+
+        if(servicesBaseDAO.getBulk(null).size() <= 0) {
+            Log.d(TAG, "onCreateView: Services Empty");
+            servicesObservable.servicesListObs().subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<List<Services>>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+                            Log.d(TAG, "onSubscribe: Services");
+                            dialog.setMessage("Fetching services");
+                            dialog.show();
+                        }
+
+                        @Override
+                        public void onNext(List<Services> services) {
+                            Log.d(TAG, "onNext: services size: " + services.size());
+                            servicesBaseDAO = sqliteFactory.getServicesDAO();
+                            servicesBaseDAO.insertAll(services);
+                            services.add(OTHERSCHOICE_SERVICES);
+                            addnew_spinner_services.setItems(services);
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            dialog.dismiss();
+                            Log.d(TAG, "onError: Error: " + e.getMessage());
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            dialog.dismiss();
+                            Log.d(TAG, "onComplete: services fetch finished");
+                        }
+                    });
+        }
         Observable myObs = Observable.defer((Callable<ObservableSource<?>>) () ->
-                Observable.just(servicesBaseDAO.getBulk(null),
-                projectTypeDAO.getBulk(null),
+                Observable.just(projectTypeDAO.getBulk(null),
                 subcategoryBaseDAO.getBulk(null)));
         myObs.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -168,12 +205,7 @@ public class FragmentAddNew extends Fragment {
                     public void onNext(Object o) {
                         if(o instanceof Collection){
                             Object temp = ((Collection) o).iterator().next();
-                            if(temp instanceof Services){
-                                Log.d(TAG, "onNext: Services");
-                                List<Services> myServices = new ArrayList<>((Collection<? extends Services>) o);
-                                myServices.add(OTHERSCHOICE_SERVICES);
-                                addnew_spinner_services.setItems(myServices);
-                            } else if(temp instanceof ProjectType){
+                            if(temp instanceof ProjectType){
                                 Log.d(TAG, "onNext: ProjectType");
                                 List<ProjectType> myProjectType = new ArrayList<>((Collection<? extends ProjectType>) o);
                                 myProjectType.add(OTHERSCHOICE_TYPESOFPROJECT);

@@ -3,9 +3,11 @@ package com.example.ratio;
 
 import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.DAO.NukeOperations;
+import com.example.ratio.DAO.Sqlite.DBHelper;
 import com.example.ratio.DAO.UserOperations;
 import com.example.ratio.Dialogs.BaseDialog;
 import com.example.ratio.Dialogs.BasicDialog;
+import com.example.ratio.Entities.Services;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Entities.User;
 import com.example.ratio.Enums.DATABASES;
@@ -35,6 +37,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -58,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private DAOFactory sqliteFactory = DAOFactory.getDatabase(DATABASES.SQLITE);
     private UserOperations<User> userOperations;
     private NukeOperations<Status> statusNukeOperations;
+    private NukeOperations<Services> servicesNukeOperations;
     private BaseDialog baseDialog;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -83,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
         tabs.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(container));
         userOperations = (UserOperations<User>) parseFactory.getUserDAO();
         statusNukeOperations = (NukeOperations<Status>) sqliteFactory.getStatusDAO();
+        servicesNukeOperations = (NukeOperations<Services>) sqliteFactory.getServicesDAO();
         baseDialog = new BasicDialog(this);
     }
     @Override
@@ -99,8 +104,9 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else if(item.getItemId() == R.id.action_clearlocal){
             Log.d(TAG, "clearLocalStorage: Clicked");
-            int result = statusNukeOperations.deleteRows();
-            Toast.makeText(this, String.format("%d rows deleted", result), Toast.LENGTH_SHORT).show();
+            int statusDeleted = statusNukeOperations.deleteRows();
+            int servicesDeleted = servicesNukeOperations.deleteRows();
+            Toast.makeText(this, "Local storage cleared", Toast.LENGTH_SHORT).show();
             return true;
         } else if(item.getItemId() == R.id.action_logout){
             alertDialog = Utility.getInstance().showLoading(this, "Logging out", false);
