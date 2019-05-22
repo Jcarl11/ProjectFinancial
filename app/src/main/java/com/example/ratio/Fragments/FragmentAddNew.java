@@ -46,6 +46,7 @@ import com.example.ratio.R;
 import com.example.ratio.HelperClasses.ImageCompressor;
 import com.example.ratio.HelperClasses.TagMaker;
 import com.example.ratio.HelperClasses.Utility;
+import com.example.ratio.RxJava.ProjectTypeObservable;
 import com.example.ratio.RxJava.ProjectsObservable;
 import com.example.ratio.RxJava.ServicesObservable;
 import com.example.ratio.RxJava.StatusObservable;
@@ -103,6 +104,7 @@ public class FragmentAddNew extends Fragment {
     private ProjectsObservable projectsObservable = new ProjectsObservable();
     private StatusObservable statusObservable = new StatusObservable();
     private ServicesObservable servicesObservable = new ServicesObservable();
+    private ProjectTypeObservable projectTypeObservable = new ProjectTypeObservable();
     public FragmentAddNew() {}
 
     @Nullable
@@ -122,6 +124,7 @@ public class FragmentAddNew extends Fragment {
         multipleChoiceDialog = new CheckBoxDialog(getContext());
         statusBaseDAO = sqliteFactory.getStatusDAO();
         servicesBaseDAO = sqliteFactory.getServicesDAO();
+        projectTypeDAO = sqliteFactory.getProjectTypeDAO();
         if(statusBaseDAO.getBulk(null).size() <= 0) {
             Log.d(TAG, "onCreateView: Status Empty");
             statusObservable.statusObservable().subscribeOn(Schedulers.io())
@@ -188,10 +191,57 @@ public class FragmentAddNew extends Fragment {
                             Log.d(TAG, "onComplete: services fetch finished");
                         }
                     });
+        } else {
+            servicesBaseDAO = sqliteFactory.getServicesDAO();
+            List<Services> servicesList = servicesBaseDAO.getBulk(null);
+            servicesList.add(OTHERSCHOICE_SERVICES);
+            addnew_spinner_services.setItems(servicesList);
         }
+
+        if (projectTypeDAO.getBulk(null).size() <= 0) {
+            Log.d(TAG, "onCreateView: ProjectType empty");
+            projectTypeObservable.projectTypeObservable().subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<List<ProjectType>>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+                            Log.d(TAG, "onSubscribe: ProjectType onSubscribe");
+                            dialog.setMessage("Fetching project types");
+                            dialog.show();
+                        }
+
+                        @Override
+                        public void onNext(List<ProjectType> projectTypes) {
+                            Log.d(TAG, "onNext: Project type size: " + projectTypes.size());
+                            projectTypeDAO = sqliteFactory.getProjectTypeDAO();
+                            int result = projectTypeDAO.insertAll(projectTypes);
+                            Log.d(TAG, "onNext: Result: " + result);
+                            projectTypes.add(OTHERSCHOICE_TYPESOFPROJECT);
+                            addnew_spinner_typeofproject.setItems(projectTypes);
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            dialog.dismiss();
+                            Log.d(TAG, "onError: Error: " + e.getMessage());
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            dialog.dismiss();
+                            Log.d(TAG, "onComplete: Proejct type fetch done");
+                        }
+                    });
+        } else {
+            projectTypeDAO = sqliteFactory.getProjectTypeDAO();
+            List<ProjectType> projectTypeList = projectTypeDAO.getBulk(null);
+            projectTypeList.add(OTHERSCHOICE_TYPESOFPROJECT);
+            addnew_spinner_typeofproject.setItems(projectTypeList);
+        }
+
+
         Observable myObs = Observable.defer((Callable<ObservableSource<?>>) () ->
-                Observable.just(projectTypeDAO.getBulk(null),
-                subcategoryBaseDAO.getBulk(null)));
+                Observable.just(subcategoryBaseDAO.getBulk(null)));
         myObs.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer() {
@@ -205,12 +255,7 @@ public class FragmentAddNew extends Fragment {
                     public void onNext(Object o) {
                         if(o instanceof Collection){
                             Object temp = ((Collection) o).iterator().next();
-                            if(temp instanceof ProjectType){
-                                Log.d(TAG, "onNext: ProjectType");
-                                List<ProjectType> myProjectType = new ArrayList<>((Collection<? extends ProjectType>) o);
-                                myProjectType.add(OTHERSCHOICE_TYPESOFPROJECT);
-                                addnew_spinner_typeofproject.setItems(myProjectType);
-                            } else if(temp instanceof Subcategory){
+                            if(temp instanceof Subcategory){
                                 Log.d(TAG, "onNext: Subcategory");
                                 List<Subcategory> mySubCategory = new ArrayList<>((Collection<? extends Subcategory>) o);
                                 mySubCategory.add(OTHERSCHOICE_SUBCATEGORY);

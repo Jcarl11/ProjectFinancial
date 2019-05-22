@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.ratio.Enums.DEFAULTS;
 import com.example.ratio.Enums.PARSECLASS;
+import com.example.ratio.Enums.PROJECT_TYPE;
 import com.example.ratio.Enums.SERVICES;
 import com.example.ratio.Enums.STATUS;
 
@@ -41,8 +42,17 @@ public class DBHelper extends SQLiteOpenHelper {
                 "%s integer)", PARSECLASS.SERVICES.toString(), objectId, createdAt, updatedAt,
                 SERVICES.NAME.toString(), SERVICES.OTHERS.toString());
 
+        String createProjectType = String.format("CREATE TABLE IF NOT EXISTS %s" +
+                "(%s character(10) PRIMARY KEY, " +
+                "%s datetime, " +
+                "%s datetime, " +
+                "%s varchar(255), " +
+                "%s integer)", PARSECLASS.PROJECT_TYPE.toString(), objectId, createdAt, updatedAt,
+                PROJECT_TYPE.NAME.toString(), PROJECT_TYPE.OTHERS.toString());
+
         db.execSQL(createStatus);
         db.execSQL(createServices);
+        db.execSQL(createProjectType);
     }
 
     @Override
@@ -55,6 +65,13 @@ public class DBHelper extends SQLiteOpenHelper {
                             "%s varchar(255), " +
                             "%s integer)", PARSECLASS.SERVICES.toString(), objectId, createdAt, updatedAt,
                     SERVICES.NAME.toString(), SERVICES.OTHERS.toString()));
+            db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s" +
+                            "(%s character(10) PRIMARY KEY, " +
+                            "%s datetime, " +
+                            "%s datetime, " +
+                            "%s varchar(255), " +
+                            "%s integer)", PARSECLASS.PROJECT_TYPE.toString(), objectId, createdAt, updatedAt,
+                    PROJECT_TYPE.NAME.toString(), PROJECT_TYPE.OTHERS.toString()));
         }
     }
 }
