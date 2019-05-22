@@ -10,6 +10,7 @@ import com.example.ratio.Dialogs.BasicDialog;
 import com.example.ratio.Entities.ProjectType;
 import com.example.ratio.Entities.Services;
 import com.example.ratio.Entities.Status;
+import com.example.ratio.Entities.Subcategory;
 import com.example.ratio.Entities.User;
 import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Fragments.FragmentAddNew;
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private NukeOperations<Status> statusNukeOperations;
     private NukeOperations<Services> servicesNukeOperations;
     private NukeOperations<ProjectType> projectTypeNukeOperations;
+    private NukeOperations<Subcategory> subcategoryNukeOperations;
     private BaseDialog baseDialog;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -110,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
             int statusDeleted = statusNukeOperations.deleteRows();
             int servicesDeleted = servicesNukeOperations.deleteRows();
             int projectTypesDeleted = projectTypeNukeOperations.deleteRows();
+            int subCategoryDeleted = subcategoryNukeOperations.deleteRows();
             Toast.makeText(this, "Local storage cleared", Toast.LENGTH_SHORT).show();
             return true;
         } else if(item.getItemId() == R.id.action_logout){

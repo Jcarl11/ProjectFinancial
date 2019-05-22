@@ -50,6 +50,7 @@ import com.example.ratio.RxJava.ProjectTypeObservable;
 import com.example.ratio.RxJava.ProjectsObservable;
 import com.example.ratio.RxJava.ServicesObservable;
 import com.example.ratio.RxJava.StatusObservable;
+import com.example.ratio.RxJava.SubcategoryObservable;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.squareup.picasso.Picasso;
@@ -105,6 +106,7 @@ public class FragmentAddNew extends Fragment {
     private StatusObservable statusObservable = new StatusObservable();
     private ServicesObservable servicesObservable = new ServicesObservable();
     private ProjectTypeObservable projectTypeObservable = new ProjectTypeObservable();
+    private SubcategoryObservable subcategoryObservable = new SubcategoryObservable();
     public FragmentAddNew() {}
 
     @Nullable
@@ -125,6 +127,7 @@ public class FragmentAddNew extends Fragment {
         statusBaseDAO = sqliteFactory.getStatusDAO();
         servicesBaseDAO = sqliteFactory.getServicesDAO();
         projectTypeDAO = sqliteFactory.getProjectTypeDAO();
+        subcategoryBaseDAO = sqliteFactory.getSubcategoryDAO();
         if(statusBaseDAO.getBulk(null).size() <= 0) {
             Log.d(TAG, "onCreateView: Status Empty");
             statusObservable.statusObservable().subscribeOn(Schedulers.io())
@@ -239,42 +242,46 @@ public class FragmentAddNew extends Fragment {
             addnew_spinner_typeofproject.setItems(projectTypeList);
         }
 
-
-        Observable myObs = Observable.defer((Callable<ObservableSource<?>>) () ->
-                Observable.just(subcategoryBaseDAO.getBulk(null)));
-        myObs.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        dialog.show();
-                        Log.d(TAG, "onSubscribe: ");
-                    }
-
-                    @Override
-                    public void onNext(Object o) {
-                        if(o instanceof Collection){
-                            Object temp = ((Collection) o).iterator().next();
-                            if(temp instanceof Subcategory){
-                                Log.d(TAG, "onNext: Subcategory");
-                                List<Subcategory> mySubCategory = new ArrayList<>((Collection<? extends Subcategory>) o);
-                                mySubCategory.add(OTHERSCHOICE_SUBCATEGORY);
-                                addnew_spinner_subcategory.setItems(mySubCategory);
-                            }
+        if (subcategoryBaseDAO.getBulk(null).size() <= 0){
+            subcategoryObservable.subcategoryObservable().subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<List<Subcategory>>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+                            Log.d(TAG, "onSubscribe: Subcategory onSubscribe");
+                            dialog.setMessage("Fetching subcategories");
+                            dialog.show();
                         }
-                    }
 
-                    @Override
-                    public void onError(Throwable e) {
+                        @Override
+                        public void onNext(List<Subcategory> subcategoryList) {
+                            Log.d(TAG, "onNext: Subcategory size: " + subcategoryList.size());
+                            subcategoryBaseDAO = sqliteFactory.getSubcategoryDAO();
+                            int result = subcategoryBaseDAO.insertAll(subcategoryList);
+                            Log.d(TAG, "onNext: Result size: " + result);
+                            subcategoryList.add(OTHERSCHOICE_SUBCATEGORY);
+                            addnew_spinner_subcategory.setItems(subcategoryList);
+                        }
 
-                    }
+                        @Override
+                        public void onError(Throwable e) {
+                            Log.d(TAG, "onError: Exception thrown: " + e.getMessage());
+                            dialog.dismiss();
+                        }
 
-                    @Override
-                    public void onComplete() {
-                        dialog.dismiss();
-                        Log.d(TAG, "onComplete: ");
-                    }
-                });
+                        @Override
+                        public void onComplete() {
+                            dialog.dismiss();
+                            Log.d(TAG, "onComplete: subcategory fetch done");
+                        }
+                    });
+        } else {
+            subcategoryBaseDAO = sqliteFactory.getSubcategoryDAO();
+            List<Subcategory> subcategoryList = subcategoryBaseDAO.getBulk(null);
+            subcategoryList.add(OTHERSCHOICE_SUBCATEGORY);
+            addnew_spinner_subcategory.setItems(subcategoryList);
+        }
+
         addnew_spinner_typeofproject.setOnItemSelectedListener(typeOfProjectListener());
         addnew_spinner_services.setOnItemSelectedListener(servicesListener());
         addnew_spinner_subcategory.setOnItemSelectedListener(subcategoryListener());

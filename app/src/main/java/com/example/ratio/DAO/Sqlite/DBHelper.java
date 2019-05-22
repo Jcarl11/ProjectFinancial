@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.example.ratio.Enums.DEFAULTS;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.PROJECT_TYPE;
+import com.example.ratio.Enums.PROJECT_TYPE_SUBCATEGORY;
 import com.example.ratio.Enums.SERVICES;
 import com.example.ratio.Enums.STATUS;
 
@@ -21,7 +22,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String updatedAt = DEFAULTS.updatedAt.toString();
 
     public DBHelper(@Nullable Context context) {
-        super(context, DB_NAME, null, 2);
+        super(context, DB_NAME, null, 3);
     }
 
     @Override
@@ -50,9 +51,20 @@ public class DBHelper extends SQLiteOpenHelper {
                 "%s integer)", PARSECLASS.PROJECT_TYPE.toString(), objectId, createdAt, updatedAt,
                 PROJECT_TYPE.NAME.toString(), PROJECT_TYPE.OTHERS.toString());
 
+        String createSubcategory = String.format("CREATE TABLE IF NOT EXISTS %s" +
+                        "(%s character(10) PRIMARY KEY, " +
+                        "%s datetime, " +
+                        "%s datetime, " +
+                        "%s varchar(255), " +
+                        "%s integer, " +
+                        "%s varchar(255))", PARSECLASS.PROJECT_TYPE_SUBCATEGORY.toString(), objectId, createdAt, updatedAt,
+                PROJECT_TYPE_SUBCATEGORY.NAME.toString(), PROJECT_TYPE_SUBCATEGORY.OTHERS.toString(),
+                PROJECT_TYPE_SUBCATEGORY.PARENT.toString());
+
         db.execSQL(createStatus);
         db.execSQL(createServices);
         db.execSQL(createProjectType);
+        db.execSQL(createSubcategory);
     }
 
     @Override
@@ -72,6 +84,18 @@ public class DBHelper extends SQLiteOpenHelper {
                             "%s varchar(255), " +
                             "%s integer)", PARSECLASS.PROJECT_TYPE.toString(), objectId, createdAt, updatedAt,
                     PROJECT_TYPE.NAME.toString(), PROJECT_TYPE.OTHERS.toString()));
+
+        }
+        if(oldVersion < 3) {
+            db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s" +
+                            "(%s character(10) PRIMARY KEY, " +
+                            "%s datetime, " +
+                            "%s datetime, " +
+                            "%s varchar(255), " +
+                            "%s integer, " +
+                            "%s varchar(255))", PARSECLASS.PROJECT_TYPE_SUBCATEGORY.toString(), objectId, createdAt, updatedAt,
+                    PROJECT_TYPE_SUBCATEGORY.NAME.toString(), PROJECT_TYPE_SUBCATEGORY.OTHERS.toString(),
+                    PROJECT_TYPE_SUBCATEGORY.PARENT.toString()));
         }
     }
 }
