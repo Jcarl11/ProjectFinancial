@@ -38,9 +38,12 @@ public class ProjectAdapter extends  RecyclerView.Adapter<ProjectAdapter.Project
         Projects projects = projectsList.get(position);
         holder.portfolio_row_code.setText(projects.getProjectCode());
         StringBuilder statusBuilder = new StringBuilder();
-        for(Status status : projects.getProjectStatus()){
-            statusBuilder.append(status.getName());
-            statusBuilder.append(",");
+
+        for (int x = 0 ; x < projects.getProjectStatus().size() ; x++) {
+            statusBuilder.append(projects.getProjectStatus().get(x).getName());
+            if ((x + 1) < projects.getProjectStatus().size()) {
+                statusBuilder.append(",");
+            }
         }
         holder.portfolio_row_status.setText(statusBuilder.toString());
         holder.portfolio_row_projectname.setText(projects.getProjectName());

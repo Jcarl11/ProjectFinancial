@@ -66,7 +66,7 @@ public class ProjectsObservable {
                 .map(projects -> {
                     List<Projects> projectsList = new ArrayList<>();
                     for (Projects individuals : projects) {
-                        List<Status> statusList = statusBaseDAO.getBulk(individuals.getObjectId());
+                        List<Status> statusList = statusGetFromParent.getObjects(individuals.getObjectId());
                         individuals.setProjectStatus(statusList);
                         projectsList.add(individuals);
                     }

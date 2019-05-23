@@ -22,7 +22,7 @@ public class Projects extends Entity implements Serializable {
     private List<Status> projectStatus;
     private Image thumbnail;
     private boolean deleted;
-    private JSONArray tags;
+    private ArrayList<String> tags;
 
     public String getProjectName() {
         return projectName;
@@ -120,11 +120,11 @@ public class Projects extends Entity implements Serializable {
         this.deleted = deleted;
     }
 
-    public JSONArray getTags() {
+    public ArrayList<String> getTags() {
         return tags;
     }
 
-    public void setTags(JSONArray tags) {
+    public void setTags(ArrayList<String> tags) {
         this.tags = tags;
     }
 
@@ -135,6 +135,7 @@ public class Projects extends Entity implements Serializable {
         StringBuilder stringBuilder = new StringBuilder();
         Field[] fields = this.getClass().getDeclaredFields();
         List<String> values = new ArrayList<>();
+        ArrayList<String> tags = new ArrayList<>();
         for(int x = 0; x < fields.length; x++) {
             Object name = null;
             try {
@@ -144,7 +145,7 @@ public class Projects extends Entity implements Serializable {
                 e.printStackTrace();
             }
             if(name != null){
-                if((name instanceof JSONArray) == false )
+                if((name instanceof ArrayList) == false)
                     values.add(String.valueOf(name.toString()));
             }
         }

@@ -8,6 +8,7 @@ import com.example.ratio.Entities.Projects;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.PROJECT;
 import com.example.ratio.HelperClasses.DateTransform;
+import com.example.ratio.HelperClasses.TagMaker;
 import com.example.ratio.HelperClasses.Utility;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -23,6 +24,7 @@ public class ProjectDAO implements BaseDAO<Projects>, CustomOperations<Projects>
     private SubCategoryDAO subcategoryBaseDAO = new SubCategoryDAO();
 
     private DateTransform dateTransform = new DateTransform();
+    private TagMaker tagMaker = new TagMaker();
     private int defaultLimit = 50;
     private ParseObject parseObject = null;
 
@@ -38,7 +40,8 @@ public class ProjectDAO implements BaseDAO<Projects>, CustomOperations<Projects>
         parseObject.put(PROJECT.SERVICES.toString(), objectEntity.getProjectServices().getObjectId());
         parseObject.put(PROJECT.SUBCATEGORY.toString(), objectEntity.getProjectSubCategory().getObjectId());
         parseObject.put(PROJECT.DELETED.toString(), objectEntity.isDeleted());
-        parseObject.put(PROJECT.Tags.toString(), objectEntity.getTags());
+        parseObject.put(PROJECT.Tags.toString(), tagMaker.fromList(objectEntity.getTags()));
+
 
         try {
             Log.d(TAG, "insert: Saving record...");
@@ -59,7 +62,7 @@ public class ProjectDAO implements BaseDAO<Projects>, CustomOperations<Projects>
         projects.setProjectServices(servicesBaseDAO.get(parseObject.getString(PROJECT.SERVICES.toString())));
         projects.setProjectSubCategory(subcategoryBaseDAO.get(parseObject.getString(PROJECT.SUBCATEGORY.toString())));
         projects.setDeleted(parseObject.getBoolean(PROJECT.DELETED.toString()));
-        projects.setTags(parseObject.getJSONArray(PROJECT.Tags.toString()));
+        projects.setTags(tagMaker.toArray(parseObject.getJSONArray(PROJECT.Tags.toString())));
         return projects;
     }
 
@@ -108,7 +111,7 @@ public class ProjectDAO implements BaseDAO<Projects>, CustomOperations<Projects>
         projects.setProjectServices(servicesBaseDAO.get(parseObject.getString(PROJECT.SERVICES.toString())));
         projects.setProjectSubCategory(subcategoryBaseDAO.get(parseObject.getString(PROJECT.SUBCATEGORY.toString())));
         projects.setDeleted(parseObject.getBoolean(PROJECT.DELETED.toString()));
-        projects.setTags(parseObject.getJSONArray(PROJECT.Tags.toString()));
+        projects.setTags(tagMaker.toArray(parseObject.getJSONArray(PROJECT.Tags.toString())));
         return projects;
     }
 
@@ -141,7 +144,7 @@ public class ProjectDAO implements BaseDAO<Projects>, CustomOperations<Projects>
                 projects.setProjectServices(servicesBaseDAO.get(parseObject.getString(PROJECT.SERVICES.toString())));
                 projects.setProjectSubCategory(subcategoryBaseDAO.get(parseObject.getString(PROJECT.SUBCATEGORY.toString())));
                 projects.setDeleted(parseObject.getBoolean(PROJECT.DELETED.toString()));
-                projects.setTags(parseObject.getJSONArray(PROJECT.Tags.toString()));
+                projects.setTags(tagMaker.toArray(parseObject.getJSONArray(PROJECT.Tags.toString())));
                 projectsList.add(projects);
             }
         } catch (ParseException e) {
@@ -183,7 +186,7 @@ public class ProjectDAO implements BaseDAO<Projects>, CustomOperations<Projects>
         projects.setProjectServices(servicesBaseDAO.get(parseObject.getString(PROJECT.SERVICES.toString())));
         projects.setProjectSubCategory(subcategoryBaseDAO.get(parseObject.getString(PROJECT.SUBCATEGORY.toString())));
         projects.setDeleted(parseObject.getBoolean(PROJECT.DELETED.toString()));
-        projects.setTags(parseObject.getJSONArray(PROJECT.Tags.toString()));
+        projects.setTags(tagMaker.toArray(parseObject.getJSONArray(PROJECT.Tags.toString())));
         return projects;
     }
 
@@ -245,7 +248,7 @@ public class ProjectDAO implements BaseDAO<Projects>, CustomOperations<Projects>
                 projects.setProjectServices(servicesBaseDAO.get(parseObject.getString(PROJECT.SERVICES.toString())));
                 projects.setProjectSubCategory(subcategoryBaseDAO.get(parseObject.getString(PROJECT.SUBCATEGORY.toString())));
                 projects.setDeleted(parseObject.getBoolean(PROJECT.DELETED.toString()));
-                projects.setTags(parseObject.getJSONArray(PROJECT.Tags.toString()));
+                projects.setTags(tagMaker.toArray(parseObject.getJSONArray(PROJECT.Tags.toString())));
                 projectsList.add(projects);
             }
         } catch (ParseException e) {
@@ -278,7 +281,7 @@ public class ProjectDAO implements BaseDAO<Projects>, CustomOperations<Projects>
                 projects.setProjectServices(servicesBaseDAO.get(individuals.getString(PROJECT.SERVICES.toString())));
                 projects.setProjectSubCategory(subcategoryBaseDAO.get(individuals.getString(PROJECT.SUBCATEGORY.toString())));
                 projects.setDeleted(individuals.getBoolean(PROJECT.DELETED.toString()));
-                projects.setTags(individuals.getJSONArray(PROJECT.Tags.toString()));
+                projects.setTags(tagMaker.toArray(individuals.getJSONArray(PROJECT.Tags.toString())));
                 projectsList.add(projects);
             }
         } catch (ParseException e) {

@@ -147,7 +147,8 @@ public class FragmentSearch extends Fragment {
 
         List<Projects> projectsList = (List<Projects>) data.getSerializableExtra(AdvancedSearch.RESULT);
         Log.d(TAG, "onActivityResult: Result size: " + projectsList.size());
-
+        projectAdapter = new ProjectAdapter(getContext(), projectsList);
+        search_recyclerview.setAdapter(projectAdapter);
     }
 }
 
