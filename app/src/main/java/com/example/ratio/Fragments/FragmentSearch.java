@@ -133,7 +133,7 @@ public class FragmentSearch extends Fragment {
     @OnClick(R.id.search_button_advanced)
     public void advancedClicked(View view) {
         Log.d(TAG, "advancedClicked: Advanced clicked...");
-        Intent intent = new Intent(getActivity(), AdvancedSearch.class);
+        Intent intent = new Intent(getContext(), AdvancedSearch.class);
         startActivityForResult(intent, 1);
     }
 

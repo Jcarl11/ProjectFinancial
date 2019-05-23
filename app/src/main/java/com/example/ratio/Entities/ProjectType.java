@@ -1,6 +1,8 @@
 package com.example.ratio.Entities;
 
-public class ProjectType extends Entity{
+import java.io.Serializable;
+
+public class ProjectType extends Entity implements Serializable {
     private String name;
     private boolean others;
 

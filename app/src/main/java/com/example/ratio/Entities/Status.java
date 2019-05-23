@@ -1,8 +1,10 @@
 package com.example.ratio.Entities;
 
+import java.io.Serializable;
+
 import androidx.annotation.NonNull;
 
-public class Status extends Entity {
+public class Status extends Entity implements Serializable {
     private String name;
     private String parent;
 

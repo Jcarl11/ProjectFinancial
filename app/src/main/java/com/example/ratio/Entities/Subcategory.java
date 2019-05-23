@@ -1,7 +1,9 @@
 package com.example.ratio.Entities;
 
 
-public class Subcategory extends Entity {
+import java.io.Serializable;
+
+public class Subcategory extends Entity implements Serializable {
     private String name;
     private boolean others;
     private String parent;

@@ -1,6 +1,8 @@
 package com.example.ratio.Entities;
 
-public class Image extends Entity {
+import java.io.Serializable;
+
+public class Image extends Entity implements Serializable {
     private String parent;
     private String fileName;
     private String filePath;

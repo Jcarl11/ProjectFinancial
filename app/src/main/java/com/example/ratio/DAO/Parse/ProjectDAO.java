@@ -86,6 +86,7 @@ public class ProjectDAO implements BaseDAO<Projects>, CustomOperations<Projects>
         ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.PROJECT.toString());
         try {
             Log.d(TAG, "get: Retrieving object...");
+            Log.d(TAG, "get: objectId: " + objectId);
             parseObject = query.get(objectId);
             if(parseObject == null) {
                 return new Projects();

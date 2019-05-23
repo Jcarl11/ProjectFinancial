@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.GetDistinct;
+import com.example.ratio.DAO.GetFromParent;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.STATUS;
@@ -13,11 +14,12 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class StatusDAO implements BaseDAO<Status>, GetDistinct<Status> {
+public class StatusDAO implements BaseDAO<Status>, GetDistinct<Status>, GetFromParent<Status> {
     private static final String TAG = "StatusDAO";
     private DateTransform dateTransform = new DateTransform();
     private int result = 0;
@@ -96,7 +98,6 @@ public class StatusDAO implements BaseDAO<Status>, GetDistinct<Status> {
     public List<Status> getBulk(String sqlCommand) {
         Log.d(TAG, "getBulk: Started...");
         ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.STATUS.toString());
-        query.whereNotEqualTo(STATUS.PARENT.toString(), "DEFAULTS");
         List<Status> statuses = new ArrayList<>();
         try {
             Log.d(TAG, "getBulk: Retrieving status...");
@@ -199,6 +200,33 @@ public class StatusDAO implements BaseDAO<Status>, GetDistinct<Status> {
         } catch (ParseException e) {
             e.printStackTrace();
             Log.d(TAG, "getBulk: Exception thrown: " + e.getMessage());
+        }
+        return statuses;
+    }
+
+    @Override
+    public List<Status> getObjects(String parentID) {
+        Log.d(TAG, "getObjects: Started...");
+        List<Status> statuses = new ArrayList<>();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.STATUS.toString());
+        query.whereEqualTo(STATUS.PARENT.toString(), parentID);
+        try {
+            Log.d(TAG, "getObjects: Retrieving objects...");
+            List<ParseObject> parseObjects = query.find();
+            Log.d(TAG, "getObjects: Retrieved: " + parseObjects.size());
+            for (ParseObject parseObject : parseObjects) {
+                Status status = new Status();
+                status.setObjectId(parseObject.getObjectId());
+                status.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+                status.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
+                status.setName(parseObject.getString(STATUS.NAME.toString()));
+                status.setParent(parseObject.getString(STATUS.PARENT.toString()));
+                statuses.add(status);
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            Log.d(TAG, "getObjects: Exception thrown: " + e.getMessage());
         }
         return statuses;
     }

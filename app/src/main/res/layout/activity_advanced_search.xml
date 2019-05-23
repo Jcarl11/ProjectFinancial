@@ -15,19 +15,12 @@
         android:hint="Status"
         android:layout_margin="5dp"/>
 
-    <com.google.android.material.textfield.TextInputLayout
+    <EditText
         android:id="@+id/advanced_field_tags"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-        android:layout_margin="5dp">
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="KEYWORDS OR TAGS"
-            android:singleLine="true"
-            android:inputType="textCapCharacters"/>
-    </com.google.android.material.textfield.TextInputLayout>
+        android:layout_margin="5dp"
+        android:hint="KEYWORDS / TAGS"/>
 
     <Button
         android:id="@+id/advanceed_button_search"
