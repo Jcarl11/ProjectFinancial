@@ -1,5 +1,6 @@
 package com.example.ratio.HelperClasses;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -48,6 +49,18 @@ public class TagMaker {
             }
         }
         return values;
+    }
+
+    public ArrayList<String> tagSplit(String source) {
+        String[] tags = !TextUtils.isEmpty(source) ? source.split("\\s+") : null;
+        if (tags == null) {
+            return new ArrayList<String>();
+        }
+        ArrayList<String> tagsList = new ArrayList<>();
+        for(String values : tags) {
+            tagsList.add(values.toUpperCase());
+        }
+        return tagsList;
     }
 
 }

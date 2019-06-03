@@ -227,10 +227,10 @@ public class ProjectDAO implements BaseDAO<Projects>, CustomOperations<Projects>
     public List<Projects> getObject(ParseQuery<ParseObject> customQuery) {
         Log.d(TAG, "getObject: Started...");
         List<Projects> projectsList = new ArrayList<>();
-        /*if(customQuery.getClassName() == null) {
+        if(customQuery.getClassName() == null) {
             Log.d(TAG, "getObject: Class not specified.");
             customQuery = ParseQuery.getQuery(PARSECLASS.PROJECT.toString());
-        }*/
+        }
 
         try {
             Log.d(TAG, "getObject: Retriving objects...");

@@ -10,9 +10,14 @@ import com.example.ratio.Entities.Image;
 import com.example.ratio.Entities.Projects;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Enums.DATABASES;
+import com.example.ratio.Enums.PARSECLASS;
+import com.example.ratio.Enums.PROJECT;
 import com.example.ratio.HelperClasses.RandomImgAPI;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -156,6 +161,21 @@ public class ProjectsObservable {
             }
         });
         return deferObs;
+    }
+
+    public Observable<List<Projects>> getProjectsFromTags(String[] tags) {
+        Observable<List<Projects>> observable = Observable.defer(new Callable<ObservableSource<List<Projects>>>() {
+            @Override
+            public ObservableSource<List<Projects>> call() throws Exception {
+                ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.PROJECT.toString());
+                query.whereContainedIn(PROJECT.Tags.toString(), Arrays.asList(tags));
+                query.whereEqualTo(PROJECT.DELETED.toString(), false);
+                List<Projects> projectsList = projectsCustomOperations.getObject(query);
+                Log.d(TAG, "call: Project size: " + projectsList.size());
+                return Observable.just(projectsList);
+            }
+        });
+        return observable;
     }
 
 }

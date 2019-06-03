@@ -29,6 +29,7 @@ import com.example.ratio.DAO.GetDistinct;
 import com.example.ratio.Entities.Projects;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Enums.DATABASES;
+import com.example.ratio.HelperClasses.TagMaker;
 import com.example.ratio.HelperClasses.Utility;
 import com.example.ratio.RxJava.ProjectsObservable;
 import com.example.ratio.RxJava.StatusObservable;
@@ -57,6 +58,8 @@ public class AdvancedSearch extends AppCompatActivity {
     private ProjectsObservable projectsObservable = new ProjectsObservable();
     private AlertDialog dialog;
     private Intent intent;
+    private TagMaker tagMaker = new TagMaker();
+    private List<Projects> projectsRetrieved = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,26 +85,56 @@ public class AdvancedSearch extends AppCompatActivity {
             advanced_spinner_status.setBackground(getResources().getDrawable(R.drawable.bg_error));
             return;
         }
-
+        String userQuery = advanced_field_tags.getText().toString().trim().toUpperCase();
         statusObservable.getStatusesObservable()
-                .map(new Function<List<Status>, List<Projects>>() {
+                .map(new Function<List<Status>, List<String>>() {
                     @Override
-                    public List<Projects> apply(List<Status> statuses) throws Exception {
-                        List<Projects> projectsList = new ArrayList<>();
+                    public List<String> apply(List<Status> statuses) throws Exception {
+                        List<String> projectsList = new ArrayList<>();
                         for (Status status : statuses) {
                             if (status.getName().equalsIgnoreCase(selectedStatus) && !status.getParent().equalsIgnoreCase("DEFAULTS")) {
                                 Log.d(TAG, "apply: Status parent: " + status.getParent());
-                                projectsObservable.getProjectFromIDCompleteObservable(status.getParent())
-                                        .subscribe(new Consumer<Projects>() {
-                                            @Override
-                                            public void accept(Projects projects) throws Exception {
-                                                projectsList.add(projects);
-                                            }
-                                        });
+                                projectsList.add(status.getParent());
                             }
                         }
-
                         return projectsList;
+                    }
+                })
+                .map(new Function<List<String>, List<Projects>>() {
+                    @Override
+                    public List<Projects> apply(List<String> strings) throws Exception {
+                        Log.d(TAG, "apply: Strings size: " + strings.size());
+                        projectsRetrieved = new ArrayList<>();
+                        projectsObservable.getProjectsFromTags(userQuery.split("\\s+"))
+                                .subscribe(new Consumer<List<Projects>>() {
+                                    @Override
+                                    public void accept(List<Projects> projects) throws Exception {
+                                        for (int x = 0 ; x < projects.size() ; x++) {
+                                            Log.d(TAG, "accept: Proj: " + projects.get(x).getObjectId());
+                                            if (strings.contains(projects.get(x).getObjectId()) == true) {
+                                                projectsRetrieved.add(projects.get(x));
+                                            }
+                                        }
+                                    }
+                                });
+                        return projectsRetrieved;
+                    }
+                })
+                .map(new Function<List<Projects>, List<Projects>>() {
+                    @Override
+                    public List<Projects> apply(List<Projects> projects) throws Exception {
+                        List<Projects> projectsFinal = new ArrayList<>();
+                        for(Projects proj : projects) {
+                            projectsObservable.getProjectFromIDCompleteObservable(proj.getObjectId())
+                                .subscribe(new Consumer<Projects>() {
+                                    @Override
+                                    public void accept(Projects projects) throws Exception {
+                                        projectsFinal.add(projects);
+                                    }
+                                });
+                        }
+
+                        return projectsFinal;
                     }
                 })
                 .subscribeOn(Schedulers.io())
