@@ -2,6 +2,7 @@ package com.example.ratio.Fragments;
 
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.github.codefalling.recyclerviewswipedismiss.SwipeDismissRecyclerViewTouchListener;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
@@ -56,6 +58,7 @@ public class FragmentPortfolio extends Fragment {
     private AlertDialog dialog;
     private BaseDialog basicDialog = null;
     private ProjectsObservable projectsObservable = new ProjectsObservable();
+    private int pos = -1;
     public FragmentPortfolio() {}
 
     @Nullable
@@ -74,10 +77,53 @@ public class FragmentPortfolio extends Fragment {
             Log.d(TAG, "onCreateView: Loaded...");
             getProjects();
         }
+
+        SwipeDismissRecyclerViewTouchListener listener = new SwipeDismissRecyclerViewTouchListener.Builder(portfolio_recyclerview,  callBack())
+                .setIsVertical(false)
+                .setItemTouchCallback(new SwipeDismissRecyclerViewTouchListener.OnItemTouchCallBack() {
+                    @Override
+                    public void onTouch(int position) {
+
+                    }
+                })
+                .setItemClickCallback(new SwipeDismissRecyclerViewTouchListener.OnItemClickCallBack() {
+                    @Override
+                    public void onClick(int position) {
+                        String[] choices = new String[]{"Add Income", "Add Expenses", "Add Recivables",
+                                "Show Income", "Show Expenses", "Show Recivables"};
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setTitle("Choose");
+                        builder.setCancelable(true);
+                        builder.setItems(choices, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                Log.d(TAG, "onClick: Which: " + which);
+                            }
+                        });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }
+                }).create();
+        portfolio_recyclerview.setOnTouchListener(listener);
         return view;
     }
 
+    private SwipeDismissRecyclerViewTouchListener.DismissCallbacks callBack() {
+        SwipeDismissRecyclerViewTouchListener.DismissCallbacks callback = new SwipeDismissRecyclerViewTouchListener.DismissCallbacks() {
+            @Override
+            public boolean canDismiss(int position) {
+                pos = position;
+                return true;
+            }
 
+            @Override
+            public void onDismiss(View view) {
+
+            }
+        };
+        return callback;
+    }
     public void getProjects() {
 
         projectsObservable.getProjectCompleteObservable()
