@@ -3,6 +3,7 @@ package com.example.ratio.Fragments;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -27,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.ratio.Adapters.ProjectAdapter;
+import com.example.ratio.AddIncomeActivity;
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.Dialogs.BaseDialog;
@@ -99,6 +101,12 @@ public class FragmentPortfolio extends Fragment {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
                                 Log.d(TAG, "onClick: Which: " + which);
+                                switch (which) {
+                                    case 0:
+                                        startActivityForResult(new Intent(getContext(), AddIncomeActivity.class), 1);
+                                        break;
+
+                                }
                             }
                         });
                         AlertDialog dialog = builder.create();
