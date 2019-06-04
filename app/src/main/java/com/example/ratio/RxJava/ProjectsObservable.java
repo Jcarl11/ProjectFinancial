@@ -2,6 +2,7 @@ package com.example.ratio.RxJava;
 
 import android.util.Log;
 
+import com.androidbuts.multispinnerfilter.KeyPairBoolData;
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.CustomOperations;
 import com.example.ratio.DAO.DAOFactory;
@@ -42,7 +43,7 @@ public class ProjectsObservable {
                 .map(projects -> {
                     List<Projects> projectsList = new ArrayList<>();
                     for (Projects individuals : projects) {
-                        List<Status> statusList = statusBaseDAO.getBulk(individuals.getObjectId());
+                        List<Status> statusList = statusGetFromParent.getObjects(individuals.getObjectId());
                         individuals.setProjectStatus(statusList);
                         projectsList.add(individuals);
                     }
@@ -130,7 +131,7 @@ public class ProjectsObservable {
         return observable;
     }
 
-    public Observable<Projects> uploadProjectConnectable(Projects projects, Image projectThumbnail, List<String> projectStatus) {
+    public Observable<Projects> uploadProjectConnectable(Projects projects, Image projectThumbnail, List<KeyPairBoolData> projectStatus) {
 
         Observable<Projects> deferObs = Observable.defer(new Callable<ObservableSource<Projects>>() {
             @Override
@@ -150,8 +151,8 @@ public class ProjectsObservable {
                             @Override
                             public Projects apply(Projects projects) throws Exception {
                                 List<Status> projectStatuses = new ArrayList<>();
-                                for(String statuses : projectStatus){
-                                    projectStatuses.add(new Status(statuses, projects.getObjectId()));
+                                for(KeyPairBoolData statuses : projectStatus){
+                                    projectStatuses.add(new Status(statuses.getName(), projects.getObjectId()));
                                 }
                                 int result = statusBaseDAO.insertAll(projectStatuses);
                                 Log.d(TAG, "apply: Status uploaded: " + result);

@@ -12,12 +12,9 @@ import androidx.fragment.app.Fragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 import android.os.Bundle;
@@ -28,6 +25,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.androidbuts.multispinnerfilter.KeyPairBoolData;
+import com.androidbuts.multispinnerfilter.MultiSpinnerSearch;
+import com.androidbuts.multispinnerfilter.SpinnerListener;
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.features.ReturnMode;
 import com.example.ratio.DAO.BaseDAO;
@@ -55,13 +55,9 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.squareup.picasso.Picasso;
 
-import org.reactivestreams.Subscription;
-
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -79,8 +75,8 @@ public class FragmentAddNew extends Fragment {
     @BindView(R.id.addnew_spinner_subcategory) MaterialSpinner addnew_spinner_subcategory;
     @BindView(R.id.addnew_spinner_services) MaterialSpinner addnew_spinner_services;
     @BindView(R.id.addnew_button_create) Button addnew_button_create;
-    @BindView(R.id.addnew_button_projectstatus) Button addnew_button_projectstatus;
     @BindView(R.id.addnew_imageview_thumbnail) ImageView addnew_imageview_thumbnail;
+    @BindView(R.id.addnew_spinner_status) MultiSpinnerSearch addnew_spinner_status;
     private final ProjectType OTHERSCHOICE_TYPESOFPROJECT = new ProjectType("Others", true);
     private final Subcategory OTHERSCHOICE_SUBCATEGORY = new Subcategory("Others", true, null);
     private final Services OTHERSCHOICE_SERVICES = new Services("Others", true);
@@ -100,7 +96,6 @@ public class FragmentAddNew extends Fragment {
     private String selectedSubcategory = null;
     private String thumbnailPath = null;
     private String thumbnailName = null;
-    private CheckBoxDialog multipleChoiceDialog;
     private BaseDialog basicDialog = null;
     private ProjectsObservable projectsObservable = new ProjectsObservable();
     private StatusObservable statusObservable = new StatusObservable();
@@ -123,7 +118,6 @@ public class FragmentAddNew extends Fragment {
         statusBaseDAO = parseFactory.getStatusDAO();
         imageBaseDAO = parseFactory.getImageDAO();
         dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
-        multipleChoiceDialog = new CheckBoxDialog(getContext());
         statusBaseDAO = sqliteFactory.getStatusDAO();
         servicesBaseDAO = sqliteFactory.getServicesDAO();
         projectTypeDAO = sqliteFactory.getProjectTypeDAO();
@@ -145,6 +139,27 @@ public class FragmentAddNew extends Fragment {
                             Log.d(TAG, "onNext: statuses: " + statuses.size());
                             statusBaseDAO = sqliteFactory.getStatusDAO();
                             statusBaseDAO.insertAll(statuses);
+
+                            statusGetDistinct = (GetDistinct<Status>) sqliteFactory.getStatusDAO();
+                            List<Status> distinctStatus = statusGetDistinct.getDistinct();
+                            List<KeyPairBoolData> items = new ArrayList<>();
+                            for(int x = 0; x < distinctStatus.size(); x++){
+                                KeyPairBoolData keyPairBoolData = new KeyPairBoolData();
+                                keyPairBoolData.setName(statuses.get(x).getName());
+                                keyPairBoolData.setSelected(false);
+                                items.add(keyPairBoolData);
+                            }
+                            addnew_spinner_status.setItems(items, -1, new SpinnerListener() {
+                                @Override
+                                public void onItemsSelected(List<KeyPairBoolData> list) {
+                                    for (int i = 0; i < list.size(); i++) {
+                                        if (list.get(i).isSelected()) {
+                                            Log.i(TAG, i + " : " + list.get(i).getName() + " : " + list.get(i).isSelected());
+                                        }
+                                    }
+                                }
+                            });
+
                         }
 
                         @Override
@@ -159,6 +174,26 @@ public class FragmentAddNew extends Fragment {
                             Log.d(TAG, "onComplete: status fetch finished");
                         }
                     });
+        } else {
+            statusGetDistinct = (GetDistinct<Status>) sqliteFactory.getStatusDAO();
+            List<Status> distinctStatus = statusGetDistinct.getDistinct();
+            List<KeyPairBoolData> items = new ArrayList<>();
+            for(int x = 0; x < distinctStatus.size(); x++){
+                KeyPairBoolData keyPairBoolData = new KeyPairBoolData();
+                keyPairBoolData.setName(distinctStatus.get(x).getName());
+                keyPairBoolData.setSelected(false);
+                items.add(keyPairBoolData);
+            }
+            addnew_spinner_status.setItems(items, -1, new SpinnerListener() {
+                @Override
+                public void onItemsSelected(List<KeyPairBoolData> list) {
+                    for (int i = 0; i < list.size(); i++) {
+                        if (list.get(i).isSelected()) {
+                            Log.i(TAG, i + " : " + list.get(i).getName() + " : " + list.get(i).isSelected());
+                        }
+                    }
+                }
+            });
         }
 
         if(servicesBaseDAO.getBulk(null).size() <= 0) {
@@ -324,7 +359,7 @@ public class FragmentAddNew extends Fragment {
                 | !validateField(addnew_field_projectcode) 
                 | !validateField(addnew_field_projectowner) | !validateThumbnail(addnew_imageview_thumbnail)
             | !validateSpinner(selectedServices, addnew_spinner_services) | !validateSpinner(selectedType, addnew_spinner_typeofproject)
-            | !validateSpinner(selectedSubcategory, addnew_spinner_subcategory)) {
+            | !validateSpinner(selectedSubcategory, addnew_spinner_subcategory) | !validateMultiSpinner(addnew_spinner_status)) {
             return;
         }
         if(selectedServices.equalsIgnoreCase("Others")) {
@@ -359,7 +394,7 @@ public class FragmentAddNew extends Fragment {
         thumbnail.setFilePath(thumbnailPath);
         thumbnail.setFileName(thumbnailName);
         thumbnail.setDeleted(false);
-        projectsObservable.uploadProjectConnectable(projects, thumbnail, multipleChoiceDialog.getSelectedValues())
+        projectsObservable.uploadProjectConnectable(projects, thumbnail, addnew_spinner_status.getSelectedItems())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Projects>() {
@@ -392,20 +427,6 @@ public class FragmentAddNew extends Fragment {
                 });
     }
 
-    @OnClick(R.id.addnew_button_projectstatus)
-    void projectStatusClicked(View view){
-        statusGetDistinct = (GetDistinct<Status>) sqliteFactory.getStatusDAO();
-        List<Status> statuses = statusGetDistinct.getDistinct();
-        String[] arrayString = new String[statuses.size()];
-        for(int x = 0; x < statuses.size(); x++){
-            arrayString[x] = statuses.get(x).getName();
-        }
-        multipleChoiceDialog.setCancellable(true);
-        multipleChoiceDialog.setSourceList(arrayString);
-        multipleChoiceDialog.setPositiveText("Confirm");
-        multipleChoiceDialog.setTitle("Status");
-        multipleChoiceDialog.showDialog();
-    }
     private MaterialSpinner.OnItemSelectedListener servicesListener() {
         MaterialSpinner.OnItemSelectedListener listener = (view, position, id, item) -> {
             Services selected = (Services) item;
@@ -479,6 +500,18 @@ public class FragmentAddNew extends Fragment {
             return false;
         } else {
             spinner.setBackground(null);
+            return true;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    private boolean validateMultiSpinner(MultiSpinnerSearch multiSpinnerSearch) {
+        List<KeyPairBoolData> items = multiSpinnerSearch.getSelectedItems();
+        if(items.size() <= 0) {
+            multiSpinnerSearch.setBackground(getResources().getDrawable(R.drawable.bg_error));
+            return false;
+        } else {
+            multiSpinnerSearch.setBackground(null);
             return true;
         }
     }
