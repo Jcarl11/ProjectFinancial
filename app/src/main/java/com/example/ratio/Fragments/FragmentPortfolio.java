@@ -24,6 +24,7 @@ import com.example.ratio.HelperClasses.Utility;
 import com.example.ratio.R;
 import com.example.ratio.RxJava.ProjectsObservable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -55,6 +56,8 @@ public class FragmentPortfolio extends Fragment {
     private BaseDialog basicDialog = null;
     private ProjectsObservable projectsObservable = new ProjectsObservable();
     private int pos = -1;
+    private List<Projects> projectsList = new ArrayList<>();
+    public static String PARENTID = "PARENTID";
     public FragmentPortfolio() {}
 
     @Nullable
@@ -97,9 +100,10 @@ public class FragmentPortfolio extends Fragment {
                                 Log.d(TAG, "onClick: Which: " + which);
                                 switch (which) {
                                     case 0:
-                                        startActivityForResult(new Intent(getContext(), AddIncomeActivity.class), 1);
+                                        Intent intent = new Intent(getContext(), AddIncomeActivity.class);
+                                        intent.putExtra(PARENTID, projectsList.get(pos).getObjectId());
+                                        startActivityForResult(intent, 1);
                                         break;
-
                                 }
                             }
                         });
@@ -141,6 +145,7 @@ public class FragmentPortfolio extends Fragment {
                     @Override
                     public void onNext(List<Projects> projects) {
                         Log.d(TAG, "onNext: Size: "  + projects.size());
+                        projectsList = projects;
                         ProjectAdapter adapter = new ProjectAdapter(getContext(), projects);
                         portfolio_recyclerview.setAdapter(adapter);
                     }

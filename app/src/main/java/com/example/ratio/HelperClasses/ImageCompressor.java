@@ -1,15 +1,19 @@
 package com.example.ratio.HelperClasses;
 
+import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
+
+import com.example.ratio.ContextApplication;
+
 import java.io.File;
 import java.io.IOException;
 import id.zelory.compressor.Compressor;
 
 public class ImageCompressor {
     private static final String TAG = "ImageCompressor";
-    private Context context;
+    private Context context = ContextApplication.getContext();
     private static ImageCompressor instance = null;
     private ImageCompressor(){}
     public static ImageCompressor getInstance(){
@@ -27,8 +31,8 @@ public class ImageCompressor {
             compressedImage = new Compressor(context).compressToFile(original);
             Log.d(TAG, "compressToFile: Compressed size: " + String.valueOf(compressedImage.length() / 1024) + "kb");
         } catch (IOException e) {
-            e.printStackTrace();
             Log.d(TAG, "compressToFile: Exception thrown: " + e.getMessage());
+            e.printStackTrace();
         }
         return compressedImage;
     }

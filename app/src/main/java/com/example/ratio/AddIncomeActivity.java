@@ -5,7 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,12 +19,31 @@ import android.view.View;
 import android.widget.Button;
 
 import com.dpizarro.autolabel.library.AutoLabelUI;
+import com.dpizarro.autolabel.library.Label;
+import com.example.ratio.DAO.BaseDAO;
+import com.example.ratio.DAO.DAOFactory;
+import com.example.ratio.Entities.Image;
+import com.example.ratio.Entities.Income;
+import com.example.ratio.Enums.DATABASES;
+import com.example.ratio.Fragments.FragmentPortfolio;
+import com.example.ratio.HelperClasses.FileValidator;
+import com.example.ratio.HelperClasses.Utility;
+import com.example.ratio.RxJava.IncomeObservable;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jaiselrahman.filepicker.activity.FilePickerActivity;
 import com.jaiselrahman.filepicker.config.Configurations;
 import com.jaiselrahman.filepicker.model.MediaFile;
 
+import org.apache.commons.io.FilenameUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class AddIncomeActivity extends AppCompatActivity {
 
@@ -29,13 +54,22 @@ public class AddIncomeActivity extends AppCompatActivity {
     @BindView(R.id.addincome_button_attachfile) Button addincome_button_attachfile;
     @BindView(R.id.addincome_files_attachments) AutoLabelUI addincome_files_attachments;
     @BindView(R.id.addincome_button_add) Button addincome_button_add;
-
+    private FileValidator fileValidator = new FileValidator();
+    private String PARENT_ID = null;
+    private IncomeObservable incomeObservable = new IncomeObservable();
+    private AlertDialog dialog = null;
+    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+    private DAOFactory daoFactory = DAOFactory.getDatabase(DATABASES.PARSE);
+    private BaseDAO<Image> imageBaseDAO = daoFactory.getImageDAO();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_income);
         ButterKnife.bind(this);
         getSupportActionBar().setTitle("Add income");
+        Intent intent = getIntent();
+        PARENT_ID = intent.getStringExtra(FragmentPortfolio.PARENTID);
+        dialog = Utility.getInstance().showLoading(this, "Please wait", false);
     }
 
     @OnClick(R.id.addincome_button_attachimage)
@@ -98,5 +132,78 @@ public class AddIncomeActivity extends AppCompatActivity {
                 }
             break;
         }
+    }
+
+    @OnClick(R.id.addincome_button_add)
+    public void addClicked(View view) {
+        Log.d(TAG, "addClicked: Add clicked");
+        List<Image> imagesList = new ArrayList<>();
+        List<String> filesList = new ArrayList<>();
+        boolean hasAttachments = false;
+        if(addincome_files_attachments.getLabels().size() > 0) {
+            List<Label> files = addincome_files_attachments.getLabels();
+            for (Label label : files) {
+                if(fileValidator.isImage(label.getText())) {
+                    Image img = new Image();
+                    img.setFileName(FilenameUtils.getName(label.getText()));
+                    img.setDeleted(false);
+                    img.setFilePath(label.getText());
+                    imagesList.add(img);
+                } else if (fileValidator.isFile(label.getText())) {
+                    filesList.add(label.getText());
+                }
+            }
+            Log.d(TAG, "addClicked: Images size: " + imagesList.size());
+            Log.d(TAG, "addClicked: Files size: " + filesList.size());
+            hasAttachments = true;
+        }
+        Income income = new Income();
+        income.setParent(PARENT_ID);
+        income.setDescription(addincome_field_description.getEditText().getText().toString().trim().toUpperCase());
+        income.setAmount(addincome_field_amount.getEditText().getText().toString().trim());
+        income.setAttachments(hasAttachments);
+        Date date = new Date();
+        Log.d(TAG, "addClicked: Date now: " + dateFormat.format(date));
+        income.setTimestamp(dateFormat.format(date));
+        incomeObservable.insertIncome(income)
+            .map(new Function<Income, Income>() {
+                @Override
+                public Income apply(Income income) throws Exception {
+                    List<Image> processed = new ArrayList<>();
+                    for(Image image : imagesList) {
+                        image.setParent(income.getObjectId());
+                        processed.add(image);
+                    }
+                    int result = imageBaseDAO.insertAll(processed);
+                    Log.d(TAG, "apply: Result: " + result);
+                    return income;
+                }
+            })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Income>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.d(TAG, "onSubscribe: Subscribed");
+                        dialog.show();
+                    }
+
+                    @Override
+                    public void onNext(Income income) {
+                        Log.d(TAG, "onNext: Income: " + income.getObjectId());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError: Exception thrown: " + e.getMessage());
+                        dialog.dismiss();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d(TAG, "onComplete: Completed");
+                        dialog.dismiss();
+                    }
+                });
     }
 }
