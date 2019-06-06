@@ -58,8 +58,4 @@ public class ImageCompressor {
     public Bitmap compressToBitmap(String imagePath) {
         return compressToBitmap(new File(imagePath));
     }
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
 }

@@ -396,7 +396,6 @@ public class FragmentAddNew extends Fragment {
         projects.setProjectSubCategory(subcategory);
         projects.setDeleted(false);
         projects.setTags(tagMaker.toArray(tagMaker.createTags(projects.toString())));
-        ImageCompressor.getInstance().setContext(getContext());
         Image thumbnail = new Image();
         thumbnail.setFilePath(thumbnailPath);
         thumbnail.setFileName(thumbnailName);

@@ -11,7 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.ratio.Adapters.ProjectAdapter;
+import com.example.ratio.AddExpensesActivity;
 import com.example.ratio.AddIncomeActivity;
+import com.example.ratio.AddRecievablesActivity;
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.Dialogs.BaseDialog;
@@ -100,9 +102,19 @@ public class FragmentPortfolio extends Fragment {
                                 Log.d(TAG, "onClick: Which: " + which);
                                 switch (which) {
                                     case 0:
-                                        Intent intent = new Intent(getContext(), AddIncomeActivity.class);
-                                        intent.putExtra(PARENTID, projectsList.get(pos).getObjectId());
-                                        startActivityForResult(intent, 1);
+                                        Intent addincome = new Intent(getContext(), AddIncomeActivity.class);
+                                        addincome.putExtra(PARENTID, projectsList.get(pos).getObjectId());
+                                        startActivityForResult(addincome, 1);
+                                        break;
+                                    case 1:
+                                        Intent addexpenses = new Intent(getContext(), AddExpensesActivity.class);
+                                        addexpenses.putExtra(PARENTID, projectsList.get(pos).getObjectId());
+                                        startActivityForResult(addexpenses, 2);
+                                        break;
+                                    case 2:
+                                        Intent addreceivables = new Intent(getContext(), AddRecievablesActivity.class);
+                                        addreceivables.putExtra(PARENTID, projectsList.get(pos).getObjectId());
+                                        startActivityForResult(addreceivables, 3);
                                         break;
                                 }
                             }
