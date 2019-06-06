@@ -1,9 +1,17 @@
 package com.example.ratio;
 
 
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Toast;
+
 import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.DAO.NukeOperations;
-import com.example.ratio.DAO.Sqlite.DBHelper;
 import com.example.ratio.DAO.UserOperations;
 import com.example.ratio.Dialogs.BaseDialog;
 import com.example.ratio.Dialogs.BasicDialog;
@@ -21,10 +29,13 @@ import com.google.android.material.tabs.TabLayout;
 import com.parse.Parse;
 import com.parse.ParseUser;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -36,20 +47,6 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-
-import android.app.AlertDialog;
-import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";

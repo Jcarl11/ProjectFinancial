@@ -6,18 +6,16 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
-
-import androidx.appcompat.app.ActionBar;
-
 import android.preference.PreferenceFragment;
 import android.view.MenuItem;
 
 import com.example.ratio.PreferenceFragments.GeneralFragment;
 import com.example.ratio.PreferenceFragments.NotificationsFragment;
 
-import androidx.core.app.NavUtils;
-
 import java.util.List;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.core.app.NavUtils;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -57,7 +55,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     }
 
     /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
+     * Set up the {@link ActionBar}, if the API is available.
      */
     private void setupActionBar() {
         ActionBar actionBar = getSupportActionBar();

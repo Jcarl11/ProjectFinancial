@@ -1,13 +1,9 @@
 package com.example.ratio.Dialogs;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.util.Log;
-import android.widget.ArrayAdapter;
 
 import com.dpizarro.autolabel.library.AutoLabelUI;
-import com.example.ratio.Entities.Status;
 
 import java.util.ArrayList;
 

@@ -13,14 +13,12 @@ import android.view.View;
 import android.widget.Button;
 
 import com.dpizarro.autolabel.library.AutoLabelUI;
-import com.esafirm.imagepicker.features.ImagePicker;
-import com.esafirm.imagepicker.features.ReturnMode;
-import com.esafirm.imagepicker.model.Image;
 import com.google.android.material.textfield.TextInputLayout;
-import com.squareup.picasso.Picasso;
+import com.jaiselrahman.filepicker.activity.FilePickerActivity;
+import com.jaiselrahman.filepicker.config.Configurations;
+import com.jaiselrahman.filepicker.model.MediaFile;
 
-import java.io.File;
-import java.util.List;
+import java.util.ArrayList;
 
 public class AddIncomeActivity extends AppCompatActivity {
 
@@ -42,26 +40,63 @@ public class AddIncomeActivity extends AppCompatActivity {
 
     @OnClick(R.id.addincome_button_attachimage)
     public void attachImagesClicked(View view) {
-        ImagePicker.create(this)
-                .returnMode(ReturnMode.NONE)
-                .toolbarImageTitle("Tap to select")
-                .toolbarArrowColor(getResources().getColor(R.color.colorPrimary))
-                .includeVideo(false)
-                .multi()
-                .limit(9)
-                .start();
+        Intent intent = new Intent(this, FilePickerActivity.class);
+        intent.putExtra(FilePickerActivity.CONFIGS, new Configurations.Builder()
+                .setCheckPermission(true)
+                .setShowImages(true)
+                .setShowAudios(false)
+                .setShowFiles(false)
+                .setShowVideos(false)
+                .enableImageCapture(true)
+                .setMaxSelection(9)
+                .build());
+        startActivityForResult(intent, 1);
+    }
+
+    @OnClick(R.id.addincome_button_attachfile)
+    public void attachFileClicked(View view) {
+        Intent intent = new Intent(this, FilePickerActivity.class);
+        intent.putExtra(FilePickerActivity.CONFIGS, new Configurations.Builder()
+                .setCheckPermission(true)
+                .setShowImages(false)
+                .setShowAudios(false)
+                .setShowFiles(true)
+                .setShowVideos(false)
+                .enableImageCapture(false)
+                .setSuffixes("pdf")
+                .setMaxSelection(9)
+                .build());
+        startActivityForResult(intent, 2);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         Log.d(TAG, "onActivityResult: Here");
-        if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
-            Log.d(TAG, "onActivityResult: Goes in");
-            List<Image> images = ImagePicker.getImages(data);
-            Log.d(TAG, "onActivityResult: Images size: " + images.size());
-            for (Image object : images) {
-                addincome_files_attachments.addLabel(object.getPath());
-            }
+        if(resultCode != RESULT_OK && data == null) {
+            Log.d(TAG, "onActivityResult: Back pressed");
+            return;
+        }
+        if(resultCode != RESULT_OK && data != null) {
+            Log.d(TAG, "onActivityResult: Error");
+            return;
+        }
+        switch (requestCode) {
+            case 1:
+                    Log.d(TAG, "onActivityResult: Result ok");
+                    ArrayList<MediaFile> mediaFiles_img = data.getParcelableArrayListExtra(FilePickerActivity.MEDIA_FILES);
+                    Log.d(TAG, "onActivityResult: Media files size: " + mediaFiles_img.size());
+                    for (MediaFile file : mediaFiles_img) {
+                        addincome_files_attachments.addLabel(file.getPath());
+                    }
+            break;
+            case 2:
+                Log.d(TAG, "onActivityResult: Result ok");
+                ArrayList<MediaFile> mediaFiles_file = data.getParcelableArrayListExtra(FilePickerActivity.MEDIA_FILES);
+                Log.d(TAG, "onActivityResult: Media files size: " + mediaFiles_file.size());
+                for (MediaFile file : mediaFiles_file) {
+                    addincome_files_attachments.addLabel(file.getPath());
+                }
+            break;
         }
     }
 }

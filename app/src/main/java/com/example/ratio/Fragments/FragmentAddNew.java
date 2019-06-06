@@ -4,6 +4,49 @@ package com.example.ratio.Fragments;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+
+import com.androidbuts.multispinnerfilter.KeyPairBoolData;
+import com.androidbuts.multispinnerfilter.MultiSpinnerSearch;
+import com.androidbuts.multispinnerfilter.SpinnerListener;
+import com.example.ratio.DAO.BaseDAO;
+import com.example.ratio.DAO.DAOFactory;
+import com.example.ratio.DAO.GetDistinct;
+import com.example.ratio.Dialogs.BaseDialog;
+import com.example.ratio.Entities.Image;
+import com.example.ratio.Entities.ProjectType;
+import com.example.ratio.Entities.Projects;
+import com.example.ratio.Entities.Services;
+import com.example.ratio.Entities.Status;
+import com.example.ratio.Entities.Subcategory;
+import com.example.ratio.Enums.DATABASES;
+import com.example.ratio.HelperClasses.ImageCompressor;
+import com.example.ratio.HelperClasses.TagMaker;
+import com.example.ratio.HelperClasses.Utility;
+import com.example.ratio.R;
+import com.example.ratio.RxJava.ProjectTypeObservable;
+import com.example.ratio.RxJava.ProjectsObservable;
+import com.example.ratio.RxJava.ServicesObservable;
+import com.example.ratio.RxJava.StatusObservable;
+import com.example.ratio.RxJava.SubcategoryObservable;
+import com.google.android.material.textfield.TextInputLayout;
+import com.jaiselrahman.filepicker.activity.FilePickerActivity;
+import com.jaiselrahman.filepicker.config.Configurations;
+import com.jaiselrahman.filepicker.model.MediaFile;
+import com.jaredrummler.materialspinner.MaterialSpinner;
+import com.squareup.picasso.Picasso;
+
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,47 +60,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-
-import com.androidbuts.multispinnerfilter.KeyPairBoolData;
-import com.androidbuts.multispinnerfilter.MultiSpinnerSearch;
-import com.androidbuts.multispinnerfilter.SpinnerListener;
-import com.esafirm.imagepicker.features.ImagePicker;
-import com.esafirm.imagepicker.features.ReturnMode;
-import com.example.ratio.DAO.BaseDAO;
-import com.example.ratio.DAO.DAOFactory;
-import com.example.ratio.DAO.GetDistinct;
-import com.example.ratio.Dialogs.BaseDialog;
-import com.example.ratio.Dialogs.CheckBoxDialog;
-import com.example.ratio.Entities.Image;
-import com.example.ratio.Entities.ProjectType;
-import com.example.ratio.Entities.Projects;
-import com.example.ratio.Entities.Status;
-import com.example.ratio.Entities.Subcategory;
-import com.example.ratio.Entities.Services;
-import com.example.ratio.Enums.DATABASES;
-import com.example.ratio.R;
-import com.example.ratio.HelperClasses.ImageCompressor;
-import com.example.ratio.HelperClasses.TagMaker;
-import com.example.ratio.HelperClasses.Utility;
-import com.example.ratio.RxJava.ProjectTypeObservable;
-import com.example.ratio.RxJava.ProjectsObservable;
-import com.example.ratio.RxJava.ServicesObservable;
-import com.example.ratio.RxJava.StatusObservable;
-import com.example.ratio.RxJava.SubcategoryObservable;
-import com.google.android.material.textfield.TextInputLayout;
-import com.jaredrummler.materialspinner.MaterialSpinner;
-import com.squareup.picasso.Picasso;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -326,26 +328,31 @@ public class FragmentAddNew extends Fragment {
 
     @OnClick(R.id.addnew_imageview_thumbnail)
     void imageChoose(View view) {
-        ImagePicker.create(this)
-                .returnMode(ReturnMode.ALL)
-                .toolbarImageTitle("Tap to select")
-                .toolbarArrowColor(getResources().getColor(R.color.colorPrimary))
-                .includeVideo(false)
-                .single()
-                .limit(1)
-                .start();
+        Log.d(TAG, "imageChoose: thumbnail clicked");
+        Intent intent = new Intent(getContext(), FilePickerActivity.class);
+        intent.putExtra(FilePickerActivity.CONFIGS, new Configurations.Builder()
+                        .setCheckPermission(true)
+                        .setShowImages(true)
+                        .setShowAudios(false)
+                        .setShowFiles(false)
+                        .setShowVideos(false)
+                        .enableImageCapture(true)
+                        .setMaxSelection(1)
+                        .build());
+        startActivityForResult(intent, 1);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "onActivityResult: Here");
-        if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
-            Log.d(TAG, "onActivityResult: Goes in");
-            com.esafirm.imagepicker.model.Image image = ImagePicker.getFirstImageOrNull(data);
-            thumbnailName = image.getName();
-            Log.d(TAG, "onActivityResult: getPath(): " + image.getPath());
-            Log.d(TAG, "onActivityResult: Image name: " + image.getName());
-            thumbnailPath = image.getPath();
+        if (resultCode == getActivity().RESULT_OK) {
+            Log.d(TAG, "onActivityResult: Result ok");
+            ArrayList<MediaFile> mediaFiles = data.getParcelableArrayListExtra(FilePickerActivity.MEDIA_FILES);
+            MediaFile chosen_image = mediaFiles.size() <= 0 ? null : mediaFiles.get(0);
+            Log.d(TAG, "onActivityResult: Image Path: " + chosen_image.getPath()); // has Extension
+            Log.d(TAG, "onActivityResult: Image Name: " + chosen_image.getName());
+            thumbnailName = chosen_image.getName(); //No extension
+            thumbnailPath = chosen_image.getPath();
             addnew_imageview_thumbnail.setImageDrawable(null);
             Picasso.get().load(new File(thumbnailPath)).into(addnew_imageview_thumbnail);
         }

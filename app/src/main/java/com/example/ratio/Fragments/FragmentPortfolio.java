@@ -5,23 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import io.github.codefalling.recyclerviewswipedismiss.SwipeDismissRecyclerViewTouchListener;
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,13 +20,24 @@ import com.example.ratio.Entities.Image;
 import com.example.ratio.Entities.Projects;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Enums.DATABASES;
-import com.example.ratio.R;
 import com.example.ratio.HelperClasses.Utility;
+import com.example.ratio.R;
 import com.example.ratio.RxJava.ProjectsObservable;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import io.github.codefalling.recyclerviewswipedismiss.SwipeDismissRecyclerViewTouchListener;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**

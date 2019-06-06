@@ -1,10 +1,9 @@
 package com.example.ratio.Dialogs;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 
-import java.util.List;
+import androidx.appcompat.app.AlertDialog;
 
 public abstract class BaseDialog {
     protected String title = "Title";

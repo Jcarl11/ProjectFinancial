@@ -38,6 +38,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            app:boxStrokeColor="@android:color/black"
+            app:hintTextColor="@android:color/black"
             android:textColorHint="#a9acb2"
             android:layout_margin="5dp">
 
@@ -56,6 +58,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            app:boxStrokeColor="@android:color/black"
+            app:hintTextColor="@android:color/black"
             android:textColorHint="#a9acb2"
             android:layout_margin="5dp">
 
@@ -74,6 +78,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            app:boxStrokeColor="@android:color/black"
+            app:hintTextColor="@android:color/black"
             android:textColorHint="#a9acb2"
             android:layout_margin="5dp">
 
@@ -135,7 +141,6 @@
             android:id="@+id/addnew_field_specificservice"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:visibility="gone"
             android:textColorHint="#a9acb2"
             android:layout_margin="10dp">
@@ -164,7 +169,6 @@
             android:id="@+id/addnew_field_specifictype"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:visibility="gone"
             android:textColorHint="#a9acb2"
             android:layout_margin="10dp">
@@ -196,7 +200,6 @@
             android:id="@+id/addnew_field_specificsubcategory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:visibility="gone"
             android:textColorHint="#a9acb2"
             android:layout_margin="10dp">

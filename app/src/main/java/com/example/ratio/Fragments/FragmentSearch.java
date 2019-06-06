@@ -4,20 +4,6 @@ package com.example.ratio.Fragments;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -31,16 +17,26 @@ import com.example.ratio.Adapters.ProjectAdapter;
 import com.example.ratio.AdvancedSearch;
 import com.example.ratio.Dialogs.BaseDialog;
 import com.example.ratio.Dialogs.BasicDialog;
-import com.example.ratio.Entities.Expenses;
-import com.example.ratio.Entities.Income;
-import com.example.ratio.Entities.ProjectType;
 import com.example.ratio.Entities.Projects;
 import com.example.ratio.HelperClasses.Utility;
 import com.example.ratio.R;
 import com.example.ratio.RxJava.ProjectsObservable;
 import com.google.android.material.textfield.TextInputLayout;
-import java.util.ArrayList;
+
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**

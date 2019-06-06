@@ -1,13 +1,4 @@
 package com.example.ratio;
-import androidx.appcompat.app.AppCompatActivity;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -26,7 +17,18 @@ import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.HelperClasses.Utility;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
+
 import org.jetbrains.annotations.Nullable;
+
+import androidx.appcompat.app.AppCompatActivity;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";

@@ -1,18 +1,5 @@
 package com.example.ratio;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import io.reactivex.ObservableSource;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
-
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Build;
@@ -21,7 +8,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
@@ -33,14 +19,23 @@ import com.example.ratio.HelperClasses.TagMaker;
 import com.example.ratio.HelperClasses.Utility;
 import com.example.ratio.RxJava.ProjectsObservable;
 import com.example.ratio.RxJava.StatusObservable;
-import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 public class AdvancedSearch extends AppCompatActivity {
     private static final String TAG = "AdvancedSearch";
