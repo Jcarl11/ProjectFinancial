@@ -9,10 +9,11 @@ import java.io.IOException;
 
 public class ParseFileOperation {
     private static final String TAG = "ParseFileOperation";
-    FileValidator fileValidator = new FileValidator();
+    private FileValidator fileValidator = new FileValidator();
 
     public ParseFile fromByte(String filename, byte[] source) {
-        return fileValidator.isImage(filename) == true ? new ParseFile(filename, source) : null;
+        return fileValidator.isImage(filename) || fileValidator.isFile(filename)
+                ? new ParseFile(filename, source) : null;
     }
 
     public ParseFile fromFile(File source) {

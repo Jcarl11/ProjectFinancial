@@ -26,6 +26,9 @@ public class ParseFactory extends DAOFactory {
     }
 
     @Override
+    public BaseDAO getFileDAO() { return new FileDAO(); }
+
+    @Override
     public BaseDAO getRecievablesDAO() {
         return new RecievablesDAO();
     }

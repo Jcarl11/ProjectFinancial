@@ -2,6 +2,7 @@ package com.example.ratio.DAO.Sqlite;
 
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
+import com.example.ratio.DAO.Parse.FileDAO;
 
 public class SqliteFactory extends DAOFactory {
     @Override
@@ -23,6 +24,9 @@ public class SqliteFactory extends DAOFactory {
     public BaseDAO getImageDAO() {
         return new ImageDAO();
     }
+
+    @Override
+    public BaseDAO getFileDAO() { return new FileDAO(); }
 
     @Override
     public BaseDAO getRecievablesDAO() {

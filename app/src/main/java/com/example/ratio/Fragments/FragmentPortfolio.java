@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.ratio.Adapters.ProjectAdapter;
 import com.example.ratio.AddExpensesActivity;
@@ -178,5 +179,29 @@ public class FragmentPortfolio extends Fragment {
                         Log.d(TAG, "onComplete: Completed...");
                     }
                 });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        Log.d(TAG, "onActivityResult: Done.");
+        if(resultCode != getActivity().RESULT_OK && data == null) {
+            Log.d(TAG, "onActivityResult: Back pressed");
+            return;
+        }
+        if(resultCode != getActivity().RESULT_OK && data != null) {
+            Log.d(TAG, "onActivityResult: Error");
+            Toast.makeText(getContext(), "Operation failed, Please try again", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (requestCode == 1) {
+            Toast.makeText(getContext(), "Record added", Toast.LENGTH_LONG).show();
+        }
+        if (requestCode == 2) {
+            Toast.makeText(getContext(), "Record added", Toast.LENGTH_LONG).show();
+        }
+        if (requestCode == 3) {
+            Toast.makeText(getContext(), "Record added", Toast.LENGTH_LONG).show();
+        }
     }
 }

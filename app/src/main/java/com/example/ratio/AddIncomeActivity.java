@@ -24,6 +24,7 @@ import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.Entities.Image;
 import com.example.ratio.Entities.Income;
+import com.example.ratio.Entities.Pdf;
 import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Fragments.FragmentPortfolio;
 import com.example.ratio.HelperClasses.FileValidator;
@@ -38,6 +39,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -61,6 +63,8 @@ public class AddIncomeActivity extends AppCompatActivity {
     private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
     private DAOFactory daoFactory = DAOFactory.getDatabase(DATABASES.PARSE);
     private BaseDAO<Image> imageBaseDAO = daoFactory.getImageDAO();
+    private BaseDAO<Pdf> pdfBaseDAO = daoFactory.getFileDAO();
+    private Intent intent = new Intent();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,7 +109,7 @@ public class AddIncomeActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        Log.d(TAG, "onActivityResult: Here");
+        Log.d(TAG, "onActivityResult: Done");
         if(resultCode != RESULT_OK && data == null) {
             Log.d(TAG, "onActivityResult: Back pressed");
             return;
@@ -138,7 +142,7 @@ public class AddIncomeActivity extends AppCompatActivity {
     public void addClicked(View view) {
         Log.d(TAG, "addClicked: Add clicked");
         List<Image> imagesList = new ArrayList<>();
-        List<String> filesList = new ArrayList<>();
+        List<Pdf> filesList = new ArrayList<>();
         boolean hasAttachments = false;
         if(addincome_files_attachments.getLabels().size() > 0) {
             List<Label> files = addincome_files_attachments.getLabels();
@@ -150,7 +154,11 @@ public class AddIncomeActivity extends AppCompatActivity {
                     img.setFilePath(label.getText());
                     imagesList.add(img);
                 } else if (fileValidator.isFile(label.getText())) {
-                    filesList.add(label.getText());
+                    Pdf pdf = new Pdf();
+                    pdf.setFileName(FilenameUtils.getName(label.getText()));
+                    pdf.setDeleted(false);
+                    pdf.setFilePath(label.getText());
+                    filesList.add(pdf);
                 }
             }
             Log.d(TAG, "addClicked: Images size: " + imagesList.size());
@@ -179,6 +187,19 @@ public class AddIncomeActivity extends AppCompatActivity {
                     return income;
                 }
             })
+            .map(new Function<Income, Income>() {
+                @Override
+                public Income apply(Income income) throws Exception {
+                    List<Pdf> pdfList = new ArrayList<>();
+                    for (Pdf pdf : filesList) {
+                        pdf.setParent(income.getObjectId());
+                        pdfList.add(pdf);
+                    }
+                    int result = pdfBaseDAO.insertAll(pdfList);
+                    Log.d(TAG, "apply: Result: " + result);
+                    return income;
+                }
+            })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Income>() {
@@ -191,18 +212,24 @@ public class AddIncomeActivity extends AppCompatActivity {
                     @Override
                     public void onNext(Income income) {
                         Log.d(TAG, "onNext: Income: " + income.getObjectId());
+                        intent.putExtra("RESULT", income);
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.d(TAG, "onError: Exception thrown: " + e.getMessage());
                         dialog.dismiss();
+                        intent.putExtra("RESULT", "ERROR");
+                        setResult(RESULT_CANCELED,intent);
+                        finish();
                     }
 
                     @Override
                     public void onComplete() {
                         Log.d(TAG, "onComplete: Completed");
                         dialog.dismiss();
+                        setResult(RESULT_OK, intent);
+                        finish();
                     }
                 });
     }

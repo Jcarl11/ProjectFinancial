@@ -9,6 +9,7 @@ public abstract class DAOFactory {
     public abstract BaseDAO getProjectDAO();
     public abstract BaseDAO getServicesDAO();
     public abstract BaseDAO getImageDAO();
+    public abstract BaseDAO getFileDAO();
     public abstract BaseDAO getRecievablesDAO();
     public abstract BaseDAO getIncomeDAO();
     public abstract BaseDAO getExpensesDAO();
