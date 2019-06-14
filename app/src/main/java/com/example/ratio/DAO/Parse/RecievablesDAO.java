@@ -32,7 +32,7 @@ public class RecievablesDAO implements BaseDAO<Recievables> {
         parseObject.put(RECIEVABLES.ATTACHMENTS.toString(), objectEntity.isAttachments());
         parseObject.put(RECIEVABLES.DESCRIPTION.toString(), objectEntity.getDescription());
         parseObject.put(RECIEVABLES.PARENT.toString(), objectEntity.getParent());
-        parseObject.put(RECIEVABLES.TIMESTAMP.toString(), objectEntity.getTimestamp());
+        parseObject.put(RECIEVABLES.TIMESTAMP.toString(), dateTransform.toISO8601Date(objectEntity.getTimestamp()));
         try {
             Log.d(TAG, "insert: Saving...");
             parseObject.save();

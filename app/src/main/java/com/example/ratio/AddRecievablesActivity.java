@@ -5,6 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -14,14 +19,28 @@ import android.view.View;
 import android.widget.Button;
 
 import com.dpizarro.autolabel.library.AutoLabelUI;
+import com.dpizarro.autolabel.library.Label;
+import com.example.ratio.DAO.BaseDAO;
+import com.example.ratio.DAO.DAOFactory;
+import com.example.ratio.Entities.Image;
+import com.example.ratio.Entities.Pdf;
+import com.example.ratio.Entities.Recievables;
+import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Fragments.FragmentPortfolio;
+import com.example.ratio.HelperClasses.DateTransform;
+import com.example.ratio.HelperClasses.FileValidator;
 import com.example.ratio.HelperClasses.Utility;
+import com.example.ratio.RxJava.RecievablesObservable;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jaiselrahman.filepicker.activity.FilePickerActivity;
 import com.jaiselrahman.filepicker.config.Configurations;
 import com.jaiselrahman.filepicker.model.MediaFile;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class AddRecievablesActivity extends AppCompatActivity {
     private static final String TAG = "AddRecievablesActivity";
@@ -32,6 +51,14 @@ public class AddRecievablesActivity extends AppCompatActivity {
     @BindView(R.id.addrecievables_files_attachments) AutoLabelUI addrecievables_files_attachments;
     @BindView(R.id.addrecievables_button_add) Button addrecievables_button_add;
     private AlertDialog dialog = null;
+    private FileValidator fileValidator = new FileValidator();
+    private String PARENT_ID = null;
+    private DateTransform dateTransform = new DateTransform();
+    private RecievablesObservable recievablesObservable = new RecievablesObservable();
+    private DAOFactory daoFactory = DAOFactory.getDatabase(DATABASES.PARSE);
+    private BaseDAO<Image> imageBaseDAO = daoFactory.getImageDAO();
+    private BaseDAO<Pdf> pdfBaseDAO = daoFactory.getFileDAO();
+    private Intent intent = new Intent();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +67,7 @@ public class AddRecievablesActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         getSupportActionBar().setTitle("Add Receivables");
         dialog = Utility.getInstance().showLoading(this, "Please wait", false);
+        PARENT_ID = getIntent().getStringExtra(FragmentPortfolio.PARENTID);
     }
 
     @OnClick(R.id.addrecievables_button_attachimage)
@@ -102,5 +130,101 @@ public class AddRecievablesActivity extends AppCompatActivity {
                 }
                 break;
         }
+    }
+
+    @OnClick(R.id.addrecievables_button_add)
+    public void addClicked(View view) {
+        Log.d(TAG, "addClicked: Add clicked");
+        List<Image> imagesList = new ArrayList<>();
+        List<Pdf> filesList = new ArrayList<>();
+        boolean hasAttachments = false;
+        if(addrecievables_files_attachments.getLabels().size() > 0) {
+            List<Label> files = addrecievables_files_attachments.getLabels();
+            for (Label label : files) {
+                if(fileValidator.isImage(label.getText())) {
+                    Image img = new Image();
+                    img.setFileName(FilenameUtils.getName(label.getText()));
+                    img.setDeleted(false);
+                    img.setFilePath(label.getText());
+                    imagesList.add(img);
+                } else if (fileValidator.isFile(label.getText())) {
+                    Pdf pdf = new Pdf();
+                    pdf.setFileName(FilenameUtils.getName(label.getText()));
+                    pdf.setDeleted(false);
+                    pdf.setFilePath(label.getText());
+                    filesList.add(pdf);
+                }
+            }
+            Log.d(TAG, "addClicked: Images size: " + imagesList.size());
+            Log.d(TAG, "addClicked: Files size: " + filesList.size());
+            hasAttachments = true;
+        }
+        Recievables recievables = new Recievables();
+        recievables.setParent(PARENT_ID);
+        recievables.setDescription(addrecievables_field_description.getEditText().getText().toString().trim().toUpperCase());
+        recievables.setAmount(addrecievables_field_amount.getEditText().getText().toString().trim());
+        recievables.setAttachments(hasAttachments);
+        Date date = new Date();
+        Log.d(TAG, "addClicked: Date now: " + dateTransform.toISO8601String(date));
+        recievables.setTimestamp(dateTransform.toISO8601String(date));
+        recievablesObservable.recievablesObservable(recievables)
+                .map(new Function<Recievables, Recievables>() {
+                    @Override
+                    public Recievables apply(Recievables recievables) throws Exception {
+                        List<Image> processed = new ArrayList<>();
+                        for(Image image : imagesList) {
+                            image.setParent(recievables.getObjectId());
+                            processed.add(image);
+                        }
+                        int result = imageBaseDAO.insertAll(processed);
+                        Log.d(TAG, "apply: Result: " + result);
+                        return recievables;
+                    }
+                })
+                .map(new Function<Recievables, Recievables>() {
+                    @Override
+                    public Recievables apply(Recievables recievables) throws Exception {
+                        List<Pdf> pdfList = new ArrayList<>();
+                        for (Pdf pdf : filesList) {
+                            pdf.setParent(recievables.getObjectId());
+                            pdfList.add(pdf);
+                        }
+                        int result = pdfBaseDAO.insertAll(pdfList);
+                        Log.d(TAG, "apply: Result: " + result);
+                        return recievables;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Recievables>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.d(TAG, "onSubscribe: Subscribed");
+                        dialog.show();
+                    }
+
+                    @Override
+                    public void onNext(Recievables recievables) {
+                        Log.d(TAG, "onNext: Expenses: " + recievables.getObjectId());
+                        intent.putExtra("RESULT", recievables);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError: Exception thrown: " + e.getMessage());
+                        dialog.dismiss();
+                        intent.putExtra("RESULT", "ERROR");
+                        setResult(RESULT_CANCELED,intent);
+                        finish();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d(TAG, "onComplete: Completed");
+                        dialog.dismiss();
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }
+                });
     }
 }
