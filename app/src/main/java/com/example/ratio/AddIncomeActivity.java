@@ -27,6 +27,7 @@ import com.example.ratio.Entities.Income;
 import com.example.ratio.Entities.Pdf;
 import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Fragments.FragmentPortfolio;
+import com.example.ratio.HelperClasses.DateTransform;
 import com.example.ratio.HelperClasses.FileValidator;
 import com.example.ratio.HelperClasses.Utility;
 import com.example.ratio.RxJava.IncomeObservable;
@@ -60,7 +61,7 @@ public class AddIncomeActivity extends AppCompatActivity {
     private String PARENT_ID = null;
     private IncomeObservable incomeObservable = new IncomeObservable();
     private AlertDialog dialog = null;
-    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+    private DateTransform dateTransform = new DateTransform();
     private DAOFactory daoFactory = DAOFactory.getDatabase(DATABASES.PARSE);
     private BaseDAO<Image> imageBaseDAO = daoFactory.getImageDAO();
     private BaseDAO<Pdf> pdfBaseDAO = daoFactory.getFileDAO();
@@ -171,8 +172,8 @@ public class AddIncomeActivity extends AppCompatActivity {
         income.setAmount(addincome_field_amount.getEditText().getText().toString().trim());
         income.setAttachments(hasAttachments);
         Date date = new Date();
-        Log.d(TAG, "addClicked: Date now: " + dateFormat.format(date));
-        income.setTimestamp(dateFormat.format(date));
+        Log.d(TAG, "addClicked: Date now: " + dateTransform.toISO8601String(date));
+        income.setTimestamp(dateTransform.toISO8601String(date));
         incomeObservable.insertIncome(income)
             .map(new Function<Income, Income>() {
                 @Override

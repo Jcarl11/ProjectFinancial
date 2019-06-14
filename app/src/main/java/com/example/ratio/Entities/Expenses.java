@@ -1,6 +1,8 @@
 package com.example.ratio.Entities;
 
-public class Expenses extends Entity {
+import java.io.Serializable;
+
+public class Expenses extends Entity implements Serializable {
     private String parent;
     private String description;
     private String amount;
