@@ -16,10 +16,11 @@ public class DateTransform {
 
     public DateTransform() {
         timeZone = TimeZone.getTimeZone("UTC");
-        dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); //Parse cloud date format
-        simpleFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-        //dateFormat.setTimeZone(timeZone);
-        //simpleFormat.setTimeZone(timeZone);
+        //dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); //Parse cloud date format
+        dateFormat = new SimpleDateFormat("dd MMMM yyyy HH:mm:ss");
+        simpleFormat = new SimpleDateFormat("dd MMMM yyyy HH:mm:ss");
+        dateFormat.setTimeZone(timeZone);
+        simpleFormat.setTimeZone(timeZone);
     }
 
     public Date toISO8601Date(String dateString) {

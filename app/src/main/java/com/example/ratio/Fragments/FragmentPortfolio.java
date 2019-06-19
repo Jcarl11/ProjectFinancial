@@ -24,6 +24,7 @@ import com.example.ratio.Entities.Projects;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.HelperClasses.Utility;
+import com.example.ratio.IncomeListActivity;
 import com.example.ratio.R;
 import com.example.ratio.RxJava.ProjectsObservable;
 
@@ -116,6 +117,11 @@ public class FragmentPortfolio extends Fragment {
                                         Intent addreceivables = new Intent(getContext(), AddRecievablesActivity.class);
                                         addreceivables.putExtra(PARENTID, projectsList.get(pos).getObjectId());
                                         startActivityForResult(addreceivables, 3);
+                                        break;
+                                    case 3:
+                                        Intent showIncome = new Intent(getContext(), IncomeListActivity.class);
+                                        showIncome.putExtra(PARENTID, projectsList.get(pos).getObjectId());
+                                        startActivity(showIncome);
                                         break;
                                 }
                             }
