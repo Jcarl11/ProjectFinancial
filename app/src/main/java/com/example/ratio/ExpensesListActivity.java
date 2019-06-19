@@ -14,38 +14,36 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.example.ratio.Adapters.IncomeAdapter;
-import com.example.ratio.Entities.Income;
+import com.example.ratio.Adapters.ExpensesAdapter;
+import com.example.ratio.Entities.Expenses;
 import com.example.ratio.Fragments.FragmentPortfolio;
 import com.example.ratio.HelperClasses.Utility;
-import com.example.ratio.RxJava.IncomeObservable;
+import com.example.ratio.RxJava.ExpensesObservable;
 
 import java.util.List;
 
-public class IncomeListActivity extends AppCompatActivity {
-    private static final String TAG = "IncomeListActivity";
-    @BindView(R.id.incomelist_recyclerview) RecyclerView incomelist_recyclerview;
+public class ExpensesListActivity extends AppCompatActivity {
+    private static final String TAG = "ExpensesListActivity";
+    @BindView(R.id.expenseslist_recyclerview) RecyclerView expenseslist_recyclerview;
     private String PARENT_ID = null;
     private String PARENT_CODE = null;
-    private IncomeObservable incomeObservable = new IncomeObservable();
+    private ExpensesObservable expensesObservable = new ExpensesObservable();
     private AlertDialog dialog;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_income_list);
+        setContentView(R.layout.activity_expenses_list);
         ButterKnife.bind(this);
         PARENT_ID = getIntent().getStringExtra(FragmentPortfolio.PARENTID);
         PARENT_CODE = getIntent().getStringExtra(FragmentPortfolio.PARENTCODE);
-        getSupportActionBar().setTitle(String.format("Income for %s", PARENT_CODE));
+        getSupportActionBar().setTitle(String.format("Expenses for %s", PARENT_CODE));
         dialog = Utility.getInstance().showLoading(this, "Please wait", false);
-        incomelist_recyclerview.setHasFixedSize(true);
-        incomelist_recyclerview.setLayoutManager(new LinearLayoutManager(this));
-
-        incomeObservable.retrieveIncome(PARENT_ID)
+        expenseslist_recyclerview.setHasFixedSize(true);
+        expenseslist_recyclerview.setLayoutManager(new LinearLayoutManager(this));
+        expensesObservable.retrieveExpenses(PARENT_ID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<List<Income>>() {
+                .subscribe(new Observer<List<Expenses>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         Log.d(TAG, "onSubscribe: Subscribed");
@@ -53,15 +51,15 @@ public class IncomeListActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onNext(List<Income> incomes) {
-                        Log.d(TAG, "onNext: Income size: " + incomes.size());
-                        IncomeAdapter adapter = new IncomeAdapter(IncomeListActivity.this, incomes);
-                        incomelist_recyclerview.setAdapter(adapter);
+                    public void onNext(List<Expenses> expenses) {
+                        Log.d(TAG, "onNext: Expenses size: " + expenses.size());
+                        ExpensesAdapter expensesAdapter = new ExpensesAdapter(ExpensesListActivity.this, expenses);
+                        expenseslist_recyclerview.setAdapter(expensesAdapter);
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "onError: Exception thrown: " + e.getMessage());
+                        Log.d(TAG, "onError: Exception: " + e.getMessage());
                         dialog.dismiss();
                     }
 
