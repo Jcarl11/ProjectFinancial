@@ -1,7 +1,5 @@
 package com.example.ratio.Entities;
 
-import org.json.JSONArray;
-
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -17,7 +15,7 @@ public class Projects extends Entity implements Serializable {
     private ProjectType projectType;
     private List<Expenses> projectExpenses;
     private List<Income> projectIncome;
-    private List<Recievables> projectRecievables;
+    private List<Receivables> projectRecievables;
     private Services projectServices;
     private List<Status> projectStatus;
     private Image thumbnail;
@@ -80,11 +78,11 @@ public class Projects extends Entity implements Serializable {
         this.projectIncome = projectIncome;
     }
 
-    public List<Recievables> getProjectRecievables() {
+    public List<Receivables> getProjectRecievables() {
         return projectRecievables;
     }
 
-    public void setProjectRecievables(List<Recievables> projectRecievables) {
+    public void setProjectRecievables(List<Receivables> projectRecievables) {
         this.projectRecievables = projectRecievables;
     }
 

@@ -2,7 +2,7 @@ package com.example.ratio.Entities;
 
 import java.io.Serializable;
 
-public class Recievables extends Entity implements Serializable {
+public class Receivables extends Entity implements Serializable {
     private String parent;
     private String description;
     private String amount;

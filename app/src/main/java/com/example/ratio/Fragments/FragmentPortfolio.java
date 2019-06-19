@@ -27,6 +27,7 @@ import com.example.ratio.ExpensesListActivity;
 import com.example.ratio.HelperClasses.Utility;
 import com.example.ratio.IncomeListActivity;
 import com.example.ratio.R;
+import com.example.ratio.ReceivablesListActivity;
 import com.example.ratio.RxJava.ProjectsObservable;
 
 import java.util.ArrayList;
@@ -134,6 +135,12 @@ public class FragmentPortfolio extends Fragment {
                                         showExpenses.putExtra(PARENTID, projectsList.get(pos).getObjectId());
                                         showExpenses.putExtra(PARENTCODE, projectsList.get(pos).getProjectCode());
                                         startActivity(showExpenses);
+                                        break;
+                                    case 5:
+                                        Intent showReceivables = new Intent(getContext(), ReceivablesListActivity.class);
+                                        showReceivables.putExtra(PARENTID, projectsList.get(pos).getObjectId());
+                                        showReceivables.putExtra(PARENTCODE, projectsList.get(pos).getProjectCode());
+                                        startActivity(showReceivables);
                                         break;
                                 }
                             }

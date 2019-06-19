@@ -3,7 +3,7 @@ package com.example.ratio.DAO.Parse;
 import android.util.Log;
 
 import com.example.ratio.DAO.BaseDAO;
-import com.example.ratio.Entities.Recievables;
+import com.example.ratio.Entities.Receivables;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.RECIEVABLES;
 import com.example.ratio.HelperClasses.DateTransform;
@@ -15,7 +15,7 @@ import com.parse.ParseQuery;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecievablesDAO implements BaseDAO<Recievables> {
+public class RecievablesDAO implements BaseDAO<Receivables> {
     private static final String TAG = "RecievablesDAO";
     private DateTransform dateTransform = new DateTransform();
     private int result = 0;
@@ -24,7 +24,7 @@ public class RecievablesDAO implements BaseDAO<Recievables> {
     private ParseObject parseObject = null;
 
     @Override
-    public Recievables insert(Recievables objectEntity) {
+    public Receivables insert(Receivables objectEntity) {
         Log.d(TAG, "insert: Started...");
         result = 0;
         ParseObject parseObject = new ParseObject(PARSECLASS.RECEIVABLES.toString());
@@ -42,24 +42,24 @@ public class RecievablesDAO implements BaseDAO<Recievables> {
             e.printStackTrace();
             Log.d(TAG, "insert: Exception thrown: " + e.getMessage());
         }
-        Recievables recievables = new Recievables();
-        recievables.setObjectId(parseObject.getObjectId());
-        recievables.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
-        recievables.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
-        recievables.setAmount(parseObject.getString(RECIEVABLES.AMOUNT.toString()));
-        recievables.setAttachments(parseObject.getBoolean(RECIEVABLES.ATTACHMENTS.toString()));
-        recievables.setDescription(parseObject.getString(RECIEVABLES.DESCRIPTION.toString()));
-        recievables.setParent(parseObject.getString(RECIEVABLES.PARENT.toString()));
-        recievables.setTimestamp(parseObject.getString(RECIEVABLES.TIMESTAMP.toString()));
-        return recievables;
+        Receivables receivables = new Receivables();
+        receivables.setObjectId(parseObject.getObjectId());
+        receivables.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
+        receivables.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
+        receivables.setAmount(parseObject.getString(RECIEVABLES.AMOUNT.toString()));
+        receivables.setAttachments(parseObject.getBoolean(RECIEVABLES.ATTACHMENTS.toString()));
+        receivables.setDescription(parseObject.getString(RECIEVABLES.DESCRIPTION.toString()));
+        receivables.setParent(parseObject.getString(RECIEVABLES.PARENT.toString()));
+        receivables.setTimestamp(dateTransform.toDateString(parseObject.getDate(RECIEVABLES.TIMESTAMP.toString())));
+        return receivables;
     }
 
     @Override
-    public int insertAll(List<Recievables> objectList) {
+    public int insertAll(List<Receivables> objectList) {
         Log.d(TAG, "insertAll: Started...");
         List<String> ids = new ArrayList<>();
-        for(Recievables recievables : objectList){
-            String id = insert(recievables).getObjectId();
+        for(Receivables receivables : objectList){
+            String id = insert(receivables).getObjectId();
             if(id != null)
                 ids.add(id);
         }
@@ -70,7 +70,7 @@ public class RecievablesDAO implements BaseDAO<Recievables> {
     }
 
     @Override
-    public Recievables get(String objectId) {
+    public Receivables get(String objectId) {
         Log.d(TAG, "get: Started...");
         parseObject = null;
         ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.RECEIVABLES.toString());
@@ -82,24 +82,24 @@ public class RecievablesDAO implements BaseDAO<Recievables> {
             e.printStackTrace();
             Log.d(TAG, "get: Exception thrown: " + e.getMessage());
         }
-        Recievables recievables = new Recievables();
-        recievables.setObjectId(parseObject.getObjectId());
-        recievables.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
-        recievables.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
-        recievables.setAmount(parseObject.getString(RECIEVABLES.AMOUNT.toString()));
-        recievables.setAttachments(parseObject.getBoolean(RECIEVABLES.ATTACHMENTS.toString()));
-        recievables.setDescription(parseObject.getString(RECIEVABLES.DESCRIPTION.toString()));
-        recievables.setParent(parseObject.getString(RECIEVABLES.PARENT.toString()));
-        recievables.setTimestamp(parseObject.getString(RECIEVABLES.TIMESTAMP.toString()));
-        return recievables;
+        Receivables receivables = new Receivables();
+        receivables.setObjectId(parseObject.getObjectId());
+        receivables.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
+        receivables.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
+        receivables.setAmount(parseObject.getString(RECIEVABLES.AMOUNT.toString()));
+        receivables.setAttachments(parseObject.getBoolean(RECIEVABLES.ATTACHMENTS.toString()));
+        receivables.setDescription(parseObject.getString(RECIEVABLES.DESCRIPTION.toString()));
+        receivables.setParent(parseObject.getString(RECIEVABLES.PARENT.toString()));
+        receivables.setTimestamp(dateTransform.toDateString(parseObject.getDate(RECIEVABLES.TIMESTAMP.toString())));
+        return receivables;
     }
 
     @Override
-    public List<Recievables> getBulk(String sqlCommand) {
+    public List<Receivables> getBulk(String sqlCommand) {
         Log.d(TAG, "getBulk: Started...");
         defaultLimit = Utility.getInstance().checkIfInteger(sqlCommand) == true ? Integer.valueOf(sqlCommand) : 50;
         Log.d(TAG, "getBulk: Limit set to " + String.valueOf(defaultLimit));
-        List<Recievables> recievables = new ArrayList<>();
+        List<Receivables> recievables = new ArrayList<>();
         ParseQuery<ParseObject> getbulk = ParseQuery.getQuery(PARSECLASS.RECEIVABLES.toString());
         getbulk.setLimit(defaultLimit);
         try {
@@ -107,16 +107,16 @@ public class RecievablesDAO implements BaseDAO<Recievables> {
             List<ParseObject> parseObjects = getbulk.find();
             Log.d(TAG, "getBulk: Retrieval finished");
             for(ParseObject parseObject : parseObjects){
-                Recievables recievable = new Recievables();
-                recievable.setObjectId(parseObject.getObjectId());
-                recievable.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
-                recievable.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
-                recievable.setAmount(parseObject.getString(RECIEVABLES.AMOUNT.toString()));
-                recievable.setAttachments(parseObject.getBoolean(RECIEVABLES.ATTACHMENTS.toString()));
-                recievable.setDescription(parseObject.getString(RECIEVABLES.DESCRIPTION.toString()));
-                recievable.setParent(parseObject.getString(RECIEVABLES.PARENT.toString()));
-                recievable.setTimestamp(parseObject.getString(RECIEVABLES.TIMESTAMP.toString()));
-                recievables.add(recievable);
+                Receivables receivables = new Receivables();
+                receivables.setObjectId(parseObject.getObjectId());
+                receivables.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
+                receivables.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
+                receivables.setAmount(parseObject.getString(RECIEVABLES.AMOUNT.toString()));
+                receivables.setAttachments(parseObject.getBoolean(RECIEVABLES.ATTACHMENTS.toString()));
+                receivables.setDescription(parseObject.getString(RECIEVABLES.DESCRIPTION.toString()));
+                receivables.setParent(parseObject.getString(RECIEVABLES.PARENT.toString()));
+                receivables.setTimestamp(dateTransform.toDateString(parseObject.getDate(RECIEVABLES.TIMESTAMP.toString())));
+                recievables.add(receivables);
             }
         } catch (ParseException e) {
             e.printStackTrace();
@@ -126,7 +126,7 @@ public class RecievablesDAO implements BaseDAO<Recievables> {
     }
 
     @Override
-    public Recievables update(Recievables newRecord) {
+    public Receivables update(Receivables newRecord) {
         Log.d(TAG, "update: Started...");
         ParseObject parseObject = new ParseObject(PARSECLASS.RECEIVABLES.toString());
         parseObject.put(RECIEVABLES.AMOUNT.toString(), newRecord.getAmount());
@@ -142,20 +142,20 @@ public class RecievablesDAO implements BaseDAO<Recievables> {
             e.printStackTrace();
             Log.d(TAG, "update: Exception thrown: " + e.getMessage());
         }
-        Recievables recievables = new Recievables();
-        recievables.setObjectId(parseObject.getObjectId());
-        recievables.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
-        recievables.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
-        recievables.setAmount(parseObject.getString(RECIEVABLES.AMOUNT.toString()));
-        recievables.setAttachments(parseObject.getBoolean(RECIEVABLES.ATTACHMENTS.toString()));
-        recievables.setDescription(parseObject.getString(RECIEVABLES.DESCRIPTION.toString()));
-        recievables.setParent(parseObject.getString(RECIEVABLES.PARENT.toString()));
-        recievables.setTimestamp(parseObject.getString(RECIEVABLES.TIMESTAMP.toString()));
-        return recievables;
+        Receivables receivables = new Receivables();
+        receivables.setObjectId(parseObject.getObjectId());
+        receivables.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
+        receivables.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
+        receivables.setAmount(parseObject.getString(RECIEVABLES.AMOUNT.toString()));
+        receivables.setAttachments(parseObject.getBoolean(RECIEVABLES.ATTACHMENTS.toString()));
+        receivables.setDescription(parseObject.getString(RECIEVABLES.DESCRIPTION.toString()));
+        receivables.setParent(parseObject.getString(RECIEVABLES.PARENT.toString()));
+        receivables.setTimestamp(dateTransform.toDateString(parseObject.getDate(RECIEVABLES.TIMESTAMP.toString())));
+        return receivables;
     }
 
     @Override
-    public int delete(Recievables object) {
+    public int delete(Receivables object) {
         Log.d(TAG, "delete: Started...");
         result = 0;
         parseObject = null;
@@ -177,11 +177,11 @@ public class RecievablesDAO implements BaseDAO<Recievables> {
     }
 
     @Override
-    public int deleteAll(List<Recievables> objectList) {
+    public int deleteAll(List<Receivables> objectList) {
         Log.d(TAG, "deleteAll: Started...");
         int res = 0;
-        for(Recievables recievables : objectList){
-            res += delete(recievables);
+        for(Receivables receivables : objectList){
+            res += delete(receivables);
         }
 
         Log.d(TAG, "deleteAll: Result: " + String.valueOf(res));

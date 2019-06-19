@@ -1,43 +1,43 @@
 package com.example.ratio.DAO.Sqlite;
 
 import com.example.ratio.DAO.BaseDAO;
-import com.example.ratio.Entities.Recievables;
+import com.example.ratio.Entities.Receivables;
 
 import java.util.List;
 
-public class RecievablesDAO implements BaseDAO<Recievables> {
+public class RecievablesDAO implements BaseDAO<Receivables> {
     @Override
-    public Recievables insert(Recievables objectEntity) {
+    public Receivables insert(Receivables objectEntity) {
         return null;
     }
 
     @Override
-    public int insertAll(List<Recievables> objectList) {
+    public int insertAll(List<Receivables> objectList) {
         return 0;
     }
 
     @Override
-    public Recievables get(String objectId) {
+    public Receivables get(String objectId) {
         return null;
     }
 
     @Override
-    public List<Recievables> getBulk(String sqlCommand) {
+    public List<Receivables> getBulk(String sqlCommand) {
         return null;
     }
 
     @Override
-    public Recievables update(Recievables newRecord) {
+    public Receivables update(Receivables newRecord) {
         return null;
     }
 
     @Override
-    public int delete(Recievables object) {
+    public int delete(Receivables object) {
         return 0;
     }
 
     @Override
-    public int deleteAll(List<Recievables> objectList) {
+    public int deleteAll(List<Receivables> objectList) {
         return 0;
     }
 }

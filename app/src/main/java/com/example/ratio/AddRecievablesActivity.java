@@ -24,7 +24,7 @@ import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.Entities.Image;
 import com.example.ratio.Entities.Pdf;
-import com.example.ratio.Entities.Recievables;
+import com.example.ratio.Entities.Receivables;
 import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Fragments.FragmentPortfolio;
 import com.example.ratio.HelperClasses.DateTransform;
@@ -159,44 +159,44 @@ public class AddRecievablesActivity extends AppCompatActivity {
             Log.d(TAG, "addClicked: Files size: " + filesList.size());
             hasAttachments = true;
         }
-        Recievables recievables = new Recievables();
-        recievables.setParent(PARENT_ID);
-        recievables.setDescription(addrecievables_field_description.getEditText().getText().toString().trim().toUpperCase());
-        recievables.setAmount(addrecievables_field_amount.getEditText().getText().toString().trim());
-        recievables.setAttachments(hasAttachments);
+        Receivables receivables = new Receivables();
+        receivables.setParent(PARENT_ID);
+        receivables.setDescription(addrecievables_field_description.getEditText().getText().toString().trim().toUpperCase());
+        receivables.setAmount(addrecievables_field_amount.getEditText().getText().toString().trim());
+        receivables.setAttachments(hasAttachments);
         Date date = new Date();
         Log.d(TAG, "addClicked: Date now: " + dateTransform.toISO8601String(date));
-        recievables.setTimestamp(dateTransform.toISO8601String(date));
-        recievablesObservable.recievablesObservable(recievables)
-                .map(new Function<Recievables, Recievables>() {
+        receivables.setTimestamp(dateTransform.toISO8601String(date));
+        recievablesObservable.recievablesObservable(receivables)
+                .map(new Function<Receivables, Receivables>() {
                     @Override
-                    public Recievables apply(Recievables recievables) throws Exception {
+                    public Receivables apply(Receivables receivables) throws Exception {
                         List<Image> processed = new ArrayList<>();
                         for(Image image : imagesList) {
-                            image.setParent(recievables.getObjectId());
+                            image.setParent(receivables.getObjectId());
                             processed.add(image);
                         }
                         int result = imageBaseDAO.insertAll(processed);
                         Log.d(TAG, "apply: Result: " + result);
-                        return recievables;
+                        return receivables;
                     }
                 })
-                .map(new Function<Recievables, Recievables>() {
+                .map(new Function<Receivables, Receivables>() {
                     @Override
-                    public Recievables apply(Recievables recievables) throws Exception {
+                    public Receivables apply(Receivables receivables) throws Exception {
                         List<Pdf> pdfList = new ArrayList<>();
                         for (Pdf pdf : filesList) {
-                            pdf.setParent(recievables.getObjectId());
+                            pdf.setParent(receivables.getObjectId());
                             pdfList.add(pdf);
                         }
                         int result = pdfBaseDAO.insertAll(pdfList);
                         Log.d(TAG, "apply: Result: " + result);
-                        return recievables;
+                        return receivables;
                     }
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Recievables>() {
+                .subscribe(new Observer<Receivables>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         Log.d(TAG, "onSubscribe: Subscribed");
@@ -204,9 +204,9 @@ public class AddRecievablesActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onNext(Recievables recievables) {
-                        Log.d(TAG, "onNext: Expenses: " + recievables.getObjectId());
-                        intent.putExtra("RESULT", recievables);
+                    public void onNext(Receivables receivables) {
+                        Log.d(TAG, "onNext: Expenses: " + receivables.getObjectId());
+                        intent.putExtra("RESULT", receivables);
                     }
 
                     @Override
