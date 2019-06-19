@@ -3,6 +3,7 @@ package com.example.ratio.DAO.Parse;
 import android.util.Log;
 
 import com.example.ratio.DAO.BaseDAO;
+import com.example.ratio.DAO.GetFromParent;
 import com.example.ratio.Entities.Expenses;
 import com.example.ratio.Enums.EXPENSES;
 import com.example.ratio.Enums.PARSECLASS;
@@ -15,7 +16,7 @@ import com.parse.ParseQuery;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExpensesDAO implements BaseDAO<Expenses> {
+public class ExpensesDAO implements BaseDAO<Expenses>, GetFromParent<Expenses> {
     private static final String TAG = "ExpensesDAO";
     private DateTransform dateTransform = new DateTransform();
     private int result = 0;
@@ -187,5 +188,35 @@ public class ExpensesDAO implements BaseDAO<Expenses> {
         Log.d(TAG, "deleteAll: Failed operations: " + String.valueOf(objectList.size() - result));
 
         return result;
+    }
+
+    @Override
+    public List<Expenses> getObjects(String parentID) {
+        Log.d(TAG, "getObjects: Started...");
+        List<Expenses> expensesList = new ArrayList<>();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.EXPENSES.toString());
+        query.whereEqualTo(EXPENSES.PARENT.toString(), parentID);
+        query.setLimit(1000);
+        try {
+            Log.d(TAG, "getObjects: Retrieving objects");
+            List<ParseObject> parseObjects = query.find();
+            Log.d(TAG, "getObjects: Retrieved objects: " + parseObjects.size());
+            for(ParseObject parseObject : parseObjects){
+                Expenses expenses = new Expenses();
+                expenses.setObjectId(parseObject.getObjectId());
+                expenses.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
+                expenses.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
+                expenses.setAmount(parseObject.getString(EXPENSES.AMOUNT.toString()));
+                expenses.setAttachments(parseObject.getBoolean(EXPENSES.ATTACHMENTS.toString()));
+                expenses.setDescription(parseObject.getString(EXPENSES.DESCRIPTION.toString()));
+                expenses.setParent(parseObject.getString(EXPENSES.PARENT.toString()));
+                expenses.setTimestamp(dateTransform.toISO8601String(parseObject.getDate(EXPENSES.TIMESTAMP.toString())));
+                expensesList.add(expenses);
+            }
+        } catch (ParseException e) {
+            Log.d(TAG, "getObjects: Exception thrown: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return expensesList;
     }
 }

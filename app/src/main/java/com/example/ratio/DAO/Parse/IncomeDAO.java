@@ -3,6 +3,7 @@ package com.example.ratio.DAO.Parse;
 import android.util.Log;
 
 import com.example.ratio.DAO.BaseDAO;
+import com.example.ratio.DAO.GetFromParent;
 import com.example.ratio.Entities.Income;
 import com.example.ratio.Enums.INCOME;
 import com.example.ratio.Enums.PARSECLASS;
@@ -15,7 +16,7 @@ import com.parse.ParseQuery;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IncomeDAO implements BaseDAO<Income> {
+public class IncomeDAO implements BaseDAO<Income>, GetFromParent<Income> {
     private static final String TAG = "IncomeDAO";
     private DateTransform dateTransform = new DateTransform();
     private int result = 0;
@@ -186,5 +187,35 @@ public class IncomeDAO implements BaseDAO<Income> {
         Log.d(TAG, "deleteAll: Failed operations: " + String.valueOf(objectList.size() - result));
 
         return result;
+    }
+
+    @Override
+    public List<Income> getObjects(String parentID) {
+        Log.d(TAG, "getObjects: Started...");
+        List<Income> incomeList = new ArrayList<>();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.INCOME.toString());
+        query.whereEqualTo(INCOME.PARENT.toString(), parentID);
+        query.setLimit(1000);
+        try {
+            Log.d(TAG, "getObjects: Retrieving objects");
+            List<ParseObject> parseObjects = query.find();
+            Log.d(TAG, "getObjects: Objects retrieved: " + parseObjects.size());
+            for(ParseObject parseObject : parseObjects){
+                Income income = new Income();
+                income.setObjectId(parseObject.getObjectId());
+                income.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
+                income.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
+                income.setAmount(parseObject.getString(INCOME.AMOUNT.toString()));
+                income.setAttachments(parseObject.getBoolean(INCOME.ATTACHMENTS.toString()));
+                income.setDescription(parseObject.getString(INCOME.DESCRIPTION.toString()));
+                income.setParent(parseObject.getString(INCOME.PARENT.toString()));
+                income.setTimestamp(dateTransform.toDateString(parseObject.getDate(INCOME.TIMESTAMP.toString())));
+                incomeList.add(income);
+            }
+        } catch (ParseException e) {
+            Log.d(TAG, "getObjects: Exception thrown: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return incomeList;
     }
 }

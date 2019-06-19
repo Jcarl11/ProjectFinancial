@@ -3,6 +3,7 @@ package com.example.ratio.DAO.Parse;
 import android.util.Log;
 
 import com.example.ratio.DAO.BaseDAO;
+import com.example.ratio.DAO.GetFromParent;
 import com.example.ratio.Entities.Receivables;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.RECIEVABLES;
@@ -14,8 +15,9 @@ import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
-public class RecievablesDAO implements BaseDAO<Receivables> {
+public class RecievablesDAO implements BaseDAO<Receivables>, GetFromParent<Receivables> {
     private static final String TAG = "RecievablesDAO";
     private DateTransform dateTransform = new DateTransform();
     private int result = 0;
@@ -187,5 +189,36 @@ public class RecievablesDAO implements BaseDAO<Receivables> {
         Log.d(TAG, "deleteAll: Result: " + String.valueOf(res));
         Log.d(TAG, "deleteAll: Failed operations: " + String.valueOf(objectList.size() - res));
         return res;
+    }
+
+    @Override
+    public List<Receivables> getObjects(String parentID) {
+        Log.d(TAG, "getObjects: Started...");
+        List<Receivables> receivablesList = new ArrayList<>();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.RECEIVABLES.toString());
+        query.whereEqualTo(RECIEVABLES.PARENT.toString(), parentID);
+        query.setLimit(1000);
+        try {
+            Log.d(TAG, "getObjects: Retrieving objects...");
+            List<ParseObject> parseObjects = query.find();
+            Log.d(TAG, "getObjects: Objects Retrieved: " + parseObjects.size());
+            for(ParseObject parseObject : parseObjects){
+                Receivables receivables = new Receivables();
+                receivables.setObjectId(parseObject.getObjectId());
+                receivables.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
+                receivables.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
+                receivables.setAmount(parseObject.getString(RECIEVABLES.AMOUNT.toString()));
+                receivables.setAttachments(parseObject.getBoolean(RECIEVABLES.ATTACHMENTS.toString()));
+                receivables.setDescription(parseObject.getString(RECIEVABLES.DESCRIPTION.toString()));
+                receivables.setParent(parseObject.getString(RECIEVABLES.PARENT.toString()));
+                receivables.setTimestamp(dateTransform.toDateString(parseObject.getDate(RECIEVABLES.TIMESTAMP.toString())));
+                receivablesList.add(receivables);
+            }
+        } catch (ParseException e) {
+            Log.d(TAG, "getObjects: Exception thrown: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return receivablesList;
     }
 }

@@ -2,6 +2,7 @@ package com.example.ratio.RxJava;
 
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
+import com.example.ratio.DAO.GetFromParent;
 import com.example.ratio.Entities.Expenses;
 import com.example.ratio.Enums.DATABASES;
 
@@ -16,6 +17,7 @@ public class ExpensesObservable {
     private static final String TAG = "ExpensesObservable";
     private DAOFactory daoFactory = DAOFactory.getDatabase(DATABASES.PARSE);
     private BaseDAO<Expenses> expensesBaseDAO = daoFactory.getExpensesDAO();
+    private GetFromParent<Expenses> expensesGetFromParent = (GetFromParent<Expenses>) daoFactory.getExpensesDAO();
 
     public Observable<Expenses> insertExpenses(Expenses expenses) {
         Observable<Expenses> observable = Observable.defer(new Callable<ObservableSource<? extends Expenses>>() {
@@ -32,7 +34,7 @@ public class ExpensesObservable {
         Observable<List<Expenses>> observable = Observable.defer(new Callable<ObservableSource<? extends List<Expenses>>>() {
             @Override
             public ObservableSource<? extends List<Expenses>> call() throws Exception {
-                List<Expenses> expensesList = expensesBaseDAO.getBulk("1000");
+                List<Expenses> expensesList = expensesGetFromParent.getObjects(parent);
                 return Observable.just(expensesList);
             }
         });

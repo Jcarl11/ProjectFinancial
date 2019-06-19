@@ -2,6 +2,7 @@ package com.example.ratio.RxJava;
 
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
+import com.example.ratio.DAO.GetFromParent;
 import com.example.ratio.Entities.Receivables;
 import com.example.ratio.Enums.DATABASES;
 
@@ -15,6 +16,7 @@ public class RecievablesObservable {
     private static final String TAG = "RecievablesObservable";
     private DAOFactory daoFactory = DAOFactory.getDatabase(DATABASES.PARSE);
     private BaseDAO<Receivables> recievablesBaseDAO = daoFactory.getRecievablesDAO();
+    private GetFromParent<Receivables> receivablesGetFromParent = (GetFromParent<Receivables>) daoFactory.getRecievablesDAO();
 
     public Observable<Receivables> recievablesObservable(Receivables receivables) {
         Observable<Receivables> observable = Observable.defer(new Callable<ObservableSource<? extends Receivables>>() {
@@ -31,7 +33,7 @@ public class RecievablesObservable {
         Observable<List<Receivables>> observable = Observable.defer(new Callable<ObservableSource<? extends List<Receivables>>>() {
             @Override
             public ObservableSource<? extends List<Receivables>> call() throws Exception {
-                List<Receivables> recievables = recievablesBaseDAO.getBulk("1000");
+                List<Receivables> recievables = receivablesGetFromParent.getObjects(parent);
                 return Observable.just(recievables);
             }
         });
