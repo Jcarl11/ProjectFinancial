@@ -17,6 +17,7 @@ import android.util.Log;
 import com.example.ratio.Adapters.ReceivablesAdapter;
 import com.example.ratio.Entities.Receivables;
 import com.example.ratio.Fragments.FragmentPortfolio;
+import com.example.ratio.HelperClasses.Constant;
 import com.example.ratio.HelperClasses.Utility;
 import com.example.ratio.RxJava.RecievablesObservable;
 
@@ -34,8 +35,8 @@ public class ReceivablesListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_receivables_list);
         ButterKnife.bind(this);
-        PARENT_ID = getIntent().getStringExtra(FragmentPortfolio.PARENTID);
-        PARENT_CODE = getIntent().getStringExtra(FragmentPortfolio.PARENTCODE);
+        PARENT_ID = getIntent().getStringExtra(Constant.PARENTID);
+        PARENT_CODE = getIntent().getStringExtra(Constant.PARENTCODE);
         getSupportActionBar().setTitle(String.format("Receivables for %s", PARENT_CODE));
         dialog = Utility.getInstance().showLoading(this, "Please wait", false);
         receivableslist_recyclerview.setHasFixedSize(true);

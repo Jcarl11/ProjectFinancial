@@ -27,6 +27,7 @@ import com.example.ratio.Entities.Pdf;
 import com.example.ratio.Entities.Receivables;
 import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Fragments.FragmentPortfolio;
+import com.example.ratio.HelperClasses.Constant;
 import com.example.ratio.HelperClasses.DateTransform;
 import com.example.ratio.HelperClasses.FileValidator;
 import com.example.ratio.HelperClasses.Utility;
@@ -67,7 +68,7 @@ public class AddRecievablesActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         getSupportActionBar().setTitle("Add Receivables");
         dialog = Utility.getInstance().showLoading(this, "Please wait", false);
-        PARENT_ID = getIntent().getStringExtra(FragmentPortfolio.PARENTID);
+        PARENT_ID = getIntent().getStringExtra(Constant.PARENTID);
     }
 
     @OnClick(R.id.addrecievables_button_attachimage)

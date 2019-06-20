@@ -14,7 +14,9 @@
         android:roundIcon="@drawable/ratiologo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ReceivablesListActivity"></activity>
+        <activity android:name=".FileAttachmentsActivity"></activity>
+        <activity android:name=".ImageAttachmentsActivity" />
+        <activity android:name=".ReceivablesListActivity" />
         <activity android:name=".ExpensesListActivity" />
         <activity android:name=".IncomeListActivity" />
         <activity android:name=".AddRecievablesActivity" />

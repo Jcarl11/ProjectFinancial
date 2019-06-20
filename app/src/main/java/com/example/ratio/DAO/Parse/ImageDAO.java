@@ -3,6 +3,7 @@ package com.example.ratio.DAO.Parse;
 import android.util.Log;
 
 import com.example.ratio.DAO.BaseDAO;
+import com.example.ratio.DAO.GetFromParent;
 import com.example.ratio.Entities.Image;
 import com.example.ratio.Enums.IMAGES;
 import com.example.ratio.Enums.PARSECLASS;
@@ -10,6 +11,7 @@ import com.example.ratio.HelperClasses.DateTransform;
 import com.example.ratio.HelperClasses.ImageCompressor;
 import com.example.ratio.HelperClasses.ImageUtils;
 import com.example.ratio.HelperClasses.ParseFileOperation;
+import com.example.ratio.HelperClasses.Utility;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -19,10 +21,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ImageDAO implements BaseDAO<Image> {
+public class ImageDAO implements BaseDAO<Image>, GetFromParent<Image> {
     private static final String TAG = "ImageDAO";
     private DateTransform dateTransform = new DateTransform();
     private ParseFileOperation parseFileOperation = new ParseFileOperation();
+    private int defaultLimit = 50;
     private ImageUtils imageUtils = new ImageUtils();
     private ParseObject parseObject = null;
     private File downscaledImage = null;
@@ -100,9 +103,10 @@ public class ImageDAO implements BaseDAO<Image> {
     @Override
     public List<Image> getBulk(String sqlCommand) {
         Log.d(TAG, "getBulk: Started...");
+        defaultLimit = Utility.getInstance().checkIfInteger(sqlCommand) == true ? Integer.valueOf(sqlCommand) : 50;
         List<Image> imageList = new ArrayList<>();
         ParseQuery<ParseObject> getbulk = ParseQuery.getQuery(PARSECLASS.IMAGES.toString());
-        getbulk.whereEqualTo(IMAGES.PARENT.toString(), sqlCommand);
+        getbulk.setLimit(defaultLimit);
         try {
             Log.d(TAG, "getBulk: Retrieving objects...");
             List<ParseObject> parseObjects = getbulk.find();
@@ -184,5 +188,33 @@ public class ImageDAO implements BaseDAO<Image> {
         Log.d(TAG, "deleteAll: Result: " + result);
         Log.d(TAG, "deleteAll: Failed Operations: " + String.valueOf(objectList.size() - result));
         return result;
+    }
+
+    @Override
+    public List<Image> getObjects(String parentID) {
+        Log.d(TAG, "getObjects: Started...");
+        List<Image> imageList = new ArrayList<>();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.IMAGES.toString());
+        query.whereEqualTo(IMAGES.PARENT.toString(), parentID);
+        try {
+            Log.d(TAG, "getBulk: Retrieving objects...");
+            List<ParseObject> parseObjects = query.find();
+            Log.d(TAG, "getBulk: Retrieval finished");
+            for(ParseObject parseObject : parseObjects){
+                Image image = new Image();
+                image.setObjectId(parseObject.getObjectId());
+                image.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
+                image.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
+                image.setParent(parseObject.getString(IMAGES.PARENT.toString()));
+                image.setFileName(parseObject.getString(IMAGES.FILENAME.toString()));
+                image.setDeleted(parseObject.getBoolean(IMAGES.DELETED.toString()));
+                image.setFilePath(parseObject.getParseFile(IMAGES.FILES.toString()).getUrl());
+                imageList.add(image);
+            }
+        } catch (ParseException e) {
+            Log.d(TAG, "getObjects: Exception thrown: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return imageList;
     }
 }

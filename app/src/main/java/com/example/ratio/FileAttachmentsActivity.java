@@ -14,52 +14,51 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.example.ratio.Adapters.ExpensesAdapter;
-import com.example.ratio.Entities.Expenses;
+import com.example.ratio.Adapters.FileAdapter;
+import com.example.ratio.Entities.Pdf;
 import com.example.ratio.HelperClasses.Constant;
 import com.example.ratio.HelperClasses.Utility;
-import com.example.ratio.RxJava.ExpensesObservable;
+import com.example.ratio.RxJava.FileObservable;
 
 import java.util.List;
 
-public class ExpensesListActivity extends AppCompatActivity {
-    private static final String TAG = "ExpensesListActivity";
-    @BindView(R.id.expenseslist_recyclerview) RecyclerView expenseslist_recyclerview;
+public class FileAttachmentsActivity extends AppCompatActivity {
+    private static final String TAG = "FileAttachmentsActivity";
+    @BindView(R.id.file_attachments_recyclerview) RecyclerView file_attachments_recyclerview;
     private String PARENT_ID = null;
-    private String PARENT_CODE = null;
-    private ExpensesObservable expensesObservable = new ExpensesObservable();
     private AlertDialog dialog;
+    private FileObservable fileObservable = new FileObservable();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_expenses_list);
+        setContentView(R.layout.activity_file_attachments);
         ButterKnife.bind(this);
         PARENT_ID = getIntent().getStringExtra(Constant.PARENTID);
-        PARENT_CODE = getIntent().getStringExtra(Constant.PARENTCODE);
-        getSupportActionBar().setTitle(String.format("Expenses for %s", PARENT_CODE));
+        Log.d(TAG, "onCreate: Parent: " + PARENT_ID);
+        getSupportActionBar().setTitle(String.format("File Attachments"));
         dialog = Utility.getInstance().showLoading(this, "Please wait", false);
-        expenseslist_recyclerview.setHasFixedSize(true);
-        expenseslist_recyclerview.setLayoutManager(new LinearLayoutManager(this));
-        expensesObservable.retrieveExpenses(PARENT_ID)
+        file_attachments_recyclerview.setHasFixedSize(true);
+        file_attachments_recyclerview.setLayoutManager(new LinearLayoutManager(this));
+        fileObservable.retrieveFileFromParent(PARENT_ID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<List<Expenses>>() {
+                .subscribe(new Observer<List<Pdf>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-                        Log.d(TAG, "onSubscribe: Subscribed");
+                        Log.d(TAG, "onSubscribe: Subscribed...");
                         dialog.show();
                     }
 
                     @Override
-                    public void onNext(List<Expenses> expenses) {
-                        Log.d(TAG, "onNext: Expenses size: " + expenses.size());
-                        ExpensesAdapter expensesAdapter = new ExpensesAdapter(ExpensesListActivity.this, expenses);
-                        expenseslist_recyclerview.setAdapter(expensesAdapter);
+                    public void onNext(List<Pdf> pdfs) {
+                        Log.d(TAG, "onNext: PDF size: " + pdfs.size());
+                        FileAdapter fileAdapter = new FileAdapter(FileAttachmentsActivity.this, pdfs);
+                        file_attachments_recyclerview.setAdapter(fileAdapter);
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "onError: Exception: " + e.getMessage());
+                        Log.d(TAG, "onError: Exception thrown: " + e.getMessage());
                         dialog.dismiss();
                     }
 
@@ -69,5 +68,6 @@ public class ExpensesListActivity extends AppCompatActivity {
                         dialog.dismiss();
                     }
                 });
+
     }
 }

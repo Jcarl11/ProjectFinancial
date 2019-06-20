@@ -24,6 +24,7 @@ import com.example.ratio.Entities.Projects;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.ExpensesListActivity;
+import com.example.ratio.HelperClasses.Constant;
 import com.example.ratio.HelperClasses.Utility;
 import com.example.ratio.IncomeListActivity;
 import com.example.ratio.R;
@@ -63,8 +64,6 @@ public class FragmentPortfolio extends Fragment {
     private ProjectsObservable projectsObservable = new ProjectsObservable();
     private int pos = -1;
     private List<Projects> projectsList = new ArrayList<>();
-    public static String PARENTID = "PARENTID";
-    public static String PARENTCODE = "PARENTCODE";
     public FragmentPortfolio() {}
 
     @Nullable
@@ -108,38 +107,38 @@ public class FragmentPortfolio extends Fragment {
                                 switch (which) {
                                     case 0:
                                         Intent addincome = new Intent(getContext(), AddIncomeActivity.class);
-                                        addincome.putExtra(PARENTID, projectsList.get(pos).getObjectId());
-                                        addincome.putExtra(PARENTCODE, projectsList.get(pos).getProjectCode());
+                                        addincome.putExtra(Constant.PARENTID, projectsList.get(pos).getObjectId());
+                                        addincome.putExtra(Constant.PARENTCODE, projectsList.get(pos).getProjectCode());
                                         startActivityForResult(addincome, 1);
                                         break;
                                     case 1:
                                         Intent addexpenses = new Intent(getContext(), AddExpensesActivity.class);
-                                        addexpenses.putExtra(PARENTID, projectsList.get(pos).getObjectId());
-                                        addexpenses.putExtra(PARENTCODE, projectsList.get(pos).getProjectCode());
+                                        addexpenses.putExtra(Constant.PARENTID, projectsList.get(pos).getObjectId());
+                                        addexpenses.putExtra(Constant.PARENTCODE, projectsList.get(pos).getProjectCode());
                                         startActivityForResult(addexpenses, 2);
                                         break;
                                     case 2:
                                         Intent addreceivables = new Intent(getContext(), AddRecievablesActivity.class);
-                                        addreceivables.putExtra(PARENTID, projectsList.get(pos).getObjectId());
-                                        addreceivables.putExtra(PARENTCODE, projectsList.get(pos).getProjectCode());
+                                        addreceivables.putExtra(Constant.PARENTID, projectsList.get(pos).getObjectId());
+                                        addreceivables.putExtra(Constant.PARENTCODE, projectsList.get(pos).getProjectCode());
                                         startActivityForResult(addreceivables, 3);
                                         break;
                                     case 3:
                                         Intent showIncome = new Intent(getContext(), IncomeListActivity.class);
-                                        showIncome.putExtra(PARENTID, projectsList.get(pos).getObjectId());
-                                        showIncome.putExtra(PARENTCODE, projectsList.get(pos).getProjectCode());
+                                        showIncome.putExtra(Constant.PARENTID, projectsList.get(pos).getObjectId());
+                                        showIncome.putExtra(Constant.PARENTCODE, projectsList.get(pos).getProjectCode());
                                         startActivity(showIncome);
                                         break;
                                     case 4:
                                         Intent showExpenses = new Intent(getContext(), ExpensesListActivity.class);
-                                        showExpenses.putExtra(PARENTID, projectsList.get(pos).getObjectId());
-                                        showExpenses.putExtra(PARENTCODE, projectsList.get(pos).getProjectCode());
+                                        showExpenses.putExtra(Constant.PARENTID, projectsList.get(pos).getObjectId());
+                                        showExpenses.putExtra(Constant.PARENTCODE, projectsList.get(pos).getProjectCode());
                                         startActivity(showExpenses);
                                         break;
                                     case 5:
                                         Intent showReceivables = new Intent(getContext(), ReceivablesListActivity.class);
-                                        showReceivables.putExtra(PARENTID, projectsList.get(pos).getObjectId());
-                                        showReceivables.putExtra(PARENTCODE, projectsList.get(pos).getProjectCode());
+                                        showReceivables.putExtra(Constant.PARENTID, projectsList.get(pos).getObjectId());
+                                        showReceivables.putExtra(Constant.PARENTCODE, projectsList.get(pos).getProjectCode());
                                         startActivity(showReceivables);
                                         break;
                                 }

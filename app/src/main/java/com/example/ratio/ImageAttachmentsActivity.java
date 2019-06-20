@@ -14,52 +14,51 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.example.ratio.Adapters.ExpensesAdapter;
-import com.example.ratio.Entities.Expenses;
+import com.example.ratio.Adapters.ImageAdapter;
+import com.example.ratio.Entities.Image;
 import com.example.ratio.HelperClasses.Constant;
 import com.example.ratio.HelperClasses.Utility;
-import com.example.ratio.RxJava.ExpensesObservable;
+import com.example.ratio.RxJava.ImageObservable;
 
 import java.util.List;
 
-public class ExpensesListActivity extends AppCompatActivity {
-    private static final String TAG = "ExpensesListActivity";
-    @BindView(R.id.expenseslist_recyclerview) RecyclerView expenseslist_recyclerview;
+public class ImageAttachmentsActivity extends AppCompatActivity {
+    private static final String TAG = "ImageAttachmentsActivit";
+    @BindView(R.id.image_attachments_recyclerview) RecyclerView image_attachments_recyclerview;
     private String PARENT_ID = null;
-    private String PARENT_CODE = null;
-    private ExpensesObservable expensesObservable = new ExpensesObservable();
+    private ImageObservable imageObservable = new ImageObservable();
     private AlertDialog dialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_expenses_list);
+        setContentView(R.layout.activity_image_attachments);
         ButterKnife.bind(this);
         PARENT_ID = getIntent().getStringExtra(Constant.PARENTID);
-        PARENT_CODE = getIntent().getStringExtra(Constant.PARENTCODE);
-        getSupportActionBar().setTitle(String.format("Expenses for %s", PARENT_CODE));
+        Log.d(TAG, "onCreate: Parent: " + PARENT_ID);
+        getSupportActionBar().setTitle(String.format("Image Attachments"));
         dialog = Utility.getInstance().showLoading(this, "Please wait", false);
-        expenseslist_recyclerview.setHasFixedSize(true);
-        expenseslist_recyclerview.setLayoutManager(new LinearLayoutManager(this));
-        expensesObservable.retrieveExpenses(PARENT_ID)
+        image_attachments_recyclerview.setHasFixedSize(true);
+        image_attachments_recyclerview.setLayoutManager(new LinearLayoutManager(this));
+        imageObservable.retrieveImageFromParent(PARENT_ID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<List<Expenses>>() {
+                .subscribe(new Observer<List<Image>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-                        Log.d(TAG, "onSubscribe: Subscribed");
+                        Log.d(TAG, "onSubscribe: Subscribed...");
                         dialog.show();
                     }
 
                     @Override
-                    public void onNext(List<Expenses> expenses) {
-                        Log.d(TAG, "onNext: Expenses size: " + expenses.size());
-                        ExpensesAdapter expensesAdapter = new ExpensesAdapter(ExpensesListActivity.this, expenses);
-                        expenseslist_recyclerview.setAdapter(expensesAdapter);
+                    public void onNext(List<Image> images) {
+                        Log.d(TAG, "onNext: Image Size: " + images.size());
+                        ImageAdapter imageAdapter = new ImageAdapter(ImageAttachmentsActivity.this, images);
+                        image_attachments_recyclerview.setAdapter(imageAdapter);
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.d(TAG, "onError: Exception: " + e.getMessage());
+                        Log.d(TAG, "onError: Exception thrown: " + e.getMessage());
                         dialog.dismiss();
                     }
 

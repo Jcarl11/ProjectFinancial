@@ -33,6 +33,7 @@ public class ProjectsObservable {
     private CustomOperations<Projects> projectsCustomOperations = (CustomOperations<Projects>) parseFactory.getProjectDAO();
     private BaseDAO<Status> statusBaseDAO = parseFactory.getStatusDAO();
     private BaseDAO<Image> imageBaseDAO = parseFactory.getImageDAO();
+    private GetFromParent<Image> imageGetFromParent = (GetFromParent<Image>) parseFactory.getImageDAO();
     private GetFromParent<Status> statusGetFromParent = (GetFromParent<Status>) parseFactory.getStatusDAO();
     private RandomImgAPI randomImgAPI = new RandomImgAPI();
 
@@ -52,7 +53,7 @@ public class ProjectsObservable {
                 .flatMap(projects -> {
                     List<Projects> projectsList = new ArrayList<>();
                     for (Projects individuals : projects) {
-                        List<Image> thumbnail = imageBaseDAO.getBulk(individuals.getObjectId());
+                        List<Image> thumbnail = imageGetFromParent.getObjects(individuals.getObjectId());
                         if(thumbnail.size() <= 0 || thumbnail == null) {
                             Image image = new Image();
                             image.setFilePath(randomImgAPI.generateImage());
@@ -81,7 +82,7 @@ public class ProjectsObservable {
                 .flatMap(projects -> {
                     List<Projects> projectsList = new ArrayList<>();
                     for (Projects individuals : projects) {
-                        List<Image> thumbnail = imageBaseDAO.getBulk(individuals.getObjectId());
+                        List<Image> thumbnail = imageGetFromParent.getObjects(individuals.getObjectId());
                         if(thumbnail.size() <= 0 || thumbnail == null) {
                             Image image = new Image();
                             image.setFilePath(randomImgAPI.generateImage());
@@ -107,8 +108,7 @@ public class ProjectsObservable {
                 .map(new Function<Projects, Projects>() {
                     @Override
                     public Projects apply(Projects projects) throws Exception {
-                        imageBaseDAO = parseFactory.getImageDAO();
-                        List<Image> imageList = imageBaseDAO.getBulk(projects.getObjectId());
+                        List<Image> imageList = imageGetFromParent.getObjects(projects.getObjectId());
                         if(imageList.size() <= 0 || imageList == null) {
                             Image image = new Image();
                             image.setFilePath(randomImgAPI.generateImage());

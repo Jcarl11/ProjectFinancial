@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.github.codefalling.recyclerviewswipedismiss.SwipeDismissRecyclerViewTouchListener;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -27,6 +28,7 @@ import com.example.ratio.Entities.Income;
 import com.example.ratio.Entities.Pdf;
 import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Fragments.FragmentPortfolio;
+import com.example.ratio.HelperClasses.Constant;
 import com.example.ratio.HelperClasses.DateTransform;
 import com.example.ratio.HelperClasses.FileValidator;
 import com.example.ratio.HelperClasses.Utility;
@@ -73,7 +75,7 @@ public class AddIncomeActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         getSupportActionBar().setTitle("Add income");
         Intent intent = getIntent();
-        PARENT_ID = intent.getStringExtra(FragmentPortfolio.PARENTID);
+        PARENT_ID = intent.getStringExtra(Constant.PARENTID);
         dialog = Utility.getInstance().showLoading(this, "Please wait", false);
     }
 
