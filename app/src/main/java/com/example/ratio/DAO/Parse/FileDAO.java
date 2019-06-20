@@ -124,12 +124,14 @@ public class FileDAO implements BaseDAO<Pdf>, GetFromParent<Pdf> {
     @Override
     public Pdf update(Pdf newRecord) {
         Log.d(TAG, "update: Started..");
-        ParseObject parseObject = new ParseObject(PARSECLASS.PDF.toString());
-        parseObject.put(PDF.FILENAME.toString(), newRecord.getFileName());
-        parseObject.put(PDF.PARENT.toString(), newRecord.getParent());
-        parseObject.put(PDF.DELETED.toString(), false);
-        parseObject.put(PDF.FILES.toString(), parseFileOperation.fromFile(new File(newRecord.getFilePath())));
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.PDF.toString());
+
         try {
+            ParseObject parseObject = query.get(newRecord.getObjectId());
+            parseObject.put(PDF.FILENAME.toString(), newRecord.getFileName());
+            parseObject.put(PDF.PARENT.toString(), newRecord.getParent());
+            parseObject.put(PDF.DELETED.toString(), false);
+            parseObject.put(PDF.FILES.toString(), parseFileOperation.fromFile(new File(newRecord.getFilePath())));
             Log.d(TAG, "update: Updating record...");
             parseObject.save();
             Log.d(TAG, "update: Record updated");

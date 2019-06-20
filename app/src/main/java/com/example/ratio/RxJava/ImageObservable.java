@@ -30,4 +30,15 @@ public class ImageObservable {
         });
         return observable;
     }
+
+    public Observable<Image> updateImage(Image newRecord) {
+        Observable<Image> observable = Observable.defer(new Callable<ObservableSource<? extends Image>>() {
+            @Override
+            public ObservableSource<? extends Image> call() throws Exception {
+                Image image = imageBaseDAO.update(newRecord);
+                return Observable.just(image);
+            }
+        });
+        return observable;
+    }
 }

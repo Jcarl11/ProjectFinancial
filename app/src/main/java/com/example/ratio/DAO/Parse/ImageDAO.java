@@ -13,8 +13,10 @@ import com.example.ratio.HelperClasses.ImageUtils;
 import com.example.ratio.HelperClasses.ParseFileOperation;
 import com.example.ratio.HelperClasses.Utility;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.Serializable;
@@ -132,27 +134,28 @@ public class ImageDAO implements BaseDAO<Image>, GetFromParent<Image> {
     @Override
     public Image update(Image newRecord) {
         Log.d(TAG, "update: Started...");
-        ParseObject parseObject = new ParseObject(PARSECLASS.IMAGES.toString());
-        parseObject.put(IMAGES.PARENT.toString(), newRecord.getParent());
-        parseObject.put(IMAGES.FILENAME.toString(), newRecord.getFileName());
-        parseObject.put(IMAGES.DELETED.toString(), newRecord.isDeleted());
-        parseObject.put(IMAGES.FILES.toString(), parseFileOperation.fromFile(new File(newRecord.getFilePath())));
+        Image image = new Image();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.IMAGES.toString());
         try {
+            ParseObject parseObject = query.get(newRecord.getObjectId());
+            parseObject.put(IMAGES.PARENT.toString(), newRecord.getParent());
+            parseObject.put(IMAGES.FILENAME.toString(), newRecord.getFileName());
+            parseObject.put(IMAGES.DELETED.toString(), newRecord.isDeleted());
+            parseObject.put(IMAGES.FILES.toString(), parseFileOperation.fromFile(new File(newRecord.getFilePath())));
             Log.d(TAG, "update: Saving...");
             parseObject.save();
             Log.d(TAG, "update: Record saved");
+            image.setObjectId(parseObject.getObjectId());
+            image.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
+            image.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
+            image.setParent(parseObject.getString(IMAGES.PARENT.toString()));
+            image.setFileName(parseObject.getString(IMAGES.FILENAME.toString()));
+            image.setDeleted(parseObject.getBoolean(IMAGES.DELETED.toString()));
+            image.setFilePath(parseObject.getParseFile(IMAGES.FILES.toString()).getUrl());
         } catch (ParseException e) {
-            e.printStackTrace();
             Log.d(TAG, "update: Exception thrown: " + e.getMessage());
+            e.printStackTrace();
         }
-        Image image = new Image();
-        image.setObjectId(parseObject.getObjectId());
-        image.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
-        image.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
-        image.setParent(parseObject.getString(IMAGES.PARENT.toString()));
-        image.setFileName(parseObject.getString(IMAGES.FILENAME.toString()));
-        image.setDeleted(parseObject.getBoolean(IMAGES.DELETED.toString()));
-        image.setFilePath(parseObject.getParseFile(IMAGES.FILES.toString()).getUrl());
         return image;
     }
 
@@ -205,6 +208,8 @@ public class ImageDAO implements BaseDAO<Image>, GetFromParent<Image> {
                 image.setObjectId(parseObject.getObjectId());
                 image.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
                 image.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
+                Log.d(TAG, "getObjects: My Created At: " + dateTransform.toDateString(parseObject.getCreatedAt()));
+                Log.d(TAG, "getObjects: My Updated At: " + dateTransform.toDateString(parseObject.getUpdatedAt()));
                 image.setParent(parseObject.getString(IMAGES.PARENT.toString()));
                 image.setFileName(parseObject.getString(IMAGES.FILENAME.toString()));
                 image.setDeleted(parseObject.getBoolean(IMAGES.DELETED.toString()));

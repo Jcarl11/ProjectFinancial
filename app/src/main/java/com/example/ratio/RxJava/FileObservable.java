@@ -1,5 +1,6 @@
 package com.example.ratio.RxJava;
 
+import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.DAO.GetFromParent;
 import com.example.ratio.Entities.Pdf;
@@ -14,6 +15,7 @@ import io.reactivex.ObservableSource;
 public class FileObservable {
     private static final String TAG = "FileObservable";
     private DAOFactory daoFactory = DAOFactory.getDatabase(DATABASES.PARSE);
+    private BaseDAO<Pdf> pdfBaseDAO = daoFactory.getFileDAO();
     private GetFromParent<Pdf> pdfGetFromParent = (GetFromParent<Pdf>) daoFactory.getFileDAO();
 
     public Observable<List<Pdf>> retrieveFileFromParent(String parent) {
@@ -22,6 +24,17 @@ public class FileObservable {
             public ObservableSource<? extends List<Pdf>> call() throws Exception {
                 List<Pdf> pdfList = pdfGetFromParent.getObjects(parent);
                 return Observable.just(pdfList);
+            }
+        });
+        return observable;
+    }
+
+    public Observable<Pdf> updatedFile(Pdf newRecord) {
+        Observable<Pdf> observable = Observable.defer(new Callable<ObservableSource<? extends Pdf>>() {
+            @Override
+            public ObservableSource<? extends Pdf> call() throws Exception {
+                Pdf pdf = pdfBaseDAO.update(newRecord);
+                return Observable.just(pdf);
             }
         });
         return observable;

@@ -1,6 +1,8 @@
 package com.example.ratio.Entities;
 
-public abstract class Entity {
+import java.io.Serializable;
+
+public abstract class Entity implements Serializable {
     private String objectId;
     private String createdAt;
     private String updatedAt;

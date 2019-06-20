@@ -107,7 +107,7 @@ public class ReceivablesListActivity extends AppCompatActivity {
                                         basicDialog.setCancellable(true);
                                         basicDialog.setMessage(receivablesList.get(pos).getDescription());
                                         basicDialog.setPositiveText("OK");
-                                        basicDialog.setPositiveText("");
+                                        basicDialog.setNegativeText("");
                                         basicDialog.showDialog();
                                         break;
                                     case 1:

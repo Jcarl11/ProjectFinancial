@@ -108,7 +108,7 @@ public class ExpensesListActivity extends AppCompatActivity {
                                         basicDialog.setCancellable(true);
                                         basicDialog.setMessage(expensesList.get(pos).getDescription());
                                         basicDialog.setPositiveText("OK");
-                                        basicDialog.setPositiveText("");
+                                        basicDialog.setNegativeText("");
                                         basicDialog.showDialog();
                                         break;
                                     case 1:

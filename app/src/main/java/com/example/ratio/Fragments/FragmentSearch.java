@@ -2,6 +2,7 @@ package com.example.ratio.Fragments;
 
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,15 +15,23 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.ratio.Adapters.ProjectAdapter;
+import com.example.ratio.AddExpensesActivity;
+import com.example.ratio.AddIncomeActivity;
+import com.example.ratio.AddRecievablesActivity;
 import com.example.ratio.AdvancedSearch;
 import com.example.ratio.Dialogs.BaseDialog;
 import com.example.ratio.Dialogs.BasicDialog;
 import com.example.ratio.Entities.Projects;
+import com.example.ratio.ExpensesListActivity;
+import com.example.ratio.HelperClasses.Constant;
 import com.example.ratio.HelperClasses.Utility;
+import com.example.ratio.IncomeListActivity;
 import com.example.ratio.R;
+import com.example.ratio.ReceivablesListActivity;
 import com.example.ratio.RxJava.ProjectsObservable;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -33,6 +42,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.github.codefalling.recyclerviewswipedismiss.SwipeDismissRecyclerViewTouchListener;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -51,6 +61,8 @@ public class FragmentSearch extends Fragment {
     private AlertDialog dialog;
     private BaseDialog basicDialog = null;
     private ProjectAdapter projectAdapter = null;
+    private int pos = -1;
+    private List<Projects> projectsList = new ArrayList<>();
 
     public FragmentSearch() {}
     @Nullable
@@ -63,7 +75,89 @@ public class FragmentSearch extends Fragment {
         search_field_search.getEditText().setOnEditorActionListener(listener());
         search_recyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
         search_recyclerview.setHasFixedSize(true);
+        SwipeDismissRecyclerViewTouchListener listener = new SwipeDismissRecyclerViewTouchListener.Builder(search_recyclerview,  callBack())
+                .setIsVertical(false)
+                .setItemTouchCallback(new SwipeDismissRecyclerViewTouchListener.OnItemTouchCallBack() {
+                    @Override
+                    public void onTouch(int position) {
+
+                    }
+                })
+                .setItemClickCallback(new SwipeDismissRecyclerViewTouchListener.OnItemClickCallBack() {
+                    @Override
+                    public void onClick(int position) {
+                        String[] choices = new String[]{"Add Income", "Add Expenses", "Add Recivables",
+                                "Show Income", "Show Expenses", "Show Recivables"};
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                        builder.setTitle("Choose");
+                        builder.setCancelable(true);
+                        builder.setItems(choices, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                Log.d(TAG, "onClick: Which: " + which);
+                                switch (which) {
+                                    case 0:
+                                        Intent addincome = new Intent(getContext(), AddIncomeActivity.class);
+                                        addincome.putExtra(Constant.PARENTID, projectsList.get(pos).getObjectId());
+                                        addincome.putExtra(Constant.PARENTCODE, projectsList.get(pos).getProjectCode());
+                                        startActivityForResult(addincome, 1);
+                                        break;
+                                    case 1:
+                                        Intent addexpenses = new Intent(getContext(), AddExpensesActivity.class);
+                                        addexpenses.putExtra(Constant.PARENTID, projectsList.get(pos).getObjectId());
+                                        addexpenses.putExtra(Constant.PARENTCODE, projectsList.get(pos).getProjectCode());
+                                        startActivityForResult(addexpenses, 2);
+                                        break;
+                                    case 2:
+                                        Intent addreceivables = new Intent(getContext(), AddRecievablesActivity.class);
+                                        addreceivables.putExtra(Constant.PARENTID, projectsList.get(pos).getObjectId());
+                                        addreceivables.putExtra(Constant.PARENTCODE, projectsList.get(pos).getProjectCode());
+                                        startActivityForResult(addreceivables, 3);
+                                        break;
+                                    case 3:
+                                        Intent showIncome = new Intent(getContext(), IncomeListActivity.class);
+                                        showIncome.putExtra(Constant.PARENTID, projectsList.get(pos).getObjectId());
+                                        showIncome.putExtra(Constant.PARENTCODE, projectsList.get(pos).getProjectCode());
+                                        startActivity(showIncome);
+                                        break;
+                                    case 4:
+                                        Intent showExpenses = new Intent(getContext(), ExpensesListActivity.class);
+                                        showExpenses.putExtra(Constant.PARENTID, projectsList.get(pos).getObjectId());
+                                        showExpenses.putExtra(Constant.PARENTCODE, projectsList.get(pos).getProjectCode());
+                                        startActivity(showExpenses);
+                                        break;
+                                    case 5:
+                                        Intent showReceivables = new Intent(getContext(), ReceivablesListActivity.class);
+                                        showReceivables.putExtra(Constant.PARENTID, projectsList.get(pos).getObjectId());
+                                        showReceivables.putExtra(Constant.PARENTCODE, projectsList.get(pos).getProjectCode());
+                                        startActivity(showReceivables);
+                                        break;
+                                }
+                            }
+                        });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }
+                }).create();
+        search_recyclerview.setOnTouchListener(listener);
         return view;
+    }
+
+    private SwipeDismissRecyclerViewTouchListener.DismissCallbacks callBack() {
+        SwipeDismissRecyclerViewTouchListener.DismissCallbacks callback = new SwipeDismissRecyclerViewTouchListener.DismissCallbacks() {
+            @Override
+            public boolean canDismiss(int position) {
+                pos = position;
+                return true;
+            }
+
+            @Override
+            public void onDismiss(View view) {
+
+            }
+        };
+        return callback;
     }
 
     private TextView.OnEditorActionListener listener() {
@@ -101,6 +195,7 @@ public class FragmentSearch extends Fragment {
                                     }
                                     projectAdapter = new ProjectAdapter(getContext(), projects);
                                     search_recyclerview.setAdapter(projectAdapter);
+                                    projectsList = projects;
                                 }
 
                                 @Override
@@ -123,6 +218,7 @@ public class FragmentSearch extends Fragment {
                 return false;
             }
         };
+
         return listener;
     }
 
