@@ -8,5 +8,7 @@ public class Constant {
     public static final String FILE_OBJ = "FILE_OBJ";
     public static final String REGISTER_RESULT = "REGISTER_RESULT";
     public static final String PENDING = "PENDING";
+    public static final String APPRENTICE = "APPRENTICE";
+    public static final String ADMINISTRATOR = "ADMINISTRATOR";
     public static final String ACTIVE = "ACTIVE";
 }

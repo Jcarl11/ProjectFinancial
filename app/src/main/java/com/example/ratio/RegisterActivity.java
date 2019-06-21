@@ -81,10 +81,11 @@ public class RegisterActivity extends AppCompatActivity {
                     public User apply(User user) throws Exception {
                         userinfo.setVerified(false);
                         userinfo.setStatus(Constant.PENDING);
-                        userinfo.setPosition("N/A");
+                        userinfo.setPosition(Constant.PENDING);
                         userinfo.setFullname(register_fullname.getEditText().getText().toString().trim());
                         userinfo.setEmail(register_email.getEditText().getText().toString().trim());
                         userinfo.setParent(user.getObjectId());
+                        userinfo.setUsername(user.getUsername());
                         DAOFactory daoFactory = DAOFactory.getDatabase(DATABASES.PARSE);
                         BaseDAO<Userinfo> userinfoBaseDAO = daoFactory.getUserinfoDAO();
                         Userinfo myInfo = userinfoBaseDAO.insert(userinfo);

@@ -6,6 +6,7 @@ public class User extends Entity implements Serializable {
     private String email;
     private String username;
     private String password;
+    private Userinfo userinfo;
 
     public String getEmail() {
         return email;
@@ -29,6 +30,14 @@ public class User extends Entity implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Userinfo getUserinfo() {
+        return userinfo;
+    }
+
+    public void setUserinfo(Userinfo userinfo) {
+        this.userinfo = userinfo;
     }
 }
 

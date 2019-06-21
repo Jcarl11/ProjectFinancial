@@ -21,9 +21,11 @@ import com.example.ratio.Entities.Status;
 import com.example.ratio.Entities.Subcategory;
 import com.example.ratio.Entities.User;
 import com.example.ratio.Enums.DATABASES;
+import com.example.ratio.Enums.USERINFO;
 import com.example.ratio.Fragments.FragmentAddNew;
 import com.example.ratio.Fragments.FragmentPortfolio;
 import com.example.ratio.Fragments.FragmentSearch;
+import com.example.ratio.HelperClasses.Constant;
 import com.example.ratio.HelperClasses.Utility;
 import com.google.android.material.tabs.TabLayout;
 import com.parse.Parse;
@@ -152,6 +154,14 @@ public class MainActivity extends AppCompatActivity {
                     });
 
             return true;
+        } else if (item.getItemId() == R.id.action_manage) {
+            if(ParseUser.getCurrentUser().getString(USERINFO.POSITION.toString()) == Constant.ADMINISTRATOR) {
+                Intent intent = new Intent(MainActivity.this, ManageUsersActivity.class);
+                startActivity(intent);
+            } else {
+                startActivity(new Intent(MainActivity.this, RestrictedActivity.class));
+            }
+
         }
         return super.onOptionsItemSelected(item);
     }

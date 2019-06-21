@@ -4,9 +4,8 @@ import android.util.Log;
 
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.GetFromParent;
-import com.example.ratio.Entities.Entity;
+import com.example.ratio.DAO.GetFromPosition;
 import com.example.ratio.Entities.Userinfo;
-import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.USERINFO;
 import com.example.ratio.HelperClasses.DateTransform;
@@ -20,7 +19,7 @@ import java.util.List;
 
 import androidx.annotation.Nullable;
 
-public class UserinfoDAO implements BaseDAO<Userinfo>, GetFromParent<Userinfo> {
+public class UserinfoDAO implements BaseDAO<Userinfo>, GetFromParent<Userinfo>, GetFromPosition<Userinfo> {
     private static final String TAG = "UserinfoDAO";
     private DateTransform dateTransform = new DateTransform();
     private int defaultLimit = 50;
@@ -36,6 +35,7 @@ public class UserinfoDAO implements BaseDAO<Userinfo>, GetFromParent<Userinfo> {
         parseObject.put(USERINFO.STATUS.toString(), objectEntity.getStatus());
         parseObject.put(USERINFO.VERIFIED.toString(), objectEntity.isVerified());
         parseObject.put(USERINFO.EMAIL.toString(), objectEntity.getEmail());
+        parseObject.put(USERINFO.USERNAME.toString(), objectEntity.getUsername());
         try {
             Log.d(TAG, "insert: Saving object...");
             parseObject.save();
@@ -84,6 +84,7 @@ public class UserinfoDAO implements BaseDAO<Userinfo>, GetFromParent<Userinfo> {
             userinfo.setPosition(parseObject.getString(USERINFO.POSITION.toString()));
             userinfo.setStatus(parseObject.getString(USERINFO.STATUS.toString()));
             userinfo.setVerified(parseObject.getBoolean(USERINFO.VERIFIED.toString()));
+            userinfo.setUsername(parseObject.getString(USERINFO.USERNAME.toString()));
             return userinfo;
         } catch (ParseException e) {
             Log.d(TAG, "get: Exception thrown: " + e.getMessage());
@@ -114,6 +115,7 @@ public class UserinfoDAO implements BaseDAO<Userinfo>, GetFromParent<Userinfo> {
                 userinfo.setPosition(parseObject.getString(USERINFO.POSITION.toString()));
                 userinfo.setStatus(parseObject.getString(USERINFO.STATUS.toString()));
                 userinfo.setVerified(parseObject.getBoolean(USERINFO.VERIFIED.toString()));
+                userinfo.setUsername(parseObject.getString(USERINFO.USERNAME.toString()));
                 userinfos.add(userinfo);
             }
         } catch (ParseException e) {
@@ -142,6 +144,9 @@ public class UserinfoDAO implements BaseDAO<Userinfo>, GetFromParent<Userinfo> {
                 parseObject.put(USERINFO.VERIFIED.toString(), newRecord.isVerified());
             if(!parseObject.getString(USERINFO.EMAIL.toString()).equals(newRecord.getEmail()))
                 parseObject.put(USERINFO.EMAIL.toString(), newRecord.getEmail());
+            if(!parseObject.getString(USERINFO.USERNAME.toString()).equals(newRecord.getUsername()))
+                parseObject.put(USERINFO.USERNAME.toString(), newRecord.getUsername());
+
             parseObject.save();
 
             userinfo.setObjectId(parseObject.getObjectId());
@@ -213,10 +218,42 @@ public class UserinfoDAO implements BaseDAO<Userinfo>, GetFromParent<Userinfo> {
                 userinfo.setPosition(parseObject.getString(USERINFO.POSITION.toString()));
                 userinfo.setStatus(parseObject.getString(USERINFO.STATUS.toString()));
                 userinfo.setVerified(parseObject.getBoolean(USERINFO.VERIFIED.toString()));
+                userinfo.setUsername(parseObject.getString(USERINFO.USERNAME.toString()));
                 userinfos.add(userinfo);
             }
         } catch (ParseException e) {
             Log.d(TAG, "getBulk: Exception thrown: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return userinfos;
+    }
+
+    @Override
+    public List<Userinfo> getUsers(String position) {
+        Log.d(TAG, "getUsers: Started..");
+        List<Userinfo> userinfos = new ArrayList<>();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.USERINFO.toString());
+        query.whereEqualTo(USERINFO.POSITION.toString(), position);
+        try {
+            Log.d(TAG, "getUsers: Retrieving objects...");
+            List<ParseObject> parseObjects = query.find();
+            Log.d(TAG, "getUsers: Objects retrieved: " + parseObjects.size());
+            for (ParseObject parseObject : parseObjects) {
+                Userinfo userinfo = new Userinfo();
+                userinfo.setObjectId(parseObject.getObjectId());
+                userinfo.setCreatedAt(dateTransform.toDateString(parseObject.getCreatedAt()));
+                userinfo.setUpdatedAt(dateTransform.toDateString(parseObject.getUpdatedAt()));
+                userinfo.setEmail(parseObject.getString(USERINFO.EMAIL.toString()));
+                userinfo.setFullname(parseObject.getString(USERINFO.FULLNAME.toString()));
+                userinfo.setParent(parseObject.getString(USERINFO.PARENT.toString()));
+                userinfo.setPosition(parseObject.getString(USERINFO.POSITION.toString()));
+                userinfo.setStatus(parseObject.getString(USERINFO.STATUS.toString()));
+                userinfo.setVerified(parseObject.getBoolean(USERINFO.VERIFIED.toString()));
+                userinfo.setUsername(parseObject.getString(USERINFO.USERNAME.toString()));
+                userinfos.add(userinfo);
+            }
+        } catch (ParseException e) {
+            Log.d(TAG, "getUsers: Exception thrown: " + e.getMessage());
             e.printStackTrace();
         }
         return userinfos;

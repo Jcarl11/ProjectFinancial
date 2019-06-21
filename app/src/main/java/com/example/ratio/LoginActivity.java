@@ -73,6 +73,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public Userinfo apply(User user) throws Exception {
                         List<Userinfo> userinfoList = userinfoGetFromParent.getObjects(user.getObjectId());
+                        user.setUserinfo(userinfoList.get(0));
                         return userinfoList.get(0);
                     }
                 })

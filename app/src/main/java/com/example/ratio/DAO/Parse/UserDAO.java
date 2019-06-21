@@ -5,6 +5,8 @@ import android.util.Log;
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.UserOperations;
 import com.example.ratio.Entities.User;
+import com.example.ratio.Enums.USERINFO;
+import com.example.ratio.HelperClasses.Constant;
 import com.example.ratio.HelperClasses.DateTransform;
 import com.example.ratio.HelperClasses.Utility;
 import com.parse.ParseException;
@@ -35,6 +37,7 @@ public class UserDAO implements BaseDAO<User>, UserOperations<User> {
         register.setEmail(objectEntity.getEmail());
         register.setUsername(objectEntity.getUsername());
         register.setPassword(objectEntity.getPassword());
+        register.put(USERINFO.POSITION.toString(), Constant.PENDING);
         try {
             Log.d(TAG, "insert: inserting...");
             register.signUp();
