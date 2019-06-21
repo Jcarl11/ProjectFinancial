@@ -155,7 +155,9 @@ public class MainActivity extends AppCompatActivity {
 
             return true;
         } else if (item.getItemId() == R.id.action_manage) {
-            if(ParseUser.getCurrentUser().getString(USERINFO.POSITION.toString()) == Constant.ADMINISTRATOR) {
+            Log.d(TAG, "onOptionsItemSelected: Position: " + ParseUser.getCurrentUser().getString(USERINFO.POSITION.toString()));
+            String pos = ParseUser.getCurrentUser().getString(USERINFO.POSITION.toString());
+            if(pos.equalsIgnoreCase(Constant.ADMINISTRATOR)) {
                 Intent intent = new Intent(MainActivity.this, ManageUsersActivity.class);
                 startActivity(intent);
             } else {
