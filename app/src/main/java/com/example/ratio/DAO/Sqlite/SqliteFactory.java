@@ -57,4 +57,7 @@ public class SqliteFactory extends DAOFactory {
     public BaseDAO getSubcategoryDAO() {
         return new SubCategoryDAO();
     }
+
+    @Override
+    public BaseDAO getUserinfoDAO() { return new UserinfoDAO(); }
 }

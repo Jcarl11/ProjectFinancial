@@ -30,6 +30,7 @@ public class UserDAO implements BaseDAO<User>, UserOperations<User> {
     @Override
     public User insert(User objectEntity) {
         Log.d(TAG, "insert: inserting user " + objectEntity.getObjectId());
+        User userEntity = new User();
         ParseUser register = new ParseUser();
         register.setEmail(objectEntity.getEmail());
         register.setUsername(objectEntity.getUsername());
@@ -38,19 +39,18 @@ public class UserDAO implements BaseDAO<User>, UserOperations<User> {
             Log.d(TAG, "insert: inserting...");
             register.signUp();
             Log.d(TAG, "insert: Signup done");
+            userEntity.setObjectId(register.getObjectId());
+            userEntity.setCreatedAt(dateTransform.toISO8601String(register.getCreatedAt()));
+            userEntity.setUpdatedAt(dateTransform.toISO8601String(register.getUpdatedAt()));
+            userEntity.setEmail(register.getEmail());
+            userEntity.setUsername(register.getUsername());
             Log.d(TAG, "insert: Logging out account");
             ParseUser.logOut();
             Log.d(TAG, "insert: logout done");
         } catch (ParseException e) {
-            e.printStackTrace();
             Log.d(TAG, "insert: Exception thrown: " + e.getMessage());
+            e.printStackTrace();
         }
-        User userEntity = new User();
-        userEntity.setObjectId(register.getObjectId());
-        userEntity.setCreatedAt(dateTransform.toISO8601String(register.getCreatedAt()));
-        userEntity.setUpdatedAt(dateTransform.toISO8601String(register.getUpdatedAt()));
-        userEntity.setEmail(register.getEmail());
-        userEntity.setUsername(register.getUsername());
         return userEntity;
     }
 

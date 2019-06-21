@@ -16,6 +16,7 @@ public abstract class DAOFactory {
     public abstract BaseDAO getStatusDAO();
     public abstract BaseDAO getProjectTypeDAO();
     public abstract BaseDAO getSubcategoryDAO();
+    public abstract BaseDAO getUserinfoDAO();
 
     public static DAOFactory getDatabase(DATABASES db){
         DAOFactory daoFactory = null;

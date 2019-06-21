@@ -1,6 +1,8 @@
 package com.example.ratio.Entities;
 
-public class User extends Entity {
+import java.io.Serializable;
+
+public class User extends Entity implements Serializable {
     private String email;
     private String username;
     private String password;

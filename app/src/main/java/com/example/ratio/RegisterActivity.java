@@ -3,14 +3,19 @@ package com.example.ratio;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.Entities.User;
+import com.example.ratio.Entities.Userinfo;
 import com.example.ratio.Enums.DATABASES;
+import com.example.ratio.HelperClasses.Constant;
 import com.example.ratio.HelperClasses.Utility;
+import com.example.ratio.RxJava.UserObservable;
+import com.example.ratio.RxJava.UserinfoObservable;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.regex.Matcher;
@@ -21,10 +26,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "RegisterActivity";
     @BindView(R.id.register_email) TextInputLayout register_email;
+    @BindView(R.id.register_fullname) TextInputLayout register_fullname;
     @BindView(R.id.register_username) TextInputLayout register_username;
     @BindView(R.id.register_password) TextInputLayout register_password;
     @BindView(R.id.register_repassword) TextInputLayout register_repassword;
@@ -32,18 +43,22 @@ public class RegisterActivity extends AppCompatActivity {
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
     AlertDialog dialog;
+    private UserObservable userObservable = new UserObservable();
+    private UserinfoObservable userinfoObservable = new UserinfoObservable();
+    private Intent intent = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         ButterKnife.bind(this);
+        dialog = Utility.getInstance().showLoading(this, "Please wait", false);
     }
 
     @OnClick(R.id.register_submit)
     void submitClicked(View view){
         if(!validateField(register_email) | !validateField(register_username)
-                | !validateField(register_password) | !validateField(register_repassword)) {
+                | !validateField(register_password) | !validateField(register_repassword) | !validateField(register_fullname)) {
             return;
         }
         if(!register_password.getEditText().getText().toString().trim().equals(register_repassword.getEditText().getText().toString().trim())) {
@@ -55,31 +70,64 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
         User user = new User();
+        Userinfo userinfo = new Userinfo();
         user.setEmail(register_email.getEditText().getText().toString().trim());
         user.setUsername(register_username.getEditText().getText().toString().trim());
         user.setPassword(register_password.getEditText().getText().toString().trim());
-        dialog = Utility.getInstance().showLoading(this, "Please wait", false);
-        dialog.show();
-        registerUser(user);
 
-    }
-    void registerUser(User user){
-        DAOFactory factory = DAOFactory.getDatabase(DATABASES.PARSE);
-        BaseDAO<User> userDAO = factory.getUserDAO();
-        User result = userDAO.insert(user);
-        registerDone(result);
-    }
-    void registerDone(User result){
-        dialog.dismiss();
-        Bundle bundle = new Bundle();
-        bundle.putInt("RESULT", 0);
-        if(result == null) {
-            setResult(RESULT_CANCELED, new Intent().putExtras(bundle));
-            finish();
-            return;
-        }
-        setResult(RESULT_OK, new Intent().putExtras(bundle));
-        finish();
+        userObservable.registerUser(user)
+                .map(new Function<User, User>() {
+                    @Override
+                    public User apply(User user) throws Exception {
+                        userinfo.setVerified(false);
+                        userinfo.setStatus(Constant.PENDING);
+                        userinfo.setPosition("N/A");
+                        userinfo.setFullname(register_fullname.getEditText().getText().toString().trim());
+                        userinfo.setEmail(register_email.getEditText().getText().toString().trim());
+                        userinfo.setParent(user.getObjectId());
+                        DAOFactory daoFactory = DAOFactory.getDatabase(DATABASES.PARSE);
+                        BaseDAO<Userinfo> userinfoBaseDAO = daoFactory.getUserinfoDAO();
+                        Userinfo myInfo = userinfoBaseDAO.insert(userinfo);
+                        return user;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<User>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.d(TAG, "onSubscribe: Subscribed...");
+                        dialog.show();
+                    }
+
+                    @Override
+                    public void onNext(User user) {
+                        Log.d(TAG, "onNext: User: " + user.getObjectId());
+                        intent = new Intent();
+                        intent.putExtra(Constant.REGISTER_RESULT, true);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError: Exception: " + e.getMessage());
+                        dialog.dismiss();
+                        intent = new Intent();
+                        intent.putExtra(Constant.REGISTER_RESULT, false);
+                        setResult(RESULT_CANCELED, intent);
+                        finish();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d(TAG, "onComplete: Completed");
+                        dialog.dismiss();
+                        intent = new Intent();
+                        intent.putExtra(Constant.REGISTER_RESULT, true);
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }
+                });
+
     }
     private boolean validateField(TextInputLayout editText) {
         String data = editText.getEditText().getText().toString().trim();

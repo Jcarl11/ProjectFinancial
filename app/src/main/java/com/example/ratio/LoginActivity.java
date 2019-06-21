@@ -9,16 +9,23 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.ratio.DAO.DAOFactory;
+import com.example.ratio.DAO.GetFromParent;
 import com.example.ratio.DAO.UserOperations;
 import com.example.ratio.Dialogs.BaseDialog;
 import com.example.ratio.Dialogs.BasicDialog;
 import com.example.ratio.Entities.User;
+import com.example.ratio.Entities.Userinfo;
 import com.example.ratio.Enums.DATABASES;
+import com.example.ratio.HelperClasses.Constant;
 import com.example.ratio.HelperClasses.Utility;
+import com.example.ratio.RxJava.UserObservable;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
+import com.parse.ParseUser;
 
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
@@ -28,6 +35,7 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class LoginActivity extends AppCompatActivity {
@@ -37,10 +45,11 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.login_createaccount) TextView login_createaccount;
     @BindView(R.id.login_username) TextInputLayout login_username;
     @BindView(R.id.login_password) TextInputLayout login_password;
-    BaseDialog basicDialog;
-    AlertDialog alertDialog;
-    DAOFactory parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
-    UserOperations<User> userOperations;
+    private BaseDialog basicDialog;
+    private AlertDialog alertDialog;
+    private DAOFactory parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
+    private GetFromParent<Userinfo> userinfoGetFromParent = (GetFromParent<Userinfo>) parseFactory.getUserinfoDAO();
+    private UserObservable userObservable = new UserObservable();
 
     @Override
     protected void onCreate(@androidx.annotation.Nullable Bundle savedInstanceState) {
@@ -59,39 +68,63 @@ public class LoginActivity extends AppCompatActivity {
         User user = new User();
         user.setUsername(login_username.getEditText().getText().toString().trim());
         user.setPassword(login_password.getEditText().getText().toString().trim());
-        userOperations = (UserOperations<User>) parseFactory.getUserDAO();
-        Observable.fromCallable(() -> {
-            User currentUser = userOperations.loginUser(user);
-            return currentUser != null ? currentUser : null;
-        })
-                .subscribeOn(Schedulers.computation())
+        userObservable.loginUser(user)
+                .map(new Function<User, Userinfo>() {
+                    @Override
+                    public Userinfo apply(User user) throws Exception {
+                        List<Userinfo> userinfoList = userinfoGetFromParent.getObjects(user.getObjectId());
+                        return userinfoList.get(0);
+                    }
+                })
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<User>() {
+                .subscribe(new Observer<Userinfo>() {
                     @Override
                     public void onSubscribe(Disposable d) {
+                        Log.d(TAG, "onSubscribe: Subscribed...");
                         alertDialog.show();
                     }
 
                     @Override
-                    public void onNext(User user) {
-                        if(user == null){
+                    public void onNext(Userinfo userinfo) {
+                        Log.d(TAG, "onNext: Verified " + String.valueOf(userinfo.isVerified()));
+                        alertDialog.dismiss();
+                        if(userinfo.isVerified() == false) {
+                            ParseUser.logOut();
+                            basicDialog.setTitle("Pending");
+                            basicDialog.setMessage("Your account is still pending");
+                            basicDialog.showDialog();
+                            return;
+                        }
+
+                        if (ParseUser.getCurrentUser().getBoolean("emailVerified") == false) {
+                            ParseUser.logOut();
+                            basicDialog.setTitle("Verification");
+                            basicDialog.setMessage("Please verify your email");
+                            basicDialog.showDialog();
                             return;
                         }
                         Log.d(TAG, "onNext: User: " + user.getUsername());
-                        alertDialog.dismiss();
                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         finish();
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        Log.d(TAG, "onError: Exception: " + e.getMessage());
+                        alertDialog.dismiss();
                         basicDialog.setTitle("Result");
-                        basicDialog.setMessage(e.getMessage());
+                        if(e.getMessage().equalsIgnoreCase("item is null")) {
+                            basicDialog.setMessage("Account does not exist");
+                        } else {
+                            basicDialog.setMessage(e.getMessage());
+                        }
                         basicDialog.showDialog();
                     }
 
                     @Override
                     public void onComplete() {
+
                     }
                 });
     }
@@ -108,14 +141,14 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if(requestCode == 1) {
-            if(resultCode == RESULT_OK) {
-                basicDialog.setTitle("Result");
-                basicDialog.setMessage("Account registered successfully");
+            if(resultCode == RESULT_OK && data.getBooleanExtra(Constant.REGISTER_RESULT, false) == true) {
+                basicDialog.setTitle("Important");
+                basicDialog.setMessage("A confirmation link was sent to your email. Your account is still pending until verified by administrator");
+                basicDialog.setNegativeText("");
                 basicDialog.showDialog();
             } else if(resultCode == RESULT_CANCELED) {
                 if(data == null)
                     return;
-
                 basicDialog.setTitle("Result");
                 basicDialog.setMessage("Register failed");
                 basicDialog.showDialog();
