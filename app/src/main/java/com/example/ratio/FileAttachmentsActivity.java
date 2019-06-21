@@ -1,5 +1,6 @@
 package com.example.ratio;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -130,5 +131,15 @@ public class FileAttachmentsActivity extends AppCompatActivity {
             }
         };
         return listener;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK && requestCode == 1) {
+            Toast.makeText(FileAttachmentsActivity.this, "Record updated", Toast.LENGTH_LONG).show();
+        } else if(resultCode == RESULT_CANCELED && data == null){
+            Toast.makeText(FileAttachmentsActivity.this, "Operation failed, Please try again", Toast.LENGTH_LONG).show();
+        }
     }
 }

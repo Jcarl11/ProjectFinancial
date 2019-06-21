@@ -138,10 +138,14 @@ public class ImageDAO implements BaseDAO<Image>, GetFromParent<Image> {
         ParseQuery<ParseObject> query = ParseQuery.getQuery(PARSECLASS.IMAGES.toString());
         try {
             ParseObject parseObject = query.get(newRecord.getObjectId());
-            parseObject.put(IMAGES.PARENT.toString(), newRecord.getParent());
-            parseObject.put(IMAGES.FILENAME.toString(), newRecord.getFileName());
-            parseObject.put(IMAGES.DELETED.toString(), newRecord.isDeleted());
-            parseObject.put(IMAGES.FILES.toString(), parseFileOperation.fromFile(new File(newRecord.getFilePath())));
+            if(!parseObject.getString(IMAGES.FILENAME.toString()).equals(newRecord.getFileName())) {
+                parseObject.put(IMAGES.FILENAME.toString(), newRecord.getFileName());
+            }
+            if(!parseObject.getParseFile(IMAGES.FILES.toString()).getUrl().equals(newRecord.getFilePath())) {
+                File compressedImage = ImageCompressor.getInstance().compressToFile(new File(newRecord.getFilePath()));
+                downscaledImage = imageUtils.resize(compressedImage, 500);
+                parseObject.put(IMAGES.FILES.toString(), parseFileOperation.fromFile(downscaledImage));
+            }
             Log.d(TAG, "update: Saving...");
             parseObject.save();
             Log.d(TAG, "update: Record saved");

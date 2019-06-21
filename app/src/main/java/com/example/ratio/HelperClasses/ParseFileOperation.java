@@ -1,11 +1,17 @@
 package com.example.ratio.HelperClasses;
 
+import android.os.Environment;
 import android.util.Log;
 import com.parse.ParseFile;
+
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class ParseFileOperation {
     private static final String TAG = "ParseFileOperation";
@@ -35,6 +41,32 @@ public class ParseFileOperation {
         return fromByte(source.getName(), bytesArray);
     }
 
+    public File urlToImageFile(String sourceUrl, String filename) {
+        try {
+            URL url = new URL(sourceUrl);
+            File myFile = new File(Environment.getExternalStorageDirectory() + File.separator + filename);
+            FileUtils.copyURLToFile(url, myFile);
+            myFile.deleteOnExit();
+            return myFile;
+        } catch (IOException e) {
+            Log.d(TAG, "urlToFile: Exception thrown: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
 
+    public File urlToPdfFile(String sourceUrl, String filename) {
+        try {
+            URL url = new URL(sourceUrl);
+            File myFile = new File(Environment.getExternalStorageDirectory() + File.separator + filename);
+            FileUtils.copyURLToFile(url, myFile);
+            myFile.deleteOnExit();
+            return myFile;
+        } catch (IOException e) {
+            Log.d(TAG, "urlToFile: Exception thrown: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 }

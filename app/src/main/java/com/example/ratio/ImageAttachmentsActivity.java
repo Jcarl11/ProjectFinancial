@@ -138,6 +138,8 @@ public class ImageAttachmentsActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK && requestCode == 1) {
             Toast.makeText(ImageAttachmentsActivity.this, "Record updated", Toast.LENGTH_LONG).show();
+        } else if(resultCode == RESULT_CANCELED && data == null){
+            Toast.makeText(ImageAttachmentsActivity.this, "Operation failed, Please try again", Toast.LENGTH_LONG).show();
         }
     }
 }

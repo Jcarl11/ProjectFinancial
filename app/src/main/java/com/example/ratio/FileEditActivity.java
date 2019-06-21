@@ -87,6 +87,8 @@ public class FileEditActivity extends AppCompatActivity {
                     public void onError(Throwable e) {
                         Log.d(TAG, "onError: Exception thrown: " + e.getMessage());
                         dialog.dismiss();
+                        setResult(RESULT_CANCELED, intent);
+                        finish();
                     }
 
                     @Override

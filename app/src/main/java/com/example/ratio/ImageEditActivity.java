@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.example.ratio.Entities.Image;
 import com.example.ratio.HelperClasses.Constant;
+import com.example.ratio.HelperClasses.ParseFileOperation;
 import com.example.ratio.HelperClasses.Utility;
 import com.example.ratio.RxJava.ImageObservable;
 import com.google.android.material.textfield.TextInputLayout;
@@ -29,6 +30,8 @@ import com.jaiselrahman.filepicker.activity.FilePickerActivity;
 import com.jaiselrahman.filepicker.config.Configurations;
 import com.jaiselrahman.filepicker.model.MediaFile;
 import com.squareup.picasso.Picasso;
+
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,6 +48,7 @@ public class ImageEditActivity extends AppCompatActivity {
     private ImageObservable imageObservable = new ImageObservable();
     private AlertDialog dialog;
     private Intent intent = null;
+    private ParseFileOperation parseFileOperation = new ParseFileOperation();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +94,8 @@ public class ImageEditActivity extends AppCompatActivity {
                     public void onError(Throwable e) {
                         Log.d(TAG, "onError: Exception thrown: " + e.getMessage());
                         dialog.dismiss();
+                        setResult(RESULT_CANCELED, intent);
+                        finish();
                     }
 
                     @Override
