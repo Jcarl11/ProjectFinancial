@@ -10,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.DAO.NukeOperations;
 import com.example.ratio.DAO.UserOperations;
@@ -20,6 +21,7 @@ import com.example.ratio.Entities.Services;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Entities.Subcategory;
 import com.example.ratio.Entities.User;
+import com.example.ratio.Entities.Userinfo;
 import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.Enums.USERINFO;
 import com.example.ratio.Fragments.FragmentAddNew;
@@ -27,6 +29,7 @@ import com.example.ratio.Fragments.FragmentPortfolio;
 import com.example.ratio.Fragments.FragmentSearch;
 import com.example.ratio.HelperClasses.Constant;
 import com.example.ratio.HelperClasses.Utility;
+import com.example.ratio.RxJava.UserinfoObservable;
 import com.google.android.material.tabs.TabLayout;
 import com.parse.Parse;
 import com.parse.ParseUser;
@@ -48,6 +51,8 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
@@ -60,17 +65,20 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog alertDialog;
     private DAOFactory parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
     private DAOFactory sqliteFactory = DAOFactory.getDatabase(DATABASES.SQLITE);
+    private BaseDAO<User> userBaseDAO = parseFactory.getUserDAO();
     private UserOperations<User> userOperations;
     private NukeOperations<Status> statusNukeOperations;
     private NukeOperations<Services> servicesNukeOperations;
     private NukeOperations<ProjectType> projectTypeNukeOperations;
     private NukeOperations<Subcategory> subcategoryNukeOperations;
+    private UserinfoObservable userinfoObservable = new UserinfoObservable();
     private BaseDialog baseDialog;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        alertDialog = Utility.getInstance().showLoading(this, "Logging out", false);
         Log.d(TAG, "onCreate: Started...");
         setSupportActionBar(toolbar);
         Log.d(TAG, "onCreate: Toolbar initialized");
@@ -81,6 +89,42 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         Log.d(TAG, "onCreate: User already logged in");
+        userinfoObservable.retrieveUsersFromParent(ParseUser.getCurrentUser().getObjectId())
+                .map(new Function<Userinfo, User>() {
+                    @Override
+                    public User apply(Userinfo userinfo) throws Exception {
+                        User user = new User();
+                        user.setUserinfo(userinfo);
+                        return userBaseDAO.update(user);
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<User>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.d(TAG, "onSubscribe: Subscribed...");
+                        alertDialog.show();
+                    }
+
+                    @Override
+                    public void onNext(User user) {
+                        Log.d(TAG, "onNext: User: " + user.getObjectId());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError: Exception thrown: "+ e.getMessage());
+                        alertDialog.dismiss();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d(TAG, "onComplete: Completed");
+                        alertDialog.dismiss();
+                    }
+                });
+
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         mSectionsPagerAdapter.addFragment(new FragmentAddNew(), "Add new");
         mSectionsPagerAdapter.addFragment(new FragmentPortfolio(), "Portfolio");
@@ -115,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Local storage cleared", Toast.LENGTH_SHORT).show();
             return true;
         } else if(item.getItemId() == R.id.action_logout){
-            alertDialog = Utility.getInstance().showLoading(this, "Logging out", false);
+
             alertDialog.show();
             Observable.fromCallable(new Callable<String>() {
                 @Override
@@ -211,7 +255,4 @@ public class MainActivity extends AppCompatActivity {
                 .build()
         );
     }
-
-
-
 }

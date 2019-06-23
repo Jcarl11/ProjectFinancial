@@ -41,4 +41,37 @@ public class UserinfoObservable {
         });
         return observable;
     }
+
+    public Observable<Userinfo> retrieveUsersFromParent(String objectId){
+        Observable<Userinfo> observable = Observable.defer(new Callable<ObservableSource<? extends Userinfo>>() {
+            @Override
+            public ObservableSource<? extends Userinfo> call() throws Exception {
+                Userinfo userinfo = userinfoGetFromParent.getObjects(objectId).get(0);
+                return Observable.just(userinfo);
+            }
+        });
+        return observable;
+    }
+
+    public Observable<Userinfo> updateUserinfo(Userinfo userinfo) {
+        Observable<Userinfo> observable = Observable.defer(new Callable<ObservableSource<? extends Userinfo>>() {
+            @Override
+            public ObservableSource<? extends Userinfo> call() throws Exception {
+                Userinfo updateUserinfo = userinfoBaseDAO.update(userinfo);
+                return Observable.just(updateUserinfo);
+            }
+        });
+        return observable;
+    }
+
+    public Observable<Integer> deleteUserinfo(Userinfo userinfo) {
+        Observable<Integer> observable = Observable.defer(new Callable<ObservableSource<? extends Integer>>() {
+            @Override
+            public ObservableSource<? extends Integer> call() throws Exception {
+                int result = userinfoBaseDAO.delete(userinfo);
+                return Observable.just(result);
+            }
+        });
+        return observable;
+    }
 }

@@ -39,4 +39,15 @@ public class UserObservable {
         });
         return observable;
     }
+
+    public Observable<Integer> deleteUser(String objectId) {
+        Observable<Integer> observable = Observable.defer(new Callable<ObservableSource<? extends Integer>>() {
+            @Override
+            public ObservableSource<? extends Integer> call() throws Exception {
+                int result = userBaseDAO.delete(userBaseDAO.get(objectId));
+                return Observable.just(result);
+            }
+        });
+        return observable;
+    }
 }

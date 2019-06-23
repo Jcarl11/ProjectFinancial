@@ -90,6 +90,13 @@ public class LoginActivity extends AppCompatActivity {
                     public void onNext(Userinfo userinfo) {
                         Log.d(TAG, "onNext: Verified " + String.valueOf(userinfo.isVerified()));
                         alertDialog.dismiss();
+                        if(userinfo.getStatus().equalsIgnoreCase(Constant.DELETED)) {
+                            ParseUser.logOut();
+                            basicDialog.setTitle("Result");
+                            basicDialog.setMessage("Account does not exist");
+                            basicDialog.showDialog();
+                            return;
+                        }
                         if(userinfo.isVerified() == false) {
                             ParseUser.logOut();
                             basicDialog.setTitle("Pending");
@@ -97,7 +104,6 @@ public class LoginActivity extends AppCompatActivity {
                             basicDialog.showDialog();
                             return;
                         }
-
                         if (ParseUser.getCurrentUser().getBoolean("emailVerified") == false) {
                             ParseUser.logOut();
                             basicDialog.setTitle("Verification");

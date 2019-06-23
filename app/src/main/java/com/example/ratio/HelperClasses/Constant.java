@@ -11,4 +11,5 @@ public class Constant {
     public static final String APPRENTICE = "APPRENTICE";
     public static final String ADMINISTRATOR = "ADMINISTRATOR";
     public static final String ACTIVE = "ACTIVE";
+    public static final String DELETED = "DELETED";
 }

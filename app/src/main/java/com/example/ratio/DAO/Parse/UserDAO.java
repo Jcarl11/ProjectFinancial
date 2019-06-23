@@ -140,33 +140,44 @@ public class UserDAO implements BaseDAO<User>, UserOperations<User> {
 
     @Override
     public User update(User newRecord) {
-        if(newRecord.getEmail() != null){
+        ParseUser parseUser = ParseUser.getCurrentUser();
+        if(!parseUser.getString(USERINFO.POSITION.toString()).equalsIgnoreCase(newRecord.getUserinfo().getPosition())) {
+            Log.d(TAG, "update: Different");
+            Log.d(TAG, "update: POSITION: " + parseUser.getString(USERINFO.POSITION.toString()));
+            parseUser.put(USERINFO.POSITION.toString(), newRecord.getUserinfo().getPosition());
             try {
-                Log.d(TAG, "update: sending request...");
-                ParseUser.requestPasswordReset(newRecord.getEmail());
-                Log.d(TAG, "update: change password request sent");
+                Log.d(TAG, "update: Saving...");
+                parseUser.save();
+                Log.d(TAG, "update: Saved");
             } catch (ParseException e) {
-                e.printStackTrace();
                 Log.d(TAG, "update: Exception thrown: " + e.getMessage());
+                e.printStackTrace();
             }
         }
-        User userEntity = new User();
-        userEntity.setObjectId(ParseUser.getCurrentUser().getObjectId());
-        userEntity.setCreatedAt(dateTransform.toISO8601String(ParseUser.getCurrentUser().getCreatedAt()));
-        userEntity.setUpdatedAt(dateTransform.toISO8601String(ParseUser.getCurrentUser().getUpdatedAt()));
-        userEntity.setEmail(ParseUser.getCurrentUser().getEmail());
-        userEntity.setUsername(ParseUser.getCurrentUser().getUsername());
-        return userEntity;
+        Log.d(TAG, "update: POS: " + parseUser.getString(USERINFO.POSITION.toString()));
+        newRecord.setObjectId(ParseUser.getCurrentUser().getObjectId());
+        newRecord.setCreatedAt(dateTransform.toISO8601String(ParseUser.getCurrentUser().getCreatedAt()));
+        newRecord.setUpdatedAt(dateTransform.toISO8601String(ParseUser.getCurrentUser().getUpdatedAt()));
+        newRecord.setEmail(ParseUser.getCurrentUser().getEmail());
+        newRecord.setUsername(ParseUser.getCurrentUser().getUsername());
+        return newRecord;
     }
 
     @Override
     public int delete(User object) {
+        int result = 0;
         try {
-            throw new Exception("No implementation for this method");
+            ParseQuery<ParseUser> query = ParseUser.getQuery();
+            ParseUser parseUser = query.get(object.getObjectId());
+            Log.d(TAG, "delete: Deleting...");
+            parseUser.delete();
+            Log.d(TAG, "delete: Deleted Successfully");
+            result = 1;
         } catch (Exception e) {
+            Log.d(TAG, "delete: Exception thrown: " + e.getMessage());
             e.printStackTrace();
         }
-        return 0;
+        return result;
     }
 
     @Override

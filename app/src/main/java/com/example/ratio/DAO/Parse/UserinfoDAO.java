@@ -8,6 +8,7 @@ import com.example.ratio.DAO.GetFromPosition;
 import com.example.ratio.Entities.Userinfo;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.USERINFO;
+import com.example.ratio.HelperClasses.Constant;
 import com.example.ratio.HelperClasses.DateTransform;
 import com.example.ratio.HelperClasses.Utility;
 import com.parse.ParseException;
@@ -140,7 +141,7 @@ public class UserinfoDAO implements BaseDAO<Userinfo>, GetFromParent<Userinfo>, 
                 parseObject.put(USERINFO.POSITION.toString(), newRecord.getPosition());
             if(!parseObject.getString(USERINFO.STATUS.toString()).equals(newRecord.getStatus()))
                 parseObject.put(USERINFO.STATUS.toString(), newRecord.getStatus());
-            if(!parseObject.getBoolean(USERINFO.VERIFIED.toString()) != newRecord.isVerified())
+            if(parseObject.getBoolean(USERINFO.VERIFIED.toString()) != newRecord.isVerified())
                 parseObject.put(USERINFO.VERIFIED.toString(), newRecord.isVerified());
             if(!parseObject.getString(USERINFO.EMAIL.toString()).equals(newRecord.getEmail()))
                 parseObject.put(USERINFO.EMAIL.toString(), newRecord.getEmail());
@@ -175,7 +176,9 @@ public class UserinfoDAO implements BaseDAO<Userinfo>, GetFromParent<Userinfo>, 
             ParseObject parseObject = query.get(object.getObjectId());
             Log.d(TAG, "delete: Object retrieved");
             Log.d(TAG, "delete: Deleting..");
-            parseObject.delete();
+            parseObject.put(USERINFO.STATUS.toString(), Constant.DELETED);
+            parseObject.put(USERINFO.POSITION.toString(), Constant.PENDING);
+            parseObject.save();
             result = 1;
             Log.d(TAG, "delete: Deleted");
         } catch (ParseException e) {
