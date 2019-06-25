@@ -39,4 +39,15 @@ public class FileObservable {
         });
         return observable;
     }
+
+    public Observable<Integer> deleteFile(String parentID) {
+        Observable<Integer> observable = Observable.defer(new Callable<ObservableSource<? extends Integer>>() {
+            @Override
+            public ObservableSource<? extends Integer> call() throws Exception {
+                int result = pdfBaseDAO.deleteAll(pdfGetFromParent.getObjects(parentID));
+                return Observable.just(result);
+            }
+        });
+        return observable;
+    }
 }

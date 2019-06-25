@@ -41,4 +41,15 @@ public class ExpensesObservable {
         return observable;
     }
 
+    public Observable<Integer> deleteExpenses(Expenses expenses) {
+        Observable<Integer> observable = Observable.defer(new Callable<ObservableSource<? extends Integer>>() {
+            @Override
+            public ObservableSource<? extends Integer> call() throws Exception {
+                int result = expensesBaseDAO.delete(expenses);
+                return Observable.just(result);
+            }
+        });
+        return observable;
+    }
+
 }

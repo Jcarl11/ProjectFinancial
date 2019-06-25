@@ -39,4 +39,15 @@ public class RecievablesObservable {
         });
         return observable;
     }
+
+    public Observable<Integer> deleteReceivable(Receivables receivables) {
+        Observable<Integer> observable = Observable.defer(new Callable<ObservableSource<? extends Integer>>() {
+            @Override
+            public ObservableSource<? extends Integer> call() throws Exception {
+                int result = recievablesBaseDAO.delete(receivables);
+                return Observable.just(result);
+            }
+        });
+        return observable;
+    }
 }

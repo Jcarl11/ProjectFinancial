@@ -40,4 +40,15 @@ public class IncomeObservable {
         });
         return observable;
     }
+
+    public Observable<Integer> deleteIncome(Income income) {
+        Observable<Integer> observable = Observable.defer(new Callable<ObservableSource<? extends Integer>>() {
+            @Override
+            public ObservableSource<? extends Integer> call() throws Exception {
+                int result = incomeBaseDAO.delete(income);
+                return Observable.just(result);
+            }
+        });
+        return observable;
+    }
 }

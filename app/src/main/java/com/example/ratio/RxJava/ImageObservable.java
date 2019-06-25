@@ -1,5 +1,7 @@
 package com.example.ratio.RxJava;
 
+import android.util.Log;
+
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.DAO.GetFromParent;
@@ -37,6 +39,18 @@ public class ImageObservable {
             public ObservableSource<? extends Image> call() throws Exception {
                 Image image = imageBaseDAO.update(newRecord);
                 return Observable.just(image);
+            }
+        });
+        return observable;
+    }
+
+    public Observable<String> deleteImage(String parentID) {
+        Observable<String> observable = Observable.defer(new Callable<ObservableSource<? extends String>>() {
+            @Override
+            public ObservableSource<? extends String> call() throws Exception {
+                int result = imageBaseDAO.deleteAll(imageGetFromParent.getObjects(parentID));
+                Log.d(TAG, "call: Result: " + result);
+                return Observable.just(parentID);
             }
         });
         return observable;
