@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.ratio.Entities.Expenses;
+import com.example.ratio.HelperClasses.CurrencyFormat;
 import com.example.ratio.R;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ExpensesViewHolder> {
+    private CurrencyFormat currencyFormat = new CurrencyFormat();
     private Context context;
     private List<Expenses> expensesList = new ArrayList<>();
 
@@ -38,7 +40,7 @@ public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.Expens
         holder.expenses_row_date.setText(expenses.getTimestamp());
         holder.expenses_row_attachments.setText(String.valueOf(expenses.isAttachments()));
         holder.expenses_row_desc.setText(expenses.getDescription());
-        holder.expenses_row_amount.setText(String.format("Php %s", expenses.getAmount()));
+        holder.expenses_row_amount.setText(currencyFormat.toPhp(Double.parseDouble(expenses.getAmount())));
     }
 
     @Override

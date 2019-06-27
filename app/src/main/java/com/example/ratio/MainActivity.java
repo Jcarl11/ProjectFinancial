@@ -216,6 +216,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, RestrictedActivity.class));
             }
 
+        } else if (item.getItemId() == R.id.action_reports){
+            Log.d(TAG, "onOptionsItemSelected: Reports page clicked...");
+            Intent intent = new Intent(MainActivity.this, ReportsActivity.class);
+            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }

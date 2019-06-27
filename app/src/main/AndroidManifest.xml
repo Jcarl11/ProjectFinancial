@@ -14,7 +14,9 @@
         android:roundIcon="@drawable/ratiologo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".RestrictedActivity"></activity>
+        <activity android:name=".ReportsActivity"
+            android:windowSoftInputMode="stateHidden"></activity>
+        <activity android:name=".RestrictedActivity" />
         <activity android:name=".ManageUsersActivity" />
         <activity android:name=".FileEditActivity" />
         <activity android:name=".ImageEditActivity" />
