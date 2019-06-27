@@ -116,7 +116,7 @@ public class FragmentAddNew extends Fragment {
         projectTypeDAO = parseFactory.getProjectTypeDAO();
         subcategoryBaseDAO = parseFactory.getSubcategoryDAO();
         servicesBaseDAO = parseFactory.getServicesDAO();
-        statusGetDistinct = (GetDistinct<Status>) parseFactory.getStatusDAO();
+        statusGetDistinct = (GetDistinct<Status>) sqliteFactory.getStatusDAO();
         statusBaseDAO = parseFactory.getStatusDAO();
         imageBaseDAO = parseFactory.getImageDAO();
         dialog = Utility.getInstance().showLoading(getContext(), "Please wait", false);
@@ -124,7 +124,7 @@ public class FragmentAddNew extends Fragment {
         servicesBaseDAO = sqliteFactory.getServicesDAO();
         projectTypeDAO = sqliteFactory.getProjectTypeDAO();
         subcategoryBaseDAO = sqliteFactory.getSubcategoryDAO();
-        if(statusBaseDAO.getBulk(null).size() <= 0) {
+        if(statusGetDistinct.getDistinct().size() <= 0) {
             Log.d(TAG, "onCreateView: Status Empty");
             statusObservable.statusObservable().subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -177,8 +177,10 @@ public class FragmentAddNew extends Fragment {
                         }
                     });
         } else {
+            Log.d(TAG, "onCreateView: Local status not empty");
             statusGetDistinct = (GetDistinct<Status>) sqliteFactory.getStatusDAO();
             List<Status> distinctStatus = statusGetDistinct.getDistinct();
+            Log.d(TAG, "onCreateView: Locally retrieved status size: " + distinctStatus.size());
             List<KeyPairBoolData> items = new ArrayList<>();
             for(int x = 0; x < distinctStatus.size(); x++){
                 KeyPairBoolData keyPairBoolData = new KeyPairBoolData();

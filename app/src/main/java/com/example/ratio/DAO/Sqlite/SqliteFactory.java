@@ -2,7 +2,6 @@ package com.example.ratio.DAO.Sqlite;
 
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.DAOFactory;
-import com.example.ratio.DAO.Parse.FileDAO;
 
 public class SqliteFactory extends DAOFactory {
     @Override

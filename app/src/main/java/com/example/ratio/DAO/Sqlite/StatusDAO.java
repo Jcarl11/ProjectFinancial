@@ -8,6 +8,7 @@ import android.util.Log;
 import com.example.ratio.ContextApplication;
 import com.example.ratio.DAO.BaseDAO;
 import com.example.ratio.DAO.GetDistinct;
+import com.example.ratio.DAO.GetFromParent;
 import com.example.ratio.DAO.NukeOperations;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Enums.DEFAULTS;
@@ -18,7 +19,7 @@ import com.example.ratio.HelperClasses.DateTransform;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StatusDAO implements BaseDAO<Status>, NukeOperations<Status>, GetDistinct<Status> {
+public class StatusDAO implements BaseDAO<Status>, NukeOperations<Status>, GetDistinct<Status>, GetFromParent<Status> {
 
     private static final String TAG = "StatusDAO";
     private DateTransform dateTransform = new DateTransform();
@@ -88,9 +89,10 @@ public class StatusDAO implements BaseDAO<Status>, NukeOperations<Status>, GetDi
     public List<Status> getBulk(String sqlCommand) {
         Log.d(TAG, "getBulk: Started...");
         sqLiteDatabase = dbHelper.getWritableDatabase();
-        Cursor cursor = sqLiteDatabase.rawQuery(String.format("SELECT * FROM %s", PARSECLASS.STATUS.toString()), null);
+        Cursor cursor = sqLiteDatabase.rawQuery(String.format("SELECT * FROM %s WHERE %s != ?", PARSECLASS.STATUS.toString(), STATUS.PARENT.toString()), new String[]{"DEFAULTS"});
         List<Status> statusList = new ArrayList<>();
         int result = cursor.getCount();
+        Log.d(TAG, "getBulk: Result: " + result);
         if ( result <= 0 ) {
             return statusList;
         }
@@ -168,7 +170,7 @@ public class StatusDAO implements BaseDAO<Status>, NukeOperations<Status>, GetDi
         Log.d(TAG, "getBulk: Started...");
         sqLiteDatabase = dbHelper.getWritableDatabase();
         List<Status> statuses = new ArrayList<>();
-        Cursor cursor = sqLiteDatabase.rawQuery("SELECT DISTINCT * FROM STATUS",null);
+        Cursor cursor = sqLiteDatabase.rawQuery(String.format("SELECT DISTINCT * FROM %s GROUP BY %s",PARSECLASS.STATUS.toString(), STATUS.NAME.toString()),null);
         int result = cursor.getCount();
         Log.d(TAG, "get: Result: " + result);
         if (result <= 0) {
@@ -190,5 +192,32 @@ public class StatusDAO implements BaseDAO<Status>, NukeOperations<Status>, GetDi
         sqLiteDatabase.close();
 
         return statuses;
+    }
+
+    @Override
+    public List<Status> getObjects(String parentID) {
+        Log.d(TAG, "getObjects: Started...");
+        List<Status> statusList = new ArrayList<>();
+        sqLiteDatabase = dbHelper.getWritableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery(
+                String.format("SELECT * FROM %s WHERE %s = ?", PARSECLASS.STATUS.toString(), STATUS.PARENT.toString()), new String[]{parentID});
+        int result = cursor.getCount();
+        Log.d(TAG, "getObjects: Result: " + result);
+        if(result <= 0) {
+            return statusList;
+        }
+
+        while(cursor.moveToNext()) {
+            Status status = new Status();
+            status.setObjectId(cursor.getString(cursor.getColumnIndex(DEFAULTS.objectId.toString())));
+            status.setCreatedAt(cursor.getString(cursor.getColumnIndex(DEFAULTS.createdAt.toString())));
+            status.setUpdatedAt(cursor.getString(cursor.getColumnIndex(DEFAULTS.updatedAt.toString())));
+            status.setName(cursor.getString(cursor.getColumnIndex(STATUS.NAME.toString())));
+            status.setParent(cursor.getString(cursor.getColumnIndex(STATUS.PARENT.toString())));
+            statusList.add(status);
+        }
+        sqLiteDatabase.close();
+        cursor.close();
+        return statusList;
     }
 }

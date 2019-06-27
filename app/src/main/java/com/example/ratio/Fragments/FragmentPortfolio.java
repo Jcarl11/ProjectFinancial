@@ -20,8 +20,11 @@ import com.example.ratio.DAO.DAOFactory;
 import com.example.ratio.Dialogs.BaseDialog;
 import com.example.ratio.Dialogs.BasicDialog;
 import com.example.ratio.Entities.Image;
+import com.example.ratio.Entities.ProjectType;
 import com.example.ratio.Entities.Projects;
+import com.example.ratio.Entities.Services;
 import com.example.ratio.Entities.Status;
+import com.example.ratio.Entities.Subcategory;
 import com.example.ratio.Enums.DATABASES;
 import com.example.ratio.ExpensesListActivity;
 import com.example.ratio.HelperClasses.Constant;
@@ -56,8 +59,12 @@ public class FragmentPortfolio extends Fragment {
     private static final String TAG = "FragmentPortfolio";
     @BindView(R.id.portfolio_recyclerview) RecyclerView portfolio_recyclerview;
     private DAOFactory parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
+    private DAOFactory sqliteFactory = DAOFactory.getDatabase(DATABASES.SQLITE);
     private BaseDAO<Projects> projectsBaseDAO = null;
     private BaseDAO<Status> statusBaseDAO = null;
+    private BaseDAO<ProjectType> projectTypeBaseDAO = null;
+    private BaseDAO<Subcategory> subcategoryBaseDAO = null;
+    private BaseDAO<Services> servicesBaseDAO = null;
     private BaseDAO<Image> imageBaseDAO = null;
     private AlertDialog dialog;
     private BaseDialog basicDialog = null;
@@ -78,7 +85,7 @@ public class FragmentPortfolio extends Fragment {
         basicDialog = new BasicDialog(getContext());
         portfolio_recyclerview.setHasFixedSize(true);
         portfolio_recyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
-        if(portfolio_recyclerview.getAdapter() == null) {
+        if(portfolio_recyclerview.getAdapter() == null ) {
             Log.d(TAG, "onCreateView: Loaded...");
             getProjects();
         }
@@ -183,8 +190,6 @@ public class FragmentPortfolio extends Fragment {
                     public void onNext(List<Projects> projects) {
                         Log.d(TAG, "onNext: Size: "  + projects.size());
                         projectsList = projects;
-                        ProjectAdapter adapter = new ProjectAdapter(getContext(), projects);
-                        portfolio_recyclerview.setAdapter(adapter);
                     }
 
                     @Override
@@ -201,6 +206,8 @@ public class FragmentPortfolio extends Fragment {
                     public void onComplete() {
                         dialog.dismiss();
                         Log.d(TAG, "onComplete: Completed...");
+                        ProjectAdapter adapter = new ProjectAdapter(getContext(), projectsList);
+                        portfolio_recyclerview.setAdapter(adapter);
                     }
                 });
     }

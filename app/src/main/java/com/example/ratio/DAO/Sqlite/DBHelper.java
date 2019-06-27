@@ -5,7 +5,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.ratio.Enums.DEFAULTS;
+import com.example.ratio.Enums.IMAGES;
 import com.example.ratio.Enums.PARSECLASS;
+import com.example.ratio.Enums.PDF;
+import com.example.ratio.Enums.PROJECT;
 import com.example.ratio.Enums.PROJECT_TYPE;
 import com.example.ratio.Enums.PROJECT_TYPE_SUBCATEGORY;
 import com.example.ratio.Enums.SERVICES;
@@ -22,7 +25,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String updatedAt = DEFAULTS.updatedAt.toString();
 
     public DBHelper(@Nullable Context context) {
-        super(context, DB_NAME, null, 3);
+        super(context, DB_NAME, null, 5);
     }
 
     @Override
@@ -61,10 +64,48 @@ public class DBHelper extends SQLiteOpenHelper {
                 PROJECT_TYPE_SUBCATEGORY.NAME.toString(), PROJECT_TYPE_SUBCATEGORY.OTHERS.toString(),
                 PROJECT_TYPE_SUBCATEGORY.PARENT.toString());
 
+        String projects = String.format("CREATE TABLE IF NOT EXISTS %s" +
+                        "(%s character(10) PRIMARY KEY, " +
+                        "%s datetime, " +
+                        "%s datetime, " +
+                        "%s varchar(255), " +
+                        "%s integer, " +
+                        "%s varchar(255), " +
+                        "%s varchar(255)," +
+                        "%s varchar(255)," +
+                        "%s varchar(255)," +
+                        "%s varchar(255))", PARSECLASS.PROJECT.toString(), objectId, createdAt, updatedAt,
+                PROJECT.PROJECT_CODE.toString(), PROJECT.DELETED.toString(),
+                PROJECT.PROJECT_TITLE.toString(), PROJECT.PROJECT_OWNER.toString(), PROJECT.TYPE.toString(),
+                PROJECT.SERVICES.toString(),PROJECT.SUBCATEGORY.toString());
+
+        String createImages = String.format("CREATE TABLE IF NOT EXISTS %s" +
+                        "(%s character(10) PRIMARY KEY, " +
+                        "%s datetime, " +
+                        "%s datetime, " +
+                        "%s varchar(255), " +
+                        "%s varchar(255)," +
+                        "%s varchar(255)," +
+                        "%s integer)", PARSECLASS.IMAGES.toString(), objectId, createdAt, updatedAt,
+                IMAGES.PARENT.toString(), IMAGES.FILENAME.toString(), IMAGES.FILES.toString(), IMAGES.DELETED.toString());
+
+        String createPdf = String.format("CREATE TABLE IF NOT EXISTS %s" +
+                        "(%s character(10) PRIMARY KEY, " +
+                        "%s datetime, " +
+                        "%s datetime, " +
+                        "%s varchar(255), " +
+                        "%s varchar(255)," +
+                        "%s varchar(255)," +
+                        "%s integer)", PARSECLASS.PDF.toString(), objectId, createdAt, updatedAt,
+                PDF.PARENT.toString(), PDF.FILENAME.toString(), PDF.FILES.toString(), PDF.DELETED.toString());
+
         db.execSQL(createStatus);
         db.execSQL(createServices);
         db.execSQL(createProjectType);
         db.execSQL(createSubcategory);
+        db.execSQL(projects);
+        db.execSQL(createImages);
+        db.execSQL(createPdf);
     }
 
     @Override
@@ -96,6 +137,43 @@ public class DBHelper extends SQLiteOpenHelper {
                             "%s varchar(255))", PARSECLASS.PROJECT_TYPE_SUBCATEGORY.toString(), objectId, createdAt, updatedAt,
                     PROJECT_TYPE_SUBCATEGORY.NAME.toString(), PROJECT_TYPE_SUBCATEGORY.OTHERS.toString(),
                     PROJECT_TYPE_SUBCATEGORY.PARENT.toString()));
+        }
+        if(oldVersion < 4) {
+            db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s" +
+                            "(%s character(10) PRIMARY KEY, " +
+                            "%s datetime, " +
+                            "%s datetime, " +
+                            "%s varchar(255), " +
+                            "%s integer, " +
+                            "%s varchar(255), " +
+                            "%s varchar(255)," +
+                            "%s varchar(255)," +
+                            "%s varchar(255)," +
+                            "%s varchar(255))", PARSECLASS.PROJECT.toString(), objectId, createdAt, updatedAt,
+                    PROJECT.PROJECT_CODE.toString(), PROJECT.DELETED.toString(),
+                    PROJECT.PROJECT_TITLE.toString(), PROJECT.PROJECT_OWNER.toString(), PROJECT.TYPE.toString(),
+                    PROJECT.SERVICES.toString(),PROJECT.SUBCATEGORY.toString()));
+        }
+        if(oldVersion < 5) {
+            db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s" +
+                            "(%s character(10) PRIMARY KEY, " +
+                            "%s datetime, " +
+                            "%s datetime, " +
+                            "%s varchar(255), " +
+                            "%s varchar(255)," +
+                            "%s varchar(255)," +
+                            "%s integer)", PARSECLASS.IMAGES.toString(), objectId, createdAt, updatedAt,
+                    IMAGES.PARENT.toString(), IMAGES.FILENAME.toString(), IMAGES.FILES.toString(), IMAGES.DELETED.toString()));
+
+            db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s" +
+                            "(%s character(10) PRIMARY KEY, " +
+                            "%s datetime, " +
+                            "%s datetime, " +
+                            "%s varchar(255), " +
+                            "%s varchar(255)," +
+                            "%s varchar(255)," +
+                            "%s integer)", PARSECLASS.PDF.toString(), objectId, createdAt, updatedAt,
+                    PDF.PARENT.toString(), PDF.FILENAME.toString(), PDF.FILES.toString(), PDF.DELETED.toString()));
         }
     }
 }

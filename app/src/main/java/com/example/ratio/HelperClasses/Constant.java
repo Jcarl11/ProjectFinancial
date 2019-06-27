@@ -12,4 +12,5 @@ public class Constant {
     public static final String ADMINISTRATOR = "ADMINISTRATOR";
     public static final String ACTIVE = "ACTIVE";
     public static final String DELETED = "DELETED";
+    public static final String DEFAULT = "DEFAULTS";
 }

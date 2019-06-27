@@ -16,7 +16,10 @@ import com.example.ratio.DAO.NukeOperations;
 import com.example.ratio.DAO.UserOperations;
 import com.example.ratio.Dialogs.BaseDialog;
 import com.example.ratio.Dialogs.BasicDialog;
+import com.example.ratio.Entities.Image;
+import com.example.ratio.Entities.Pdf;
 import com.example.ratio.Entities.ProjectType;
+import com.example.ratio.Entities.Projects;
 import com.example.ratio.Entities.Services;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Entities.Subcategory;
@@ -71,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
     private NukeOperations<Services> servicesNukeOperations;
     private NukeOperations<ProjectType> projectTypeNukeOperations;
     private NukeOperations<Subcategory> subcategoryNukeOperations;
+    private NukeOperations<Projects> projectsNukeOperations;
+    private NukeOperations<Image> imageNukeOperations;
+    private NukeOperations<Pdf> pdfNukeOperations;
     private UserinfoObservable userinfoObservable = new UserinfoObservable();
     private BaseDialog baseDialog;
     @Override
@@ -136,6 +142,10 @@ public class MainActivity extends AppCompatActivity {
         statusNukeOperations = (NukeOperations<Status>) sqliteFactory.getStatusDAO();
         servicesNukeOperations = (NukeOperations<Services>) sqliteFactory.getServicesDAO();
         projectTypeNukeOperations = (NukeOperations<ProjectType>) sqliteFactory.getProjectTypeDAO();
+        subcategoryNukeOperations = (NukeOperations<Subcategory>) sqliteFactory.getSubcategoryDAO();
+        projectsNukeOperations = (NukeOperations<Projects>) sqliteFactory.getProjectDAO();
+        imageNukeOperations = (NukeOperations<Image>) sqliteFactory.getImageDAO();
+        pdfNukeOperations = (NukeOperations<Pdf>) sqliteFactory.getFileDAO();
         baseDialog = new BasicDialog(this);
     }
     @Override
@@ -152,10 +162,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else if(item.getItemId() == R.id.action_clearlocal){
             Log.d(TAG, "clearLocalStorage: Clicked");
-            int statusDeleted = statusNukeOperations.deleteRows();
-            int servicesDeleted = servicesNukeOperations.deleteRows();
-            int projectTypesDeleted = projectTypeNukeOperations.deleteRows();
-            int subCategoryDeleted = subcategoryNukeOperations.deleteRows();
+            deleteLocalStorage();
             Toast.makeText(this, "Local storage cleared", Toast.LENGTH_SHORT).show();
             return true;
         } else if(item.getItemId() == R.id.action_logout){
@@ -165,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public String call() throws Exception {
                     userOperations.logoutUser();
+                    deleteLocalStorage();
                     return "Done";
                 }
             })
@@ -254,5 +262,14 @@ public class MainActivity extends AppCompatActivity {
                 .server(getString(R.string.back4app_server_url))
                 .build()
         );
+    }
+    private void deleteLocalStorage(){
+        int statusDeleted = statusNukeOperations.deleteRows();
+        int servicesDeleted = servicesNukeOperations.deleteRows();
+        int projectTypesDeleted = projectTypeNukeOperations.deleteRows();
+        int subCategoryDeleted = subcategoryNukeOperations.deleteRows();
+        int projectDeleted = projectsNukeOperations.deleteRows();
+        int imageDeleted = imageNukeOperations.deleteRows();
+        int pdfDeleted = pdfNukeOperations.deleteRows();
     }
 }

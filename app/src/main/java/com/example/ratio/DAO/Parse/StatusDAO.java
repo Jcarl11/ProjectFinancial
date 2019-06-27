@@ -8,6 +8,7 @@ import com.example.ratio.DAO.GetFromParent;
 import com.example.ratio.Entities.Status;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.STATUS;
+import com.example.ratio.HelperClasses.Constant;
 import com.example.ratio.HelperClasses.DateTransform;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
@@ -104,13 +105,15 @@ public class StatusDAO implements BaseDAO<Status>, GetDistinct<Status>, GetFromP
             List<ParseObject> parseObjects = query.find();
             Log.d(TAG, "getBulk: Retrieved: " + parseObjects.size());
             for(ParseObject parseObject : parseObjects) {
-                Status status = new Status();
-                status.setObjectId(parseObject.getObjectId());
-                status.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
-                status.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
-                status.setName(parseObject.getString(STATUS.NAME.toString()));
-                status.setParent(parseObject.getString(STATUS.PARENT.toString()));
-                statuses.add(status);
+                if(!parseObject.getString(STATUS.PARENT.toString()).equalsIgnoreCase(Constant.DEFAULT)) {
+                    Status status = new Status();
+                    status.setObjectId(parseObject.getObjectId());
+                    status.setCreatedAt(dateTransform.toISO8601String(parseObject.getCreatedAt()));
+                    status.setUpdatedAt(dateTransform.toISO8601String(parseObject.getUpdatedAt()));
+                    status.setName(parseObject.getString(STATUS.NAME.toString()));
+                    status.setParent(parseObject.getString(STATUS.PARENT.toString()));
+                    statuses.add(status);
+                }
             }
 
         } catch (ParseException e) {

@@ -29,6 +29,7 @@ import io.reactivex.functions.Function;
 public class ProjectsObservable {
     private static final String TAG = "ProjectsObservable";
     private DAOFactory parseFactory = DAOFactory.getDatabase(DATABASES.PARSE);
+    private DAOFactory sqliteFactory = DAOFactory.getDatabase(DATABASES.SQLITE);
     private BaseDAO<Projects> projectsBaseDAO = parseFactory.getProjectDAO();
     private CustomOperations<Projects> projectsCustomOperations = (CustomOperations<Projects>) parseFactory.getProjectDAO();
     private BaseDAO<Status> statusBaseDAO = parseFactory.getStatusDAO();
@@ -39,11 +40,39 @@ public class ProjectsObservable {
 
     public Observable<List<Projects>> getProjectCompleteObservable() {
 
-        Observable<List<Projects>> projectObservable = Observable.defer(() ->
-                Observable.just(projectsBaseDAO.getBulk(null)))
+        Observable<List<Projects>> projectObservable = Observable.defer(() ->{
+            projectsBaseDAO = sqliteFactory.getProjectDAO();
+                if(projectsBaseDAO.getBulk("1000").size() <= 0) {
+                    Log.d(TAG, "getProjectCompleteObservable: Local storage Empty");
+                    projectsBaseDAO = parseFactory.getProjectDAO();
+                    List<Projects> projectsList = projectsBaseDAO.getBulk("1000");
+                    projectsBaseDAO = sqliteFactory.getProjectDAO();
+                    projectsBaseDAO.insertAll(projectsList);
+                    return Observable.just(projectsList);
+                }
+                else {
+                    Log.d(TAG, "getProjectCompleteObservable: Not empty");
+                    projectsBaseDAO = sqliteFactory.getProjectDAO();
+                    return Observable.just(projectsBaseDAO.getBulk(null));
+                }
+
+        })
                 .map(projects -> {
                     List<Projects> projectsList = new ArrayList<>();
+                    statusBaseDAO = sqliteFactory.getStatusDAO();
+                    projectsBaseDAO = sqliteFactory.getProjectDAO();
+                    Log.d(TAG, "getProjectCompleteObservable: Started status retr");
+                    if(statusBaseDAO.getBulk("1000").size() <= 0) {
+                        Log.d(TAG, "getProjectCompleteObservable: Status local storage is empty");
+                        statusBaseDAO = parseFactory.getStatusDAO();
+                        List<Status> statusList = statusBaseDAO.getBulk("1000");
+                        Log.d(TAG, "getProjectCompleteObservable: Status fetched size: " + statusList.size());
+                        statusBaseDAO = sqliteFactory.getStatusDAO();
+                        statusBaseDAO.insertAll(statusList);
+                    }
+                    statusGetFromParent = (GetFromParent<Status>) sqliteFactory.getStatusDAO();
                     for (Projects individuals : projects) {
+                        Log.d(TAG, "getProjectCompleteObservable: ID: " + individuals.getObjectId());
                         List<Status> statusList = statusGetFromParent.getObjects(individuals.getObjectId());
                         individuals.setProjectStatus(statusList);
                         projectsList.add(individuals);
@@ -51,6 +80,17 @@ public class ProjectsObservable {
                     return projectsList;
                 })
                 .flatMap(projects -> {
+                    imageBaseDAO = sqliteFactory.getImageDAO();
+                    Log.d(TAG, "getProjectCompleteObservable: Starting image fetch");
+                    if(imageBaseDAO.getBulk("1000").size() <= 0) {
+                        Log.d(TAG, "getProjectCompleteObservable: Image local storage empty");
+                        imageBaseDAO = parseFactory.getImageDAO();
+                        List<Image> imageList = imageBaseDAO.getBulk("1000");
+                        Log.d(TAG, "getProjectCompleteObservable: Image fetched size: " + imageList.size());
+                        imageBaseDAO = sqliteFactory.getImageDAO();
+                        imageBaseDAO.insertAll(imageList);
+                    }
+                    imageGetFromParent = (GetFromParent<Image>) sqliteFactory.getImageDAO();
                     List<Projects> projectsList = new ArrayList<>();
                     for (Projects individuals : projects) {
                         List<Image> thumbnail = imageGetFromParent.getObjects(individuals.getObjectId());
