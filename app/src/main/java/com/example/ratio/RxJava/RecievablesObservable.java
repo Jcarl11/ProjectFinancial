@@ -50,4 +50,15 @@ public class RecievablesObservable {
         });
         return observable;
     }
+
+    public Observable<List<Receivables>> retrieveAllReceivables() {
+        Observable<List<Receivables>> observable = Observable.defer(new Callable<ObservableSource<? extends List<Receivables>>>() {
+            @Override
+            public ObservableSource<? extends List<Receivables>> call() throws Exception {
+                List<Receivables> recievables = recievablesBaseDAO.getBulk("1000");
+                return Observable.just(recievables);
+            }
+        });
+        return observable;
+    }
 }

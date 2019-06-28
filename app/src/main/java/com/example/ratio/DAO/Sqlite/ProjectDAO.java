@@ -67,7 +67,39 @@ public class ProjectDAO implements BaseDAO<Projects>, NukeOperations<Projects> {
 
     @Override
     public Projects get(String objectId) {
-        return null;
+        Log.d(TAG, "get: Started...");
+        sqLiteDatabase = dbHelper.getWritableDatabase();
+        Projects projects = new Projects();
+        Cursor cursor = sqLiteDatabase.rawQuery(String.format("SELECT * FROM %s WHERE %s = ?",
+                        PARSECLASS.PROJECT.toString(), DEFAULTS.objectId.toString()), new String[]{objectId});
+        int result = cursor.getCount();
+        Log.d(TAG, "get: Result: " + result);
+        if(result <= 0) {
+            return new Projects();
+        }
+        while(cursor.moveToNext()) {
+
+            ProjectType projectType = new ProjectType();
+            Services services = new Services();
+            Subcategory subcategory = new Subcategory();
+            projectType.setObjectId(cursor.getString(cursor.getColumnIndex(PROJECT.TYPE.toString())));
+            services.setObjectId(cursor.getString(cursor.getColumnIndex(PROJECT.SERVICES.toString())));
+            subcategory.setObjectId(cursor.getString(cursor.getColumnIndex(PROJECT.SUBCATEGORY.toString())));
+
+            projects.setObjectId(cursor.getString(cursor.getColumnIndex(DEFAULTS.objectId.toString())));
+            projects.setCreatedAt(cursor.getString(cursor.getColumnIndex(DEFAULTS.createdAt.toString())));
+            projects.setUpdatedAt(cursor.getString(cursor.getColumnIndex(DEFAULTS.updatedAt.toString())));
+            projects.setProjectName(cursor.getString(cursor.getColumnIndex(PROJECT.PROJECT_TITLE.toString())));
+            projects.setProjectCode(cursor.getString(cursor.getColumnIndex(PROJECT.PROJECT_CODE.toString())));
+            projects.setProjectOwner(cursor.getString(cursor.getColumnIndex(PROJECT.PROJECT_OWNER.toString())));
+            projects.setProjectType(projectType);
+            projects.setProjectServices(services);
+            projects.setProjectSubCategory(subcategory);
+            projects.setDeleted(cursor.getInt(cursor.getColumnIndex(PROJECT.DELETED.toString())) == 1 ? true : false);
+        }
+        sqLiteDatabase.close();
+        cursor.close();
+        return projects;
     }
 
     @Override
@@ -99,7 +131,7 @@ public class ProjectDAO implements BaseDAO<Projects>, NukeOperations<Projects> {
             projects.setProjectType(projectType);
             projects.setProjectServices(services);
             projects.setProjectSubCategory(subcategory);
-            projects.setDeleted(cursor.getInt(cursor.getColumnIndex(DEFAULTS.objectId.toString())) == 1 ? true : false);
+            projects.setDeleted(cursor.getInt(cursor.getColumnIndex(PROJECT.DELETED.toString())) == 1 ? true : false);
             projectsList.add(projects);
         }
 

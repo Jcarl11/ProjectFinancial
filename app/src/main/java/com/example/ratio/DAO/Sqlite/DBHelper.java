@@ -5,12 +5,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.ratio.Enums.DEFAULTS;
+import com.example.ratio.Enums.EXPENSES;
 import com.example.ratio.Enums.IMAGES;
+import com.example.ratio.Enums.INCOME;
 import com.example.ratio.Enums.PARSECLASS;
 import com.example.ratio.Enums.PDF;
 import com.example.ratio.Enums.PROJECT;
 import com.example.ratio.Enums.PROJECT_TYPE;
 import com.example.ratio.Enums.PROJECT_TYPE_SUBCATEGORY;
+import com.example.ratio.Enums.RECIEVABLES;
 import com.example.ratio.Enums.SERVICES;
 import com.example.ratio.Enums.STATUS;
 
@@ -25,7 +28,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String updatedAt = DEFAULTS.updatedAt.toString();
 
     public DBHelper(@Nullable Context context) {
-        super(context, DB_NAME, null, 5);
+        super(context, DB_NAME, null, 6);
     }
 
     @Override
@@ -98,6 +101,41 @@ public class DBHelper extends SQLiteOpenHelper {
                         "%s varchar(255)," +
                         "%s integer)", PARSECLASS.PDF.toString(), objectId, createdAt, updatedAt,
                 PDF.PARENT.toString(), PDF.FILENAME.toString(), PDF.FILES.toString(), PDF.DELETED.toString());
+        String createIncome = String.format("CREATE TABLE IF NOT EXISTS %s" +
+                        "(%s character(10) PRIMARY KEY, " +
+                        "%s datetime, " +
+                        "%s datetime, " +
+                        "%s varchar(255), " +
+                        "%s varchar(255)," +
+                        "%s varchar(255)," +
+                        "%s integer, " +
+                        "%s datetime)", PARSECLASS.INCOME.toString(), objectId, createdAt, updatedAt,
+                INCOME.PARENT.toString(), INCOME.DESCRIPTION.toString(), INCOME.AMOUNT.toString(),
+                INCOME.ATTACHMENTS.toString(), INCOME.TIMESTAMP.toString());
+
+        String createExpenses = String.format("CREATE TABLE IF NOT EXISTS %s" +
+                        "(%s character(10) PRIMARY KEY, " +
+                        "%s datetime, " +
+                        "%s datetime, " +
+                        "%s varchar(255), " +
+                        "%s varchar(255)," +
+                        "%s varchar(255)," +
+                        "%s integer, " +
+                        "%s datetime)", PARSECLASS.EXPENSES.toString(), objectId, createdAt, updatedAt,
+                EXPENSES.PARENT.toString(), EXPENSES.DESCRIPTION.toString(), EXPENSES.AMOUNT.toString(),
+                EXPENSES.ATTACHMENTS.toString(), EXPENSES.TIMESTAMP.toString());
+
+        String createReceivables = String.format("CREATE TABLE IF NOT EXISTS %s" +
+                        "(%s character(10) PRIMARY KEY, " +
+                        "%s datetime, " +
+                        "%s datetime, " +
+                        "%s varchar(255), " +
+                        "%s varchar(255)," +
+                        "%s varchar(255)," +
+                        "%s integer, " +
+                        "%s datetime)", PARSECLASS.RECEIVABLES.toString(), objectId, createdAt, updatedAt,
+                RECIEVABLES.PARENT.toString(), RECIEVABLES.DESCRIPTION.toString(), RECIEVABLES.AMOUNT.toString(),
+                RECIEVABLES.ATTACHMENTS.toString(), RECIEVABLES.TIMESTAMP.toString());
 
         db.execSQL(createStatus);
         db.execSQL(createServices);
@@ -106,6 +144,9 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(projects);
         db.execSQL(createImages);
         db.execSQL(createPdf);
+        db.execSQL(createIncome);
+        db.execSQL(createExpenses);
+        db.execSQL(createReceivables);
     }
 
     @Override
@@ -174,6 +215,44 @@ public class DBHelper extends SQLiteOpenHelper {
                             "%s varchar(255)," +
                             "%s integer)", PARSECLASS.PDF.toString(), objectId, createdAt, updatedAt,
                     PDF.PARENT.toString(), PDF.FILENAME.toString(), PDF.FILES.toString(), PDF.DELETED.toString()));
+        }
+
+        if(oldVersion < 6) {
+            db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s" +
+                            "(%s character(10) PRIMARY KEY, " +
+                            "%s datetime, " +
+                            "%s datetime, " +
+                            "%s varchar(255), " +
+                            "%s varchar(255)," +
+                            "%s varchar(255)," +
+                            "%s integer, " +
+                            "%s datetime)", PARSECLASS.INCOME.toString(), objectId, createdAt, updatedAt,
+                    INCOME.PARENT.toString(), INCOME.DESCRIPTION.toString(), INCOME.AMOUNT.toString(),
+                    INCOME.ATTACHMENTS.toString(), INCOME.TIMESTAMP.toString()));
+
+            db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s" +
+                            "(%s character(10) PRIMARY KEY, " +
+                            "%s datetime, " +
+                            "%s datetime, " +
+                            "%s varchar(255), " +
+                            "%s varchar(255)," +
+                            "%s varchar(255)," +
+                            "%s integer, " +
+                            "%s datetime)", PARSECLASS.EXPENSES.toString(), objectId, createdAt, updatedAt,
+                    EXPENSES.PARENT.toString(), EXPENSES.DESCRIPTION.toString(), EXPENSES.AMOUNT.toString(),
+                    EXPENSES.ATTACHMENTS.toString(), EXPENSES.TIMESTAMP.toString()));
+
+            db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s" +
+                            "(%s character(10) PRIMARY KEY, " +
+                            "%s datetime, " +
+                            "%s datetime, " +
+                            "%s varchar(255), " +
+                            "%s varchar(255)," +
+                            "%s varchar(255)," +
+                            "%s integer, " +
+                            "%s datetime)", PARSECLASS.RECEIVABLES.toString(), objectId, createdAt, updatedAt,
+                    RECIEVABLES.PARENT.toString(), RECIEVABLES.DESCRIPTION.toString(), RECIEVABLES.AMOUNT.toString(),
+                    RECIEVABLES.ATTACHMENTS.toString(), RECIEVABLES.TIMESTAMP.toString()));
         }
     }
 }

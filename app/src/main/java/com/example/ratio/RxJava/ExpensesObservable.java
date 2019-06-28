@@ -52,4 +52,15 @@ public class ExpensesObservable {
         return observable;
     }
 
+    public Observable<List<Expenses>> retrieveAllExpenses() {
+        Observable<List<Expenses>> observable = Observable.defer(new Callable<ObservableSource<? extends List<Expenses>>>() {
+            @Override
+            public ObservableSource<? extends List<Expenses>> call() throws Exception {
+                List<Expenses> expensesList = expensesBaseDAO.getBulk("1000");
+                return Observable.just(expensesList);
+            }
+        });
+        return observable;
+    }
+
 }

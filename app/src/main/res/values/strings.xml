@@ -4,11 +4,11 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
 
-    <string name="back4app_server_url">https://projectfinancial.back4app.io/</string>
+    <string name="back4app_server_url">https://ratio.back4app.io/</string>
 
     <!-- Change the following strings as required -->
-    <string name="back4app_app_id">zdSPwbEEyc9U6AFgzYTI2oWsxw5fMSEOoIrOBOk3</string>
-    <string name="back4app_client_key">D1bea1iBwKmR0uOXZD3EoIYYtMuUycXHEUDltD3H</string>
+    <string name="back4app_app_id">9bMKRM3B7liVm2qGus729hcTgg9WwXsYMfMDrqXt</string>
+    <string name="back4app_client_key">9vq8FgokQsKmM9gP9OZWzKjn7FpCmFmdCqkbucTn</string>
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->

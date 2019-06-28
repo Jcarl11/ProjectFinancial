@@ -51,4 +51,15 @@ public class IncomeObservable {
         });
         return observable;
     }
+
+    public Observable<List<Income>> retrieveAllIncome() {
+        Observable<List<Income>> observable = Observable.defer(new Callable<ObservableSource<? extends List<Income>>>() {
+            @Override
+            public ObservableSource<? extends List<Income>> call() throws Exception {
+                List<Income> incomeList = incomeBaseDAO.getBulk("1000");
+                return Observable.just(incomeList);
+            }
+        });
+        return observable;
+    }
 }
