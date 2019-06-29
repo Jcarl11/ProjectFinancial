@@ -1,6 +1,7 @@
 package com.example.ratio;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.Observable;
@@ -14,6 +15,8 @@ import android.app.AlertDialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.ratio.DAO.BaseDAO;
@@ -53,13 +56,18 @@ public class ReportsActivity extends AppCompatActivity implements OnChartValueSe
     @BindView(R.id.reports_projectowner) TextInputLayout reports_projectowner;
     @BindView(R.id.reports_createdAt) TextInputLayout reports_createdAt;
     @BindView(R.id.reports_totalincome) TextInputLayout reports_totalincome;
+    @BindView(R.id.reports_toolbar) Toolbar reports_toolbar;
     private DAOFactory daoFactory = DAOFactory.getDatabase(DATABASES.SQLITE);
     private BaseDAO<Projects> projectsBaseDAO = daoFactory.getProjectDAO();
     private BaseDAO<Income> incomeBaseDAO = daoFactory.getIncomeDAO();
     private BaseDAO<Expenses> expensesBaseDAO = daoFactory.getExpensesDAO();
     private BaseDAO<Receivables> receivablesBaseDAO = daoFactory.getRecievablesDAO();
     private NukeOperations<Income> incomeNukeOperations = (NukeOperations<Income>) daoFactory.getIncomeDAO();
+    private NukeOperations<Expenses> expensesNukeOperations = (NukeOperations<Expenses>) daoFactory.getIncomeDAO();
+    private NukeOperations<Receivables> receivablesNukeOperations = (NukeOperations<Receivables>) daoFactory.getIncomeDAO();
     private GetAverage<Income> incomeGetAverage = (GetAverage<Income>) daoFactory.getIncomeDAO();
+    private GetAverage<Expenses> expensesGetAverage = (GetAverage<Expenses>) daoFactory.getExpensesDAO();
+    private GetAverage<Receivables> receivablesGetAverage = (GetAverage<Receivables>) daoFactory.getRecievablesDAO();
     private IncomeObservable incomeObservable = new IncomeObservable();
     private ExpensesObservable expensesObservable = new ExpensesObservable();
     private RecievablesObservable recievablesObservable = new RecievablesObservable();
@@ -75,7 +83,7 @@ public class ReportsActivity extends AppCompatActivity implements OnChartValueSe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reports);
         ButterKnife.bind(this);
-        getSupportActionBar().setTitle("Top 5 projects with highest income");
+        setSupportActionBar(reports_toolbar);
         dialog = Utility.getInstance().showLoading(this, "Please wait", false);
         basicDialog = new BasicDialog(this);
         Observable.zip(incomeObservable.retrieveAllIncome().subscribeOn(Schedulers.io()),
@@ -86,14 +94,18 @@ public class ReportsActivity extends AppCompatActivity implements OnChartValueSe
                         Log.d(TAG, "apply: Income size: " + incomes.size());
                         Log.d(TAG, "apply: Expenses size: " + expenses.size());
                         Log.d(TAG, "apply: Receivables size: " + receivables.size());
-                        expensesList = expenses;
-                        receivablesList = receivables;
                         int income_deleted = incomeNukeOperations.deleteRows();
+                        int expenses_deleted = expensesNukeOperations.deleteRows();
+                        int receivables_deleted = receivablesNukeOperations.deleteRows();
                         Log.d(TAG, "apply: Income deleted: " + income_deleted);
+                        Log.d(TAG, "apply: Receivables deleted: " + receivables_deleted);
+                        Log.d(TAG, "apply: Expenses deleted: " + expenses_deleted);
                         int income_result = incomeBaseDAO.insertAll(incomes);
                         int expenses_result = expensesBaseDAO.insertAll(expenses);
                         int receivables_result = receivablesBaseDAO.insertAll(receivables);
                         incomeList = incomeGetAverage.getTopHighest(5);
+                        expensesList = expensesGetAverage.getTopHighest(5);
+                        receivablesList = receivablesGetAverage.getTopHighest(5);
                         int failedOperations = (incomes.size() + expenses.size() + receivables.size()) - (income_result + expenses_result + receivables_result);
                         Log.d(TAG, "apply: Failed operations: " + failedOperations);
                         return failedOperations;
@@ -128,33 +140,77 @@ public class ReportsActivity extends AppCompatActivity implements OnChartValueSe
                     public void onComplete() {
                         dialog.dismiss();
                         Log.d(TAG, "onComplete: Completed");
-                        reports_piechart.setRotationEnabled(true);
-                        reports_piechart.setHoleRadius(25f);
-                        reports_piechart.setTransparentCircleRadius(33f);
-                        reports_piechart.setTransparentCircleAlpha(110);
-                        reports_piechart.setEntryLabelColor(Color.BLACK);
-                        reports_piechart.setOnChartValueSelectedListener(ReportsActivity.this);
-                        reports_piechart.setData(populatePie(incomeList));
-                        reports_piechart.invalidate();
-
                     }
                 });
-
+        reports_piechart.setRotationEnabled(true);
+        reports_piechart.setHoleRadius(25f);
+        reports_piechart.setTransparentCircleRadius(33f);
+        reports_piechart.setTransparentCircleAlpha(110);
+        reports_piechart.setEntryLabelColor(Color.BLACK);
+        reports_piechart.setOnChartValueSelectedListener(ReportsActivity.this);
     }
 
-    private PieData populatePie(List<Income> incomeList) {
-        Log.d(TAG, "populatePie: Populate start");
-        ArrayList<PieEntry> yEntrys = new ArrayList<>();
-        ArrayList<String> xEntrys = new ArrayList<>();
-        for(int i = 0; i < incomeList.size(); i++){
-            String parent = incomeList.get(i).getParent();
-            String amount = incomeList.get(i).getAmount();
-            Log.d(TAG, "populatePie: Parent: " + parent);
-            Log.d(TAG, "populatePie: Amount: " + amount);
-            yEntrys.add(new PieEntry(Float.parseFloat(amount) , projectsBaseDAO.get(parent).getProjectCode()));
-        }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.reportsmenu, menu);
+        return true;
+    }
 
-        PieDataSet pieDataSet = new PieDataSet(yEntrys, "Projects");
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        switch (itemId) {
+            case R.id.reports_1:
+                reports_toolbar.setTitle("Report 1");
+                Log.d(TAG, "onOptionsItemSelected: Report 1");
+                ArrayList<PieEntry> incomePieEntry = new ArrayList<>();
+                for(int i = 0; i < incomeList.size(); i++){
+                    String parent = incomeList.get(i).getParent();
+                    String amount = incomeList.get(i).getAmount();
+                    Log.d(TAG, "populatePie: Parent: " + parent);
+                    Log.d(TAG, "populatePie: Amount: " + amount);
+                    incomePieEntry.add(new PieEntry(Float.parseFloat(amount) , projectsBaseDAO.get(parent).getProjectCode()));
+                }
+                reports_piechart.setData(populatePie(incomePieEntry));
+                reports_piechart.invalidate();
+                break;
+            case R.id.reports_2:
+                reports_toolbar.setTitle("Report 2");
+                Log.d(TAG, "onOptionsItemSelected: Report 2");
+                ArrayList<PieEntry> expensesPieEntry = new ArrayList<>();
+                for(int i = 0; i < expensesList.size(); i++){
+                    String parent = expensesList.get(i).getParent();
+                    String amount = expensesList.get(i).getAmount();
+                    Log.d(TAG, "populatePie: Parent: " + parent);
+                    Log.d(TAG, "populatePie: Amount: " + amount);
+                    expensesPieEntry.add(new PieEntry(Float.parseFloat(amount) , projectsBaseDAO.get(parent).getProjectCode()));
+                }
+                reports_piechart.setData(populatePie(expensesPieEntry));
+                reports_piechart.invalidate();
+                break;
+            case R.id.reports_3:
+                reports_toolbar.setTitle("Report 3");
+                Log.d(TAG, "onOptionsItemSelected: Report 3");
+                ArrayList<PieEntry> receivablesPieEntry = new ArrayList<>();
+                for(int i = 0; i < receivablesList.size(); i++){
+                    String parent = receivablesList.get(i).getParent();
+                    String amount = receivablesList.get(i).getAmount();
+                    Log.d(TAG, "populatePie: Parent: " + parent);
+                    Log.d(TAG, "populatePie: Amount: " + amount);
+                    receivablesPieEntry.add(new PieEntry(Float.parseFloat(amount) , projectsBaseDAO.get(parent).getProjectCode()));
+                }
+                reports_piechart.setData(populatePie(receivablesPieEntry));
+                reports_piechart.invalidate();
+                break;
+        }
+        return true;
+    }
+
+    private PieData populatePie(ArrayList<PieEntry> pieEntries) {
+        Log.d(TAG, "populatePie: Populate start");
+
+
+        PieDataSet pieDataSet = new PieDataSet(pieEntries, "Projects");
         pieDataSet.setSliceSpace(2);
         pieDataSet.setValueTextSize(12);
 

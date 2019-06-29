@@ -15,7 +15,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".ReportsActivity"
-            android:windowSoftInputMode="stateHidden"></activity>
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/Theme.MaterialComponents.NoActionBar"></activity>
         <activity android:name=".RestrictedActivity" />
         <activity android:name=".ManageUsersActivity" />
         <activity android:name=".FileEditActivity" />

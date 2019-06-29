@@ -9,7 +9,7 @@
         <item name="fontFamily">@font/calibremedium</item>
     </style>
 
-    <style name="Theme.MaterialComponents.NoActionBar">
+    <style name="Theme.MaterialComponents.NoActionBar" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -17,7 +17,11 @@
         <item name="colorAccent">#918C8C</item>
         <item name="fontFamily">@font/calibremedium</item>
     </style>
-
+    <style name="ToolbarTheme" parent="Theme.MaterialComponents.Light.DarkActionBar" >
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorAccent">@android:color/white</item>
+    </style>
     <style name="LoginRegister" parent="Theme.MaterialComponents.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

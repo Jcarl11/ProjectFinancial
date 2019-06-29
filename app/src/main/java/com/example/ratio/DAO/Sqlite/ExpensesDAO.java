@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.example.ratio.ContextApplication;
 import com.example.ratio.DAO.BaseDAO;
+import com.example.ratio.DAO.GetAverage;
 import com.example.ratio.DAO.GetFromParent;
 import com.example.ratio.DAO.NukeOperations;
 import com.example.ratio.Entities.Expenses;
@@ -18,7 +19,7 @@ import com.example.ratio.HelperClasses.DateTransform;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExpensesDAO implements BaseDAO<Expenses>, GetFromParent<Expenses>, NukeOperations<Expenses> {
+public class ExpensesDAO implements BaseDAO<Expenses>, GetFromParent<Expenses>, NukeOperations<Expenses>, GetAverage<Expenses> {
     private static final String TAG = "ExpensesDAO";
     private DateTransform dateTransform = new DateTransform();
     private SQLiteDatabase sqLiteDatabase = null;
@@ -155,5 +156,30 @@ public class ExpensesDAO implements BaseDAO<Expenses>, GetFromParent<Expenses>, 
     @Override
     public boolean dropTable() {
         return false;
+    }
+
+    @Override
+    public List<Expenses> getTopHighest(int limit) {
+        Log.d(TAG, "getTopHighest: Started...");
+        List<Expenses> expensesList = new ArrayList<>();
+        sqLiteDatabase = dbHelper.getWritableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery(String.format("SELECT AVG(%s) [AMOUNT], %s, %s FROM %s GROUP BY PARENT ORDER BY AMOUNT DESC LIMIT %s"
+                ,EXPENSES.AMOUNT.toString(), EXPENSES.PARENT.toString(), EXPENSES.TIMESTAMP.toString(), PARSECLASS.EXPENSES.toString(),String.valueOf(limit)), new String[]{});
+        int result = cursor.getCount();
+        Log.d(TAG, "getTopHighest: Result: " + result);
+        if(result <= 0) {
+            return expensesList;
+        }
+
+        while(cursor.moveToNext()) {
+            Expenses expenses = new Expenses();
+            expenses.setParent(cursor.getString(cursor.getColumnIndex(EXPENSES.PARENT.toString())));
+            expenses.setAmount(cursor.getString(cursor.getColumnIndex(EXPENSES.AMOUNT.toString())));
+            expenses.setTimestamp(cursor.getString(cursor.getColumnIndex(EXPENSES.TIMESTAMP.toString())));
+            expensesList.add(expenses);
+        }
+        sqLiteDatabase.close();
+        cursor.close();
+        return expensesList;
     }
 }

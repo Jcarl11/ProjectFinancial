@@ -164,8 +164,8 @@ public class IncomeDAO implements BaseDAO<Income>, GetFromParent<Income>, NukeOp
         Log.d(TAG, "getTopHighest: Started...");
         List<Income> incomeList = new ArrayList<>();
         sqLiteDatabase = dbHelper.getWritableDatabase();
-        Cursor cursor = sqLiteDatabase.rawQuery(String.format("SELECT AVG(%s) [AMOUNT], %s, %s FROM INCOME GROUP BY PARENT ORDER BY AMOUNT DESC LIMIT %s"
-        ,INCOME.AMOUNT, INCOME.PARENT.toString(), INCOME.TIMESTAMP.toString(), String.valueOf(limit)), new String[]{});
+        Cursor cursor = sqLiteDatabase.rawQuery(String.format("SELECT AVG(%s) [AMOUNT], %s, %s FROM %s GROUP BY PARENT ORDER BY AMOUNT DESC LIMIT %s"
+        ,INCOME.AMOUNT.toString(), INCOME.PARENT.toString(), INCOME.TIMESTAMP.toString(), PARSECLASS.INCOME.toString(),String.valueOf(limit)), new String[]{});
         int result = cursor.getCount();
         Log.d(TAG, "getTopHighest: Result: " + result);
         if(result <= 0) {

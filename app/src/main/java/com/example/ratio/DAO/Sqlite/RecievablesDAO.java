@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.example.ratio.ContextApplication;
 import com.example.ratio.DAO.BaseDAO;
+import com.example.ratio.DAO.GetAverage;
 import com.example.ratio.DAO.GetFromParent;
 import com.example.ratio.DAO.NukeOperations;
 import com.example.ratio.Entities.Receivables;
@@ -19,7 +20,7 @@ import com.example.ratio.HelperClasses.DateTransform;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecievablesDAO implements BaseDAO<Receivables>, GetFromParent<Receivables>, NukeOperations<Receivables> {
+public class RecievablesDAO implements BaseDAO<Receivables>, GetFromParent<Receivables>, NukeOperations<Receivables>, GetAverage<Receivables> {
     private static final String TAG = "RecievablesDAO";
     private DateTransform dateTransform = new DateTransform();
     private SQLiteDatabase sqLiteDatabase = null;
@@ -155,5 +156,30 @@ public class RecievablesDAO implements BaseDAO<Receivables>, GetFromParent<Recei
     @Override
     public boolean dropTable() {
         return false;
+    }
+
+    @Override
+    public List<Receivables> getTopHighest(int limit) {
+        Log.d(TAG, "getTopHighest: Started...");
+        List<Receivables> receivables = new ArrayList<>();
+        sqLiteDatabase = dbHelper.getWritableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery(String.format("SELECT AVG(%s) [AMOUNT], %s, %s FROM %s GROUP BY PARENT ORDER BY AMOUNT DESC LIMIT %s"
+                ,RECIEVABLES.AMOUNT, RECIEVABLES.PARENT.toString(), RECIEVABLES.TIMESTAMP.toString(), PARSECLASS.RECEIVABLES.toString(),String.valueOf(limit)), new String[]{});
+        int result = cursor.getCount();
+        Log.d(TAG, "getTopHighest: Result: " + result);
+        if(result <= 0) {
+            return receivables;
+        }
+
+        while(cursor.moveToNext()) {
+            Receivables recievable = new Receivables();
+            recievable.setParent(cursor.getString(cursor.getColumnIndex(RECIEVABLES.PARENT.toString())));
+            recievable.setAmount(cursor.getString(cursor.getColumnIndex(RECIEVABLES.AMOUNT.toString())));
+            recievable.setTimestamp(cursor.getString(cursor.getColumnIndex(RECIEVABLES.TIMESTAMP.toString())));
+            receivables.add(recievable);
+        }
+        sqLiteDatabase.close();
+        cursor.close();
+        return receivables;
     }
 }

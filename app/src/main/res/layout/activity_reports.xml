@@ -6,99 +6,117 @@
     android:layout_height="match_parent"
     tools:context=".ReportsActivity"
     android:fillViewport="true">
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="10dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <com.github.mikephil.charting.charts.PieChart
-            android:id="@+id/reports_piechart"
-            android:layout_width="match_parent"
-            android:layout_height="300dp" />
-
-        <TextView
+        <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Project Details"
-            android:textSize="20sp"
-            android:singleLine="true"
-            android:maxLines="1"
-            android:layout_marginBottom="10dp"
-            android:ellipsize="end"
-            android:textColor="@android:color/black"/>
+            android:id="@+id/reports_toolbar"
+            android:background="@color/colorPrimary"
+            android:theme="@style/ToolbarTheme"
+            app:title="Basic Reports"
+            app:titleTextColor="@android:color/white" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/reports_projectcode"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+            android:orientation="vertical"
+            android:padding="10dp">
 
-            <com.google.android.material.textfield.TextInputEditText
+
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/reports_piechart"
+                android:layout_width="match_parent"
+                android:layout_height="300dp" />
+
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="PROJECT CODE"
-                android:enabled="false"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:text="Project Details"
+                android:textSize="20sp"
+                android:singleLine="true"
+                android:maxLines="1"
+                android:layout_marginBottom="10dp"
+                android:ellipsize="end"
+                android:textColor="@android:color/black"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/reports_projectname"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
-
-            <com.google.android.material.textfield.TextInputEditText
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/reports_projectcode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="PROJECT NAME"
-                android:enabled="false"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginBottom="10dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/reports_projectowner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="PROJECT CODE"
+                    android:enabled="false"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/reports_projectname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="PROJECT OWNER"
-                android:enabled="false"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginBottom="10dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/reports_createdAt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="PROJECT NAME"
+                    android:enabled="false"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/reports_projectowner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="CREATED AT"
-                android:enabled="false"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginBottom="10dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/reports_totalincome"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="PROJECT OWNER"
+                    android:enabled="false"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/reports_createdAt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="AVERAGE INCOME"
-                android:enabled="false"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginBottom="10dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
 
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="CREATED AT"
+                    android:enabled="false"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/reports_totalincome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="AVERAGE INCOME"
+                    android:enabled="false"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
     </LinearLayout>
+
+
+
 
 </ScrollView>
